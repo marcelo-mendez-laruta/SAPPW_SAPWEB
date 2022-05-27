@@ -1,0 +1,125 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Vision Plus - Consulta Alfabética del Cliente: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Vision Plus - Consulta Alfabética del Cliente:</h4>
+    </header>
+    <div class="container mb-3">
+        <div class="row">
+            <div class="col-sm-9">
+                <div class="form-row">
+                    <label for="txtApRS" class="col-sm-4 col-form-label">
+                        Apellido Paterno o Razón Social:
+                    </label>
+                    <div class="col-sm-8">
+                        <input id="txtApRS" class="form-control" type="text" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="txtAM" class="col-sm-4 col-form-label">
+                        Apellido Materno:
+                    </label>
+                    <div class="col-sm-8">
+                        <input id="txtAM" class="form-control" type="text" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="txtNom" class="col-sm-4 col-form-label">
+                        Nombres:
+                    </label>
+                    <div class="col-sm-8">
+                        <input id="txtNom" class="form-control" type="text" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Tipo de Búsqueda
+                    </legend>
+                    <div class="container">
+                        <div class="form-check form-check-inline">
+                            <input id="rbPersonal" value="personal" class="form-check-input" name="tBusqueda" type="radio" checked />
+                            <label for="rbPersonal" class="form-check-label">
+                                Personal
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input id="rbNegocios" value="negocios" class="form-check-input" name="tBusqueda" type="radio" />
+                            <label for="rbNegocios" class="form-check-label">
+                                Negocios
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <div class="container mb-3">
+        <div class="form-row">
+            <div class="col-lg-11">
+                <div class="table-responsive bg-white" style="max-height:300px;">
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Cust Nbr</th>
+                                <th>Cust Org</th>
+                                <th>Customer</th>
+                                <th>Nombre del Cliente</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-1">
+                <center>
+                    @if (politicas.Contains("SAPP_BO_CON_VIS_PLU"))
+                    {
+                        <button class="w-100 btn btn-outline-secondary">
+                            <i class="fas fa-print icono-2x"></i><br />Consultar
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="w-100 btn btn-outline-secondary" disabled>
+                            <i class="fas fa-print icono-2x"></i><br />Consultar
+                        </button>
+                    }
+                    <button class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-arrow-up icono-2x"></i><br />Anterior
+                    </button>
+                    <button class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                    </button>
+                    <button class="w-100 btn btn-outline-secondary" onclick="location.href='@Url.Action("ProductoPorCliente","VP")'">
+                        <i class="fas fa-keyboard icono-2x"></i><br />Productos
+                    </button>
+                    <button onclick="location.href='@Url.Action("Index","Home")'" class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                    </button>
+                </center>
+            </div>
+        </div>
+    </div>
+</div>

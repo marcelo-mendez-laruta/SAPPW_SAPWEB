@@ -1,0 +1,139 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <fieldset class="border border-dark ">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Oficina
+                    </legend>
+                    <div class="container">
+                        <div class="form-row">
+                            <label for="txtAgencia" class="col-sm-6 col-form-label">
+                                Sucursal:
+                            </label>
+                            <div class="col-sm-6">
+                                <input id="txtSucursal" name="sucursal" type="text" class="form-control" value="" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtAgencia" class="col-sm-6">
+                                Agencia:
+                            </label>
+                            <div class="col-sm-6">
+                                <input id="txtAgencia" name="agencia" type="text" class="form-control" value="" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Moneda
+                    </legend>
+                    <div class="container">
+                        <div class="form-check">
+                            <input id="rbMNacional" value="303" name="moneda" type="radio" class="form-check-input" checked />
+                            <label for="rbMNacional" class="form-check-label">
+                                Nacional
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input id="rbMExtranjera" value="302" name="moneda" type="radio" class="form-check-input" />
+                            <label for="rbMExtranjera" class="form-check-label">
+                                Extranjera
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Codigo CUI
+                    </legend>
+                    <div class="container">
+                        <div class="form-row">
+                            <label for="txtCui" class="col-sm-2 col-form-label">
+                                CUI:
+                            </label>
+                            <div class="col-sm-10">
+                                <input id="txtCui" name="cui" type="text" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-sm-8">
+                <fieldset class="border border-dark p-2">
+                    <legend class="w-auto" style="font-size:14px;">
+                        DPF  - Mutual/Coop Fdos Financieros
+                        <input type="hidden" name="indModalidad" value="MC" />
+                    </legend>
+                    <div class="container">
+                        <div class="form-check mb-1">
+                            <input id="hCustodia" type="hidden" value="0" name="indicadorCustodia" />
+                            <input id="ckCustodia" onvhange="custodia()" type="checkbox" class="form-check-input" />
+                            <label for="ckCustodia" class="form-check-label">
+                                Custodia
+                            </label>
+                        </div>
+                        <div class="container">
+                            <div class="form-row">
+                                <label for="txtPlazo" class="col-sm-2 col-form-label">
+                                    Plazo:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input id="txtPlazo" name="plazoManual" value="0" type="text" class="form-control" maxlength="2" />
+                                </div>
+                                <label for="txtTNom" class="col-sm-2 col-form-label">
+                                    Tasa Nominal:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input id="txtTNom" name="tasaNominal" value="0.00" type="text" class="form-control" />
+                                </div>
+                                <label for="txtPenalidad" class="col-sm-2 col-form-label">
+                                    Penalidad:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input id="txtPenalidad" name="penalidad" value="000.000" type="text" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="txtMontIni" class="col-sm-3 col-form-label">
+                                    Monto Inicial:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txtMontIni" name="monto" type="text" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:13px;">
+                                            Tipo DPF Interbancario
+                                        </legend>
+                                        <div class="container">
+                                        <div class="form-check">
+                                            <input id="rbTDPFN" value="442" name="XdpfProducto" type="radio" class="form-check-input" checked />
+                                            <label for="rbTDPFN" class="form-check-label">
+                                                Normal
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input id="rbTDPFS" value="446" name="XdpfProducto" type="radio" class="form-check-input" />
+                                            <label for="rbTDPFS" class="form-check-label">
+                                                Segundo Piso
+                                            </label>
+                                        </div>
+                                    </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>

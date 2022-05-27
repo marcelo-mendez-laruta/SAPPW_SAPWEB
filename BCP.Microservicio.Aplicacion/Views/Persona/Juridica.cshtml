@@ -1,0 +1,1094 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@model List<List<SelectListItem>>;
+@{
+    ViewData["Title"] = "Persona Jurídica: ";
+    if (Model[5].Count > 1)
+    {
+        Model[5][0].Value = "A";
+        Model[5][1].Value = "I";
+        Model[5][1].Selected = true;
+    }
+    string guid = "T";
+    if (TempData["guid"] != null)
+    {
+        if (bool.Parse(TempData["guid"].ToString()))
+        {
+            guid = "J";
+        }
+    }
+
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Persona Jurídica:</h4>
+    </header>
+    <div class="form-row">
+        <div class="col-lg-11">
+            <div id="divDP" class="form-row p-1 mb-2">
+                <label for="txtDID" class="col-sm-3 col-form-label">
+                    Documento de Identidad:
+                </label>
+                <div class="col-sm-8">
+                    <input type="hidden" value="" id="Ftxtidc" />
+                    <input id="txtDID" onkeyup="validarIDC(this)" maxlength="12" name="idc" class="form-control" type="text" />
+                </div>
+                <div class="col-sm-1">
+                    <input id="txttDID" name="tipoDocumento" class="form-control" type="text" />
+                </div>
+                @if (politicas.Contains("SAPP_BO_CLI_MOD_IDC"))
+                {
+                    <input id="hDID" type="hidden" value="" />
+                    <input id="htDID" type="hidden" value="" />
+                }
+            </div>
+            <div class="container border border-dark p-1">
+                <ul class="nav nav-tabs" id="tabNatural" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#Natural1" role="tab" aria-controls="home" aria-expanded="true">Datos Personales</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#Natural2" role="tab" aria-controls="profile" aria-expanded="true">Datos Generales</a>
+                    </li>
+                </ul>
+                <div class="tab-content pt-2" id="tabNaturalContent">
+                    <div class="tab-pane fade show active" id="Natural1" role="tabpanel" aria-labelledby="1-tab">
+                        <div class="container mb-1">
+                            <div class="form-row">
+                                <div class="col-sm-10">
+                                    <div class="form-row" id="divENIT" style="display:none;">
+                                        <label for="cbEstNit" class="col-sm-2 col-form-label">
+                                            Estado Nit:
+                                        </label>
+                                        <div class="col-sm-10">
+                                            @Html.DropDownList("estadoNIT", Model[5], new { @id = "cbEstNit", @class = "form-control",@disabled = "disabled" })
+                                        </div>
+                                    </div>
+                                    <div id="divNom" class="form-row">
+                                        <label for="txtRzSocial" class="col-sm-2 col-form-label">
+                                            Razón Social:
+                                        </label>
+                                        <div class="col-sm-10">
+                                            <input id="txtRzSocial" name="razonSocial" class="form-control" type="text" />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="txtnComercial" class="col-sm-2 col-form-label">
+                                            Nombre comercial:
+                                        </label>
+                                        <div class="col-sm-10">
+                                            <input id="txtnComercial" name="nombreComercial" class="form-control" type="text" />
+                                        </div>
+                                    </div>
+                                    @if (politicas.Contains("SAPP_BO_CLI_MOD_NOM"))
+                                    {
+                                        <input id="hRzSocial" type="hidden" value="" />
+                                    }
+                                </div>
+                                @if (politicas.Contains("SAPP_BO_CLI_CON_ALF"))
+                                {
+                                    <div class="col-sm-2 text-center p-1">
+                                        <button onclick="DesplegarCA();" type="button" class="btn btn-light">Consulta Alfabética</button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2 text-center p-1">
+                                        <button disabled type="button" class="btn btn-light">Consulta Alfabética</button>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                        <div id="divDirL"class="container border border-dark mb-1" >
+                            <div class="form-row">
+                                <div class="col-sm-5 form-group">
+                                    <label for="cbJACalle">
+                                        Jr./Av./Calle
+                                    </label>
+                                    <div class="form-row">
+                                        <div class="col-sm-6">
+                                            @Html.DropDownList("calle", Model[19], "Select", new { @id = "cbJACalle", @class = "form-control", @disabled = "disabled" })
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <input readonly id="txtJACalle" class="form-control" type="text" value="" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 form-row">
+                                    <div class="col-sm-4 form-group">
+                                        <label for="txtnro">
+                                            Nro.
+                                        </label>
+                                        <input readonly id="txtnro" class="form-control" type="text" value="" />
+                                    </div>
+                                    <div class="col-sm-4 form-group">
+                                        <label for="txtmz">
+                                            Mz.
+                                        </label>
+                                        <input readonly id="txtmz" class="form-control" type="text" />
+                                    </div>
+                                    <div class="col-sm-4 form-group">
+                                        <label for="txtlote">
+                                            Lote
+                                        </label>
+                                        <input readonly id="txtlote" class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 form-group">
+                                    <label for="cbDPI">
+                                        Dept./Piso/Int.
+                                    </label>
+                                    <div class="form-row">
+                                        <div class="col-sm-6">
+                                            @Html.DropDownList("departamento", Model[20], "Select", new { @id = "cbDPI", @class = "form-control", @disabled = "disabled" })
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <input readonly id="txtDPI" class="form-control" type="text" value="" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm-8">
+                                    <label for="cbURIV">
+                                        Urb/Res/Ind/Und Vec
+                                    </label>
+                                    <div class="form-row">
+                                        <div class="col-sm-6">
+                                            @Html.DropDownList("Urb", Model[21], "Select", new { @id = "cbURIV", @class = "form-control", @disabled = "disabled" })
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <input readonly id="txtURIV" class="form-control" type="text" value="" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 form-group">
+                                    <label for="cbEtZ">
+                                        Etapa/Zona
+                                    </label>
+                                    <div class="form-row">
+                                        <div class="col-sm-6">
+                                            @Html.DropDownList("EtapaZona", Model[22], "Select", new { @id = "cbEtZ", @class = "form-control", @disabled = "disabled" })
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <input readonly id="txtEtZ" class="form-control" type="text" value="" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="divDirV" class="container border border-dark mb-1" style="display:none;">
+                            <div class="form-row">
+                                <label for="txtDireccion" class="col-sm-2">
+                                    Direccion:
+                                </label>
+                                <div class="col-sm-8">
+                                    <input id="txtDireccion" name="direccion" type="text" class="form-control" readonly />
+                                </div>
+                                @if (politicas.Contains("SAPP_BO_CLI_DIR_MOD_DIR"))
+                                {
+                                    <div class="col-sm-2">
+                                        <button type="button" class="btn btn-light" onclick="cambiarDireccionPNJ()">Modificar Dirección</button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2">
+                                        <button disabled type="button" class="btn btn-light" >Modificar Dirección</button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div id="divT1S1" class="container border border-dark mb-2">
+                            <div class="form-row">
+                                <label for="cbLocalidad" class="col-sm-1 col-form-label">
+                                    Localidad:
+                                </label>
+                                <div class="col-sm-6">
+                                    @Html.DropDownList("localidad", Model[9], "Select", new { @id = "cbLocalidad", @class = "form-control" })
+                                </div>
+                                <div class="col-sm-5">
+                                    <div class="form-check">
+                                        <input id="ckResidente" name="residente" type="checkbox" class="form-check-input" checked />
+                                        <label for="ckResidente" class="form-check-label">
+                                            Residente
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="txtTelefono" class="col-sm-1 col-form-label">
+                                    Telefono:
+                                </label>
+                                <div class="col-sm-6">
+                                    <input id="txtTelefono" name="telefono" class="form-control" type="text" />
+                                </div>
+                                <label for="txtCorrespondencia" class="col-sm-2 col-form-label">
+                                    Correspondencia a:
+                                </label>
+                                <div class="col-sm-3">
+                                    <input id="txtCorrespondencia" name="correspondencia" class="form-control" type="text" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="Natural2" role="tabpanel" aria-labelledby="2-tab">
+                        <div class="container border border-dark mb-1">
+                            <div class="row ">
+                                <div class="col-sm-7">
+                                    <div class="form-row">
+                                        <label for="cbciiu" class="col-sm-1 col-form-label">
+                                            C.I.I.U:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            @Html.DropDownList("ciiu", Model[2], "Select", new { @id = "cbciiu", @class = "form-control" })
+                                        </div>
+                                        <label for="cbTEmpresa" class="col-sm-3 col-form-label">
+                                            Tipo de empresa:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <select id="cbTEmpresa" name="tipoEmpresa" class="form-control">
+                                                <option selected value="">Select</option>
+                                                <option value="E">ESTATAL</option>
+                                                <option value="X">EXTRANJERA</option>
+                                                <option value="M">MIXTA</option>
+                                                <option value="P">PRIVADA</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="cbNatJur" class="col-sm-4 col-form-label">
+                                            Naturaleza Jurídica:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            @Html.DropDownList("naturalezaJuridica", Model[12], "Select", new { @id = "cbNatJur", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="cbMagEmp" class="col-sm-4 col-form-label">
+                                            Magnitud de la Empresa:
+                                        </label>
+                                        @Html.DropDownList("magnitudEmpresa", Model[10], "Select", new { @id = "cbMagEmp", @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-5">
+                                    <div class="form-row">
+                                        <label for="cbFinSoc" class="col-sm-3 col-form-label">
+                                            Fin Social:
+                                        </label>
+                                        <div class="col-sm-9">
+                                            @Html.DropDownList("finSocial", Model[6], "Select", new { @id = "cbFinSoc", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="cbCat" class="col-sm-3 col-form-label">
+                                            Categoria:
+                                        </label>
+                                        <div class="col-sm-9">
+                                            @Html.DropDownList("categoria", Model[1], "Select", new { @id = "cbCat", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container border border-dark mb-1">
+                            <div class="form-row">
+                                <label for="txtFechConst" class="col-sm-2 col-form-label">
+                                    Fecha de Constitución:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input id="txtFechConst" name="fechaConstitucion" class="form-control" type="text" placeholder="00/00/0000" maxlength="10" />
+                                </div>
+                                <label for="txtRegMerc" class="col-sm-2 col-form-label">
+                                    Registro mercantil:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input id="txtRegMer" name="registroMercantil" class="form-control" type="text" />
+                                </div>
+                                <label for="txtcSBS" class="col-sm-2 col-form-label">
+                                    Código SBS:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input id="txtcSBS" name="codigoSBS" class="form-control" type="text" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container border border-dark mb-2">
+                            <div class="row ">
+                                <div class="col-sm-8">
+                                    <div class="form-row">
+                                        <label for="cbOfi" class="col-sm-2 col-form-label">
+                                            Oficina:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            @Html.DropDownList("oficina", Model[23], "Select", new { @id = "cbOfi", @class = "form-control" })
+                                        </div>
+                                        <label for="cbTCliente" class="col-sm-2 col-form-label">
+                                            T. Cliente:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            @if (politicas.Contains("SAPP_BO_CLI_MOD_TIP_CLI"))
+                                            {
+                                                @Html.DropDownList("tipoCliente", Model[24], "Select", new { @id = "cbTCliente", @class = "form-control" })
+                                            }
+                                            else
+                                            {
+                                                @Html.DropDownList("tipoCliente", Model[24], "Select", new { @id = "cbTCliente", @class = "form-control" , @disabled= "disabled" })
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="cbTBanca" class="col-sm-3 col-form-label">
+                                            Tipo de Banca:
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <select id="cbTBanca" name="tipoBanca" class="form-control">
+                                                <option value="" selected>Select</option>
+                                                <option value="C">BANCA CORPORATIVA</option>
+                                                <option value="E">BANCA EMPRESA</option>
+                                                <option value="P">BANCA PERSONAL</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="txtSegBanca" class="col-sm-3 col-form-label">
+                                            Segmento de Banca:
+                                        </label>
+                                        <div class="col-sm-9">
+                                            <input id="txtSegBanca" class="form-control" type="text" readonly />
+                                            <div style="display:none">
+                                            @Html.DropDownList("segmentoBanca", Model[25], "Select", new { @id = "cbSegBanca", @class = "form-control", @disabled = "disabled" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-row">
+                                        <label for="txtFunNeg" class="col-sm-5 col-form-label">
+                                            Func. Negocios:
+                                        </label>
+                                        <div class="col-sm-7">
+                                            <input id="txtFunNeg" readonly name="funcionarioNegocios" class="form-control" type="text" value="B000006" />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="cbSucAge" class="col-sm-5 col-form-label">
+                                            Sucursal/Agencia:
+                                        </label>
+                                        <div class="col-sm-7">
+                                            <select id="cbSucAge" name="sucursalAgencia" class="form-control">
+                                                <option selected>Select</option>
+                                                <option value="M">SUCURSAL</option>
+                                                <option value="S">AGENCIA</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1">
+            <center>
+                <button id="btConsultaPNJ" class="w-100 btn btn-outline-secondary">
+                    <i class="fas fa-search icono-2x"></i><br /><p id="pConsultaPNJ">Consultar</p>
+                </button>
+                @if (politicas.Contains("SAPP_BO_CLI_PER_NAT_ING_MOD_DAT"))
+                {
+                    <button id="btIngresarPNJ" onclick="crearPNJ()" class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-print icono-2x"></i><br />Ingresar
+                    </button>
+                    <button id="btModificarPNJ" class="w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-edit icono-2x"></i><br />Modificar
+                    </button>
+                }
+                else
+                {
+                    <button id="btModificarPNJ" class="w-100 btn btn-outline-secondary" disabled style="display:none;">
+                        <i class="fas fa-edit icono-2x"></i><br />Modificar
+                    </button>
+                }
+                @if (politicas.Contains("SAPP_BO_CLI_ING_FUN_MOD"))
+                {
+                    <button id="btMFunBan" class="w-100 btn btn-outline-secondary" onclick="cambioFunNeg()" style="display:none;">
+                        <i class="fas fa-ship icono-2x"></i><br />Mod. Fun/Banca
+                    </button>
+                }
+                else
+                {
+                    <button id="btMFunBan" class="w-100 btn btn-outline-secondary" disabled style="display:none;">
+                        <i class="fas fa-ship icono-2x"></i><br />Mod. Fun/Banca
+                    </button>
+                }
+                <button class="w-100 btn btn-outline-secondary" onclick="location.href='@Url.Action("Index","Home")'">
+                    <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                </button>
+            </center>
+        </div>
+    </div>
+    @if (politicas.Contains("SAPP_BO_CLI_CON_ALF"))
+    {
+        <div class="modal fade" id="CAModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalCA" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalCA">Consulta Alfabetica de Clientes</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            await Html.RenderPartialAsync("../Consulta/AlfabeticaCliente");
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if ( politicas.Contains("SAPP_BO_CLI_DIR_MOD_DIR"))
+    {
+        <div class="modal fade" id="DACModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalPermiso" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="Modal-title" id="modalDAC">Cambiar Direccion</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @{
+                                TempData["VistaModal"] = "SI";
+                                await Html.RenderPartialAsync("../DAC/DatAdiCli",Model);
+                            }
+                        </div>
+                    </div>
+                </div>
+        </div>
+    }
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var guid = "@guid";
+        if (guid != "T") {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GUID")',
+                dataType: 'json',
+                data: { tipo: guid },
+                beforeSend: AntesAjax(),
+                success: function (l) {
+
+                    if (l.state != null) {
+                        if (l.success) {
+                            if (l.success) {
+                                $("#txtDID").val(l.data.idcNumero + l.data.idcExtension);
+                                $("#txttDID").val(l.data.idcTipo);
+                            }
+                        }
+                    }
+                    DespuesAjax();
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                }
+            });
+        }
+    });
+    $("#btConsultaPNJ").click(function () {
+        if ($("#pConsultaPNJ").html() == "Consultar") {
+            consulta();
+        }
+        else {
+            $("#txtDID").prop('readonly', false);
+            $("#txttDID").prop('readonly', false);            
+            $("#cbEstNit").prop("disabled",true);
+            $("#pConsultaPNJ").html("Consultar");
+            $("#btModificarPNJ").hide();
+            $("#btMFunBan").hide();
+            $("#btIngresarPNJ").show();
+            $("#divDirV").hide();
+            $("#divDirL").show();
+            HabilitarDesabilitarInput("divT1S1", true);
+        }
+    });
+    function consulta(){
+        var idc = $("#txtDID").val();
+        var tidc = $("#txttDID").val()
+        if (idc == '' || tidc == '') {
+            alert('Debe llenar los campos de Documento');
+            $("#divDirL").show();
+            $("#divDirV").hide();
+        }
+        else {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ConsultaPNJ")',
+                dataType: 'json',
+                data: { id: idc, tid: tidc, tipoCliente: 'J' },
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                    if (l == null) {
+                        alert("Error de conexion al microservicio");
+                    }
+                    else if (l.state == null) {
+                        alert('error de consulta al microservicio');
+                        $("#divDirL").show();
+                        $("#divDirV").hide();
+                    }
+                    else {                        
+                        if (!l.success) {
+                            alert('Cliente no encontrado');
+                            $("#divDirL").show();
+                            $("#divDirV").hide();
+                        }
+                        else {
+                            HabilitarDesabilitarInput("divT1S1", false);
+                            HabilitarDesabilitarInput("divDirL", true);
+                            $("#pConsultaPNJ").html("Nueva Consulta");
+                            $("#btModificarPNJ").show();
+                            $("#btMFunBan").show();
+                            $("#btIngresarPNJ").hide();
+                            $("#divDirL").hide();
+                            $("#divDirV").show();
+                            $("#cbTBanca").prop('disabled', true);                            
+                            $("#cbEstNit").prop("disabled",false);
+                            var recorrido;
+                            for (var j in l.data) {
+                                recorrido = document.getElementsByName(j);
+                                if (recorrido.length > 0) {
+                                    if (!(l.data[j] == null || l.data[j] == "")) {
+                                        switch (recorrido[0].type) {
+                                            case "checkbox":
+                                                if (l.data[j] == "S") {
+                                                    $("input[name=" + j + "]").prop("checked", true).change();
+                                                }
+                                                break;
+                                            case "text":
+                                                $("input[name=" + j + "]").val(l.data[j]);
+                                                break;
+                                            case "select-one":
+                                                $("select[name=" + j + "]").val(l.data[j]).change();
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
+                            $("#txtDID").val(idc);
+                            $("#txttDID").val(tidc);
+                            if ('@politicas.Contains("SAPP_BO_CLI_MOD_IDC")' == 'True' && tidc!="R") {
+                                copiarTexto("txtDID", "hDID");
+                                copiarTexto("txttDID", "htDID");
+                            }
+                            else {
+                                HabilitarDesabilitarInput("divDP", true);
+                            }
+                            if ('@politicas.Contains("SAPP_BO_CLI_MOD_NOM")' == 'True') {
+                                copiarTexto("txtRzSocial", "hRzSocial");
+                            }
+                            else {
+                                HabilitarDesabilitarInput("divNom", true);
+                            }
+                        }
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                },
+                complete: function () { DespuesAjax(); }
+            });
+        }
+    }
+    $("#txtFechConst").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+    $("#txttDID").keypress(function (e) {
+        $input = $(this);
+        setTimeout(function () {
+            $input.val($input.val().toUpperCase());
+            if (!tipoDocumento($input.val())) {
+                $input.val("")
+            }
+            else {
+                if ($input.val() == 'R') {
+                    $("#divENIT").show();
+                }
+                else {
+                    $("#divENIT").hide();
+                }
+                if($input.val() == "Y" || $input.val() == "Z"){
+                    $("#ckResidente").prop('checked', false);
+                }
+                else{
+                    $("#ckResidente").prop('checked', true);
+                }
+            }
+        }, 50);
+    });
+    function tipoDocumento(valor) {
+        var pj = ['J', 'K', 'R', 'V', 'W', 'Y', 'Z'];
+        if (pj.indexOf(valor) === -1) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    function DesplegarCA() {
+        $("#txtApRS").val($("#txtRzSocial").val());
+        document.getElementById('btCACerrar').setAttribute('onclick', 'cerrarConsultaAlfabetica();');
+        $("#btCAAceptar").show();
+        $("#CAModal").modal();
+    }
+    function copiarTexto(original, copia) {
+        $("#" + copia + "").val($("#" + original + "").val());
+    }
+    function cambioFunNeg() {
+        if ($("#cbTBanca").prop('disabled')) {
+            $("#cbTBanca").prop('disabled', false);
+            $("#txtFunNeg").prop('readonly', false);
+        }
+        else {
+            var confirmar = confirm("¿Esta seguro de modificar el funcionario de negocios?");
+            if (confirmar == true) {
+                var parametros = {
+                    id: $("#txtDID").val(),
+                    tid: $("#txttDID").val(),
+                    tipoCliente: "j",
+                    oficina: $("#cbOfi").val(),
+                    funNeg: {
+                        funcionarioNegocios: $("#txtFunNeg").val(),
+                        banca: $("#cbTBanca").val()
+                    }
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("CambioFunNeg")',
+                    dataType: 'json',
+                    data: parametros,
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        if (l.message == null) {
+                            alert("Error de consulta al microservicio");
+                        }
+                        else {
+                            alert(l.message);
+                        }
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    },
+                    complete: function () { DespuesAjax(); }
+                });
+            }
+            $("#cbTBanca").prop('disabled', true);
+            $("#txtFunNeg").prop('readonly', true);
+        }
+    }
+    $("#btModificarPNJ").click(function () {
+        var confirmar = confirm("¿Esta seguro de modificar el registro?");
+        if (confirmar == true) {
+            AntesAjax();
+            var id = $("#txtDID").val();
+            var tid = $("#txttDID").val();
+            if ($('#hDID').val() != null) {
+                if(tid!="R"){
+                    modificarIDC(id,tid);
+                    id = $("#hDID").val();
+                    tid = $("#htDID").val();
+                }
+            }
+            if ($('#hRzSocial').val() != null) {
+                modificarNombre(id, tid);
+            }
+            modificarParametros(id, tid);
+            DespuesAjax();
+        }
+    });
+    function modificarNombre(id, tid) {
+        if ($("#txtRzSocial").val() == $("#hRzSocial").val()) {
+            alert("NO SE MODIFICA LA RAZON SOCIAL");
+        }
+        else {
+            var parametros = {
+                razonSocialNuevo: $("#txtRzSocial").val()
+            };
+            var datos = {
+                id: id,
+                tid: tid,
+                datos: JSON.stringify(parametros),
+                tipoPersona: 'j'
+            };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ModificarNombresPNJ")',
+                dataType: 'json',
+                data: datos,
+                async: false,
+                success: function (l) {
+                    if (l.message == null) {
+                        alert("Error de consulta al microservicio");
+                    }
+                    else {
+                        alert(l.message);
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                }
+            });
+        }
+    }
+    function modificarIDC(id,tid) {
+        var idA = $("#hDID").val();
+        var tidA = $("#htDID").val();
+        if (id == idA && tid == tidA) {
+            alert("MISMO IDC, NO SE MODIFICARÁ");
+        }
+        else {
+            var datos = {
+                id: idA,
+                tid: tidA,
+                Nid: id,
+                Ntid: tid,
+                tipo: 'j'
+            };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ModificarIdcPNJ")',
+                dataType: 'json',
+                data: datos,
+                async: false,
+                success: function (l) {
+                    if (l.message == null) {
+                        alert("Error de consulta al microservicio");
+                    }
+                    else {
+                        alert(l.message);
+                        if (l.success) {
+                             $("#hDID").val(id);
+                             $("#htDID").val(tid);
+                        }
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                }
+            });
+        }
+    }
+    function modificarParametros(id, tid) {
+        var residente = 'N';
+        if ($("#ckResidente").prop('checked')) {
+            residente = 'S';
+        }
+        var datos = {
+            id: id,
+            tid: tid,
+            tipo: 'j',
+            pj: {
+                residente: residente,
+                nombreComercial: $("#txtnComercial").val(),
+                domicilio: $("#txtDireccion").val(),
+                localidad: $("#cbLocalidad").val(),
+                ciiu: $("#cbciiu").val(),
+                telefono: $("#txtTelefono").val(),
+                tipoCliente: $("#cbTCliente").val(),
+                funcionarioNegocios: $("#txtFunNeg").val(),
+                tipoBanca: $("#cbTBanca").val(),
+                registroMercantil: $("#txtRegMerc").val(),
+                magnitudEmpresa: $("#cbMagEmp").val(),
+                nit: tid == "R" ? parseInt(id).toString() : "",
+                estadoNIT: $("#cbEstNit").val(),
+                codigoSBS: $("#txtcSBS").val(),
+                oficina: $("#cbOfi").val(),
+                finSocial: $("#cbFinSoc").val(),
+                fechaConstitucion: $("#txtFechConst").val(),
+                categoria: $("#cbCat").val(),
+                naturalezaJuridica: $("#cbNatJur").val(),
+                tipoEmpresa: $("#cbTEmpresa").val(),
+                sucursal: $("#cbSucAge").val(),
+                oficina: $("#cbOfi").val(),
+                correspondencia:$("#txtCorrespondencia").val()
+            }
+        };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ModificarPNJ")',
+            dataType: 'json',
+            data: datos,
+            async:false,
+            success: function (l) {
+                if (l.message == null) {
+                    alert("Error de consulta al microservicio");
+                }
+                else {
+                    alert(l.message);
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () { DespuesAjax(); }
+        });
+    }
+    function crearPNJ() {
+        if($("#txtDID").val()!="" && $("#txttDID").val()!=""){
+            var datosFaltantes=validarCreacionCliente();
+            if (datosFaltantes != "") {
+                alert("Debe completar todos los campos: "+datosFaltantes);
+            }
+            else {
+                var confirmar = confirm("¿Esta seguro de realizar un nuevo registro?");
+                if (confirmar == true) {
+                    var datos = {
+                        id: $("#txtDID").val(),
+                        tid: $("#txttDID").val(),
+                        cliente: JSON.stringify(parametros()),
+                        tipoPersona: 'j'                
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("CrearPNJ")',
+                        dataType: 'json',
+                        data: datos,
+                        beforeSend: AntesAjax(),
+                        success: function (l) {
+                            if (l.message == null) {
+                                alert('Error de consulta al microservicio')
+                            }
+                            else {
+                                alert(l.message);
+                                HabilitarDesabilitarInput("divT1S1", true);
+                                HabilitarDesabilitarInput("divDirL", true);
+                                if(l.success){
+                                    $("#txtCorrespondencia").val("1");
+                                }
+                            }
+                        },
+                        error: function (ex, textStatus, errorThrown) {
+                            AjaxErrorHandler(ex, textStatus, errorThrown);
+                        },
+                        complete: function () { DespuesAjax(); }
+                    });
+                }
+            }
+        }
+    }
+    function parametros() {
+        var zc = {
+            direccion: obtenerDireccion(),
+            localidad: $("#cbLocalidad").val(),
+            ciiu: $("#cbciiu").val(),
+            telefono: $("#txtTelefono").val(),
+            funcionarioNegocios: $("#txtFunNeg").val(),
+            tipoBanca: $("#cbTBanca").val(),
+            registroMercantil: $("#txtRegMerc").val(),
+            magnitudEmpresa: $("#cbMagEmp").val(),
+            codigoSBS: $("#txtcSBS").val(),
+            sucursal: $("#cbSucAge").val(),
+            nombreComercial: $("#txtnComercial").val(),
+            finSocial: $("#cbFinSoc").val(),
+            fechaConstitucion: $("#txtFechConst").val(),
+            categoria: $("#cbCat").val(),
+            naturalezaJuridica: $("#cbNatJur").val(),
+            razonSocial: $("#txtRzSocial").val(),
+            tipoEmpresa: $("#cbTEmpresa").val(),
+            oficina: $("#cbOfi").val()
+        };
+        return zc;
+    }
+    function obtenerDireccion() {
+        var direccion = '';
+        if($('#cbJACalle').val()!=null && $('#cbJACalle').val()!=''){
+            direccion=direccion+$('#cbJACalle').val();
+        }
+        if($('#txtJACalle').val()!=''){
+            direccion=direccion+$('#txtJACalle').val()+' ';
+        }
+        if($('#txtnro').val()!=''){
+            direccion=direccion+'N.'+$('#txtnro').val()+' ';
+        }   
+        if($('#txtmz').val()!=''){
+            direccion=direccion+'MZ.'+$('#txtmz').val()+' ';
+        } 
+        if($('#txtlote').val()!=''){
+            direccion=direccion+'LT.'+$('#txtlote').val()+' ';
+        }
+        if($('#cbDPI').val()!=null && $('#cbDPI').val()!=''){
+            direccion=direccion+$('#cbDPI').val();
+        }
+        if($('#txtDPI').val()!=''){
+            direccion=direccion+$('#txtDPI').val()+' ';
+        }
+        if($('#cbURIV').val()!=null && $('#cbURIV').val()!=''){
+            direccion=direccion+$('#cbURIV').val();
+        }
+        if($('#txtURIV').val()!=''){
+            direccion=direccion+$('#txtURIV').val()+' ';
+        }
+        if($('#cbEtZ').val()!=null && $('#cbEtZ').val()!=''){
+            direccion=direccion+$('#cbEtZ').val();
+        }
+        if($('#txtEtZ').val()!=''){
+            direccion=direccion+$('#txtEtZ').val()+' ';
+        }
+        return direccion;
+    }
+    function HabilitarDesabilitarInput(idDiv, condicional) {
+        $('#' + idDiv + ' :input').each(function () {
+            //alert ($(this).get(0).name);
+            //alert($(this).get(0).value);             
+            switch ($(this).get(0).tagName) {
+                case 'INPUT':
+                    if($(this).get(0).name!='correspondencia'){
+                        $(this).attr('readonly', condicional);
+                    }
+                    break;
+                case 'SELECT':
+                    $(this).attr('disabled', condicional);
+                    break;
+            }
+        });
+    }
+    $("#btCAAceptar").click(function () {
+        var nfila = ($("#tbCAC tr").length) - 1;
+        var id = 0;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbCAC #" + i + "").hasClass("bg-info")) {
+                id = i;
+                break;
+            }
+        }
+        if (id > 0) {
+            var tipo = $("#xidt" + (id)).html();
+            var pj = ['J', 'K', 'R', 'V', 'W', 'Y', 'Z'];
+            if (pj.indexOf(tipo) === -1) {
+                alert("IDC NO VALIDO");
+            }
+            else {
+                $("#txtDID").val($("#xidc" + (id)).html() + $("#xide" + (id)).html());
+                $("#txttDID").val(tipo);
+                $("#CAModal").modal('hide');
+                consulta();
+            }
+        }
+        else {
+            alert("CLIENTE NO SELECCIONADO");
+        }
+    });
+    $("#cbSegBanca").change(function () {
+        $("#txtSegBanca").val($("#cbSegBanca option:selected").text());
+    });
+    function cerrarConsultaAlfabetica(){
+        HabilitarDesabilitarInput("divT1S1", false);
+        HabilitarDesabilitarInput("divDirL", false);
+        $("#CAModal").modal("hide");
+    }
+    function validarCreacionCliente(){
+        var datosFaltantes="";
+        if($("#txtRzSocial").val()==""){
+            datosFaltantes=datosFaltantes+"Razon Social,";
+        }
+        if($("#cbLocalidad").val()==""){
+            datosFaltantes=datosFaltantes+"Localidad,";
+        }
+        if($("#txtTelefono").val()==""){
+            datosFaltantes=datosFaltantes+"Telefono,";
+        }
+        if($('#txtJACalle').val()==""){
+             datosFaltantes=datosFaltantes+"Direccion,";
+         }
+        if($("#cbciiu").val()==""){
+            datosFaltantes=datosFaltantes+"C.I.I.U.,";
+        }
+        if($("#cbTEmpresa").val()==""){
+            datosFaltantes=datosFaltantes+"Tipo de Empresa,";
+        }
+        if($("#cbFinSoc").val()==""){
+            datosFaltantes=datosFaltantes+"Fin Social,";
+        }
+        if($("#cbCat").val()==""){
+            datosFaltantes=datosFaltantes+"Categoria,";
+        }
+        if($("#cbOfi").val()==""){
+            datosFaltantes=datosFaltantes+"Oficina,";
+        }
+        if($("#cbTBanca").val()==""){
+            datosFaltantes=datosFaltantes+"Tipo de Banca,"
+        }
+        if($("#cbSucAge").val()==""){
+            datosFaltantes=datosFaltantes+"Sucursal/Agencia,"
+        }
+        if($("#cbMagEmp").val()==""){
+            datosFaltantes=datosFaltantes+"Magnitud de Empresa,"
+        }
+        return datosFaltantes.substr(0, datosFaltantes.length - 1);
+    }
+    function cambiarDireccionPNJ(){
+        $("#1-tabDAC").prop("disabled", true);
+        $("#2-tabDAC").prop("disabled", true);
+        $("#3-tabDAC").prop("disabled", true);
+        $("#4-tabDAC").prop("disabled", true);
+        $("#5-tabDAC").prop("disabled", true);
+        document.getElementById("btCerrarDAC").setAttribute("onClick", "$('#DACModal').modal('hide');");
+        $("#txtDACDID").prop("readonly",true);
+        $("#txtDACtDID").prop("readonly",true);
+        $("#txtDACDID").val($("#txtDID").val());
+        $("#txtDACtDID").val($("#txttDID").val());
+        $("#DACModal").modal();
+    }
+    function modificarDireccionDAC() {
+        var nfila = ($("#tbDireccion tr").length) - 1;
+        var index = 0;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbDireccion #" + i + "").hasClass("bg-info")) {
+                index = i;
+                break;
+            }
+        }
+        if (index > 0) {
+            if($("#fTipo" + i + "").html()=="M"){
+                alert("NO ES POSIBLE RELACIONAR CON DIRECCION DE CORREO ELECTRONICO.");
+            }
+            else if($("#fCorr" + i + "").html()!="S"){
+                alert("NO ES POSIBLE RELACIONAR CON DIRECCION QUE NO ES DE CORRESPONDENCIA.");
+            }
+            else{
+                $("#txtDireccion").val($("#fDir" + i + "").html());
+                $("#txtTelefono").val($("#fDTel" + i + "").html());
+                $("#cbLocalidad").val($("#fCLoc" + i + "").html());
+                $("#txtCorrespondencia").val($("#fDnro" + i + "").html());
+                $("#tbDireccion tbody").empty();
+                $("#btIngresar").attr('disabled', true);
+                $("#txtNom").val("");
+                $("#divDirBusqAv").show();
+                $("#divTbDirProd").hide();
+            }
+        }
+        $("#DACModal").modal('hide');
+    }
+</script>

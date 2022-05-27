@@ -1,0 +1,695 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Cambio de Tarjeta Paso 5 - Tarjeta Credimas: ";
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <header>
+            <h4>Vision Plus -Cambio de Tarjeta Paso 5 - Tarjeta Credimas:</h4>
+        </header>
+        <div class="form-row">
+            <div class="col-lg-11">
+                <div class="container border border-dark mt-1">
+                    <ul class="nav nav-tabs" id="tabVPIP" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#VPIP1" role="tab" aria-controls="home" aria-expanded="true">Datos Principales</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#VPIP2" role="tab" aria-controls="profile" aria-expanded="true">Comportamiento</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-1" id="tabVPIPContent">
+                        <div class="tab-pane fade show active" id="VPIP1" role="tabpanel" aria-labelledby="1-tab">
+                            <div class="form-row">
+                                <div class="col-sm-6">
+                                    <fieldset class="border border-dark mb-1">
+                                        <legend class="w-auto" style="font-size:14px;">
+                                            Datos Básicos
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-row">
+                                                <label for="txtNombre" class="col-sm-5 col-form-label">
+                                                    Nombres:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtNombre" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtIDC" class="col-sm-5 col-form-label">
+                                                    Documento de Identidad:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtIDC" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtFechNac" class="col-sm-5 col-form-label">
+                                                    Fecha de Nacimiento:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtFechNac" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtPareja" class="col-sm-5 col-form-label">
+                                                    Conyugue/Fiador:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtPareja" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtnCuenta" class="col-sm-5 col-form-label">
+                                                    N° Cuenta:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtnCuenta" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <fieldset class="border border-dark mb-1">
+                                        <legend class="w-auto" style="font-size:14px;">
+                                            DDDD
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-row">
+                                                <label for="txtCCargo" class="col-sm-5 col-form-label">
+                                                    Cuenta de Dargo:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtCCargo" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtCFija" class="col-sm-5 col-form-label">
+                                                    Cueenta Fija:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtCFija" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtSectorista" class="col-sm-5 col-form-label">
+                                                    Sectorista:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtSectorista" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtSucursal" class="col-sm-5 col-form-label">
+                                                    Sucursal:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtSucursal" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtsPCT" class="col-sm-3 col-form-label">
+                                                    Segmento(PCT):
+                                                </label>
+                                                <input id="txtsPCT" class="form-control col-sm-3" type="text" />
+                                                <label for="txttACCT" class="col-sm-3 col-form-label">
+                                                    Tipo ACCT:
+                                                </label>
+                                                <input id="txttACCT" class="form-control col-sm-3" type="text" />
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-sm-6">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:14px;">
+                                            Mora
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-row">
+                                                <label for="txtTotal" class="col-sm-2 col-form-label">
+                                                    Total:
+                                                </label>
+                                                <div class="col-sm-10">
+                                                    <input id="txtTotal" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtmActual" class="col-sm-2 col-form-label">
+                                                    Actual:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtmActual" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <label for="" class="col-sm-6 col-form-label">
+                                                        N°
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtXDAYS" class="col-sm-2 col-form-label">
+                                                    XDAYS:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtXDAYS" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input id="txtnXDAYS" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtd30" class="col-sm-2 col-form-label">
+                                                    30:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtd30" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input id="txtnd30" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtd60" class="col-sm-2 col-form-label">
+                                                    60:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtd60" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input id="txtnd60" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtd90" class="col-sm-2 col-form-label">
+                                                    90:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtd90" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input id="txtnd90" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtd120" class="col-sm-2 col-form-label">
+                                                    120:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtd120" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input id="txtnd120" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtd30" class="col-sm-2 col-form-label">
+                                                    150:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtd150" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input id="txtnd150" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtd180" class="col-sm-2 col-form-label">
+                                                    180:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtd180" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input id="txtnd180" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtd210" class="col-sm-2 col-form-label">
+                                                    210:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtd210" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input id="txtnd210" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtRisk" class="col-sm-2 col-form-label">
+                                                    $RISK:
+                                                </label>
+                                                <div class="col-sm-10">
+                                                    <input id="txtRisk" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm-6 mb-1">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:14px;">
+                                            yyyy
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-row">
+                                                <label for="txtFechApe" class="col-sm-5 col-form-label">
+                                                    Fecha de Apertura:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtFechApe" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtSalFech" class="col-sm-5 col-form-label">
+                                                    Saldo a la Fecha:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtSalFEch" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtLUDE" class="col-sm-5 col-form-label">
+                                                    Linea Usada (disp.efec):
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtLUDE" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtLUC" class="col-sm-5 col-form-label">
+                                                    Linea Usada (consumo):
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtLUC" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtLinCre" class="col-sm-5 col-form-label">
+                                                    Linea de Crédito:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtLinCre" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtFechApe" class="col-sm-5 col-form-label">
+                                                    Sobregiro Máximo:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtSobreMax" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-sm-6 mb-1">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:14px;">
+                                            Perfil a 24 meses
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-row">
+                                                <label for="txtS11" class="col-sm-2 col-form-label">
+                                                    ( 01 - 06 )
+                                                </label>
+                                                <div class="col-sm-10">
+                                                    <div class="form-row">
+                                                        <input id="txtS11" class="col-sm-2 form-control" type="text" />
+                                                        <input id="txtS12" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS13" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS14" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS15" class="col-sm-2 form-control" type="text" />
+                                                        <input id="txtS16" class=" col-sm-2 form-control" type="text" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtS11" class="col-sm-2 col-form-label">
+                                                    ( 07 - 12 )
+                                                </label>
+                                                <div class="col-sm-10">
+                                                    <div class="form-row">
+                                                        <input id="txtS21" class="col-sm-2 form-control" type="text" />
+                                                        <input id="txtS22" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS23" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS24" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS25" class="col-sm-2 form-control" type="text" />
+                                                        <input id="txtS26" class=" col-sm-2 form-control" type="text" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtS11" class="col-sm-2 col-form-label">
+                                                    ( 13 - 18 )
+                                                </label>
+                                                <div class="col-sm-10">
+                                                    <div class="form-row">
+                                                        <input id="txtS31" class="col-sm-2 form-control" type="text" />
+                                                        <input id="txtS32" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS33" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS34" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS35" class="col-sm-2 form-control" type="text" />
+                                                        <input id="txtS36" class=" col-sm-2 form-control" type="text" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtS41" class="col-sm-2 col-form-label">
+                                                    ( 19 - 24 )
+                                                </label>
+                                                <div class="col-sm-10">
+                                                    <div class="form-row">
+                                                        <input id="txtS41" class="col-sm-2 form-control" type="text" />
+                                                        <input id="txtS42" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS43" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS44" class=" col-sm-2 form-control" type="text" />
+                                                        <input id="txtS45" class="col-sm-2 form-control" type="text" />
+                                                        <input id="txtS46" class=" col-sm-2 form-control" type="text" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtBloqNow" class="col-sm-3 col-form-label">
+                                                    Bloqueo Actual
+                                                </label>
+                                                <input id="txtBloqNow" class=" col-sm-3 form-control" type="text" />
+                                                <label for="txtBloqAnt" class="col-sm-3 col-form-label">
+                                                    Bloqueo Anterior
+                                                </label>
+                                                <input id="txtBloqAnt" class="col-sm-3 form-control" type="text" />
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtFechBloq" class="col-sm-3 col-form-label">
+                                                    Fecha de Bloqueo
+                                                </label>
+                                                <input id="txtFechBloq" class="form-control col-sm-9" type="text" />
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="VPIP2" role="tabpanel" aria-labelledby="2-tab">
+                            <fieldset class="border border-dark mt-1">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Comportamiento Histórico - Perfil a 6 Ciclos
+                                </legend>
+                                <div class="container">
+                                    <div class="container mb-1">
+                                        <div class="form-row">
+                                            <Label for="txtFechHist11" class="col-sm-3 col-form-label">
+                                                Fecha Histórico:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <div class="form-row">
+                                                    <input txt="txtCiclo1" value="02" class="col-sm-3 form-control" type="text" />
+                                                    <input txt="txtFechHist11" class="col-sm-9 form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-row">
+                                                    <input txt="txtCiclo2" value="02" class="col-sm-3 form-control" type="text" />
+                                                    <input txt="txtFechHist12" class="col-sm-9 form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-row">
+                                                    <input txt="txtCiclo3" value="02" class="col-sm-3 form-control" type="text" />
+                                                    <input txt="txtFechHist13" class="col-sm-9 form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtTotPag11" class="col-sm-3 col-form-label">
+                                                Total a Pagar:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtTotPag11" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtTotPag12" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtTotPag13" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtCB11" class="col-sm-3 col-form-label">
+                                                CASH BALANCE:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtCB11" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtCB12" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtCB13" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtICC11" class="col-sm-3 col-form-label">
+                                                Importes Cargos/Consumo:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICC11" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICC12" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICC13" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtICD11" class="col-sm-3 col-form-label">
+                                                Importe Cargos/disp.efec:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICD11" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICD12" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICD13" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtPagMin11" class="col-sm-3 col-form-label">
+                                                Pago Mínimo:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMin11" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMin12" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMin13" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtDeuAnt11" class="col-sm-3 col-form-label">
+                                                Deudad Meses Anteriores:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDeuAnt11" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDeuAnt12" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDeuAnt13" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtPagMes11" class="col-sm-3 col-form-label">
+                                                Pagos en el Mes:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMes11" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMes12" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMes13" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtDevSis11" class="col-sm-3 col-form-label">
+                                                Devolución por el sistema:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDevSis11" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDevSis12" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDevSis13" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="container">
+                                        <div class="form-row">
+                                            <Label for="txtFechHist21" class="col-sm-3 col-form-label">
+                                                Fecha Histórico:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <div class="form-row">
+                                                    <input txt="txtCiclo4" value="02" class="col-sm-3 form-control" type="text" />
+                                                    <input txt="txtFechHist21" class="col-sm-9 form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-row">
+                                                    <input txt="txtCiclo5" value="02" class="col-sm-3 form-control" type="text" />
+                                                    <input txt="txtFechHist22" class="col-sm-9 form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <div class="form-row">
+                                                    <input txt="txtCiclo6" value="02" class="col-sm-3 form-control" type="text" />
+                                                    <input txt="txtFechHist23" class="col-sm-9 form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtTotPag21" class="col-sm-3 col-form-label">
+                                                Total a Pagar:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtTotPag21" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtTotPag22" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtTotPag23" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtCB21" class="col-sm-3 col-form-label">
+                                                CASH BALANCE:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtCB21" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtCB22" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtCB23" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtICC21" class="col-sm-3 col-form-label">
+                                                Importes Cargos/Consumo:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICC21" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICC22" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICC23" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtICD21" class="col-sm-3 col-form-label">
+                                                Importe Cargos/disp.efec:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICD21" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICD22" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtICD23" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtPagMin21" class="col-sm-3 col-form-label">
+                                                Pago Mínimo:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMin21" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMin22" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMin23" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtDeuAnt21" class="col-sm-3 col-form-label">
+                                                Deudad Meses Anteriores:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDeuAnt21" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDeuAnt22" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDeuAnt23" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtPagMes21" class="col-sm-3 col-form-label">
+                                                Pagos en el Mes:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMes21" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMes22" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtPagMes23" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <Label for="txtDevSis21" class="col-sm-3 col-form-label">
+                                                Devolución por el sistema:
+                                            </Label>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDevSis21" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDevSis22" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input txt="txtDevSis23" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-1">
+                    <center>
+                        <button type="button" class="w-100 btn btn-outline-secondary">
+                            <i class="fas fa-arrow-up icono-2x"></i><br />Anterior
+                        </button>
+                        <button type="button" class="w-100 btn btn-outline-secondary">
+                            <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                        </button>
+                        <button type="button" class="w-100 btn btn-outline-secondary">
+                            <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                        </button>
+                    </center>
+            </div>
+        </div>
+    </div>

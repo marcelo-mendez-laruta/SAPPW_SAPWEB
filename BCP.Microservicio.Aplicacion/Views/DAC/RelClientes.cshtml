@@ -1,0 +1,384 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@model List<List<SelectListItem>>;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Relación entre Clientes: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Relación entre Clientes:</h4>
+    </header>
+    <div class="form-row">
+        <div class="col-lg-11">
+            <div class="container mb-1">
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        1er Relacionado
+                    </legend>
+                    <div class="container">
+                        <div class="form-row">
+                            <label for="txtRCIDDoc1" class="col-sm-4 col-form-label">
+                                Documento de Identidad:
+                            </label>
+                            <div class="col-sm-6">
+                                <input id="txtRCIDDoc1" readonly class="form-control" type="text" />
+                            </div>
+                            <div class="col-sm-2">
+                                <input id="txtRCtIDDoc1" readonly class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-row" style="display:none;">
+                            <label for="txtRCRazSoc1" class="col-sm-4 col-form-label">
+                                Nombre o Razón Social:
+                            </label>
+                            <div class="col-sm-8">
+                                <input id="txtRCRazSoc1" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="container mb-1">
+                <div class="form-row">
+                    <div class="col-sm-10">
+                        <fieldset class="border border-dark">
+                            <legend class="w-auto" style="font-size:14px;">
+                                Relación
+                            </legend>
+                            <div class="container">
+                                <div class="form-row">
+                                    <label for="cbRCCodRel" class="col-sm-3 col-form-label">
+                                        Código de Relación:
+                                    </label>
+                                    <div class="col-sm-4">
+                                        @Html.DropDownList("codigoRelacion", Model[26], "Select", new { @id = "cbRCCodRel", @class = "form-control" })
+                                    </div>
+                                    <label for="txtRCCorrRel" class="col-sm-2 col-form-label">
+                                        Correlativo Relación:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input type="text" readonly id="txtRCCorrRel" class="form-control" value="01" />
+                                    </div>
+
+                                </div>
+                                <div class="form-row">
+                                    <label for="cbRCCodAsoc" class="col-sm-3 col-form-label">
+                                        Código Asociado:
+                                    </label>
+                                    <div class="col-sm-4">
+                                        @Html.DropDownList("codigoAsociado", Model[0], "SELECT", new { @id = "cbRCCodAsoc", @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-sm-2">
+                        <fieldset class="border border-dark">
+                            <legend class="w-auto" style="font-size:14px;">
+                                Vigente
+                            </legend>
+                            <div class="container">
+                                <div class="form-group form-check">
+                                    <input id="rbRCRelY" class="form-check-input" name="rgRelVigente" type="radio" value="S" checked />
+                                    <label for="rbRCRelY" class="form-check-label">
+                                        Si
+                                    </label>
+                                </div>
+                                <div class="form-group form-check">
+                                    <input id="rbRCRelN" class="form-check-input" name="rgRelVigente" type="radio" value="N" />
+                                    <label for="rbRCRelN" class="form-check-label">
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="container mb-1">
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        2do Relacionado
+                    </legend>
+                    <div class="container">
+                        <div class="form-row">
+                            <label for="txtRCIDDoc2" class="col-sm-4 col-form-label">
+                                Documento de Identidad:
+                            </label>
+                            <div class="col-sm-6">
+                                <input type="hidden" value="" id="Ftxtidc" />
+                                <input id="txtRCIDDoc2" onkeyup="validarIDC(this)" maxlength="12" class="form-control" type="text" />
+                            </div>
+                            <div class="col-sm-2">
+                                <input id="txtRCtIDDoc2" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtRCRazSoc2" class="col-sm-4 col-form-label">
+                                Nombre o Razón Social:
+                            </label>
+                            <div class="col-sm-8">
+                                <input id="txtRCRazSoc2" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="container mb-1">
+                <div class="form-row">
+                    <div class="col-sm-4">
+                        <fieldset class="border border-dark">
+                            <legend class="w-auto" style="font-size:14px;">
+                                Fecha
+                            </legend>
+                            <div class="container">
+                                <div class="form-row">
+                                    <label for="txtRCFechIni" class="col-sm-4 col-form-label">
+                                        Inicio:
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <input id="txtRCFechIni" class="form-control" type="text" placeholder="00/00/0000" maxlength="10"/>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label for="txtRCFechTer" class="col-sm-4 col-form-label">
+                                        Término:
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <input id="txtRCFechTer" class="form-control" type="text" placeholder="00/00/0000" maxlength="10"/>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label for="txtRCFechVeri" class="col-sm-4 col-form-label">
+                                        Verificación:
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <input id="txtRCFechVeri" class="form-control" type="text" placeholder="00/00/0000" maxlength="10"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-sm-8">
+                        <fieldset class="border border-dark">
+                            <legend class="w-auto" style="font-size:14px;">
+                                Datos
+                            </legend>
+                            <div class="container">
+                                <div class="form-group form-check">
+                                    <input id="ckRCDatAsoc" class="form-check-input" type="checkbox" />
+                                    <label for="ckRCDatAsoc" class="form-check-label">
+                                        Datos Asociados
+                                    </label>
+                                </div>
+                                <div class="form-row">
+                                    <label for="txtRCValasoc" class="col-sm-2 col-form-label">
+                                        Valor Asociado:
+                                    </label>
+                                    <div class="col-sm-4">
+                                        <input id="txtRCValasoc" class="form-control" type="text" readonly />
+                                    </div>
+                                    <label for="txtRCFechVal" class="col-sm-2 col-form-label" >
+                                        Fecha Valor:
+                                    </label>
+                                    <div class="col-sm-4">
+                                        <input id="txtRCFechVal" class="form-control" type="text" placeholder="00/00/0000" readonly maxlength="10" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label for="cbRCExpresado" class="col-sm-2 col-form-label">
+                                        Expresado en:
+                                    </label>
+                                    <div class="col-sm-10">
+                                         @Html.DropDownList("tipoValor", Model[27], "Select", new { @id = "cbRCExpresado", @class = "form-control",@disabled="disabled" })
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1">
+            <center>
+                @if (politicas.Contains("SAPP_BO_CLI_REL_ENT_CLI_ELI_REL"))
+                {
+                    <button id="btRCModificar" class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-edit icono-2x"></i><br />Modificar
+                    </button>
+
+                    <button id="btRCEliminar" class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-times icono-2x"></i><br />Eliminar
+                    </button>
+                }
+                else
+                {
+                    <button id="btRCModificar" class="w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-edit icono-2x"></i><br />Modificar
+                    </button>
+
+                    <button id="btRCEliminar" class="w-100 btn btn-outline-secondary" disabled style="display:none;">
+                        <i class="fas fa-times icono-2x"></i><br />Eliminar
+                    </button>
+                }
+                <button id="btRCCrearMulRelacion" class="w-100 btn btn-outline-secondary">
+                    <i class="fas fa-flag icono-2x"></i><br />Ing. Mul. R.
+                </button>
+                @if (politicas.Contains("SAPP_BO_CLI_REL_ENT_CLI_CRE_REL"))
+                {
+                    <button id="btRCCrearVarRelacion" class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-recycle icono-2x"></i><br />Ing. Varias. R
+                    </button>
+
+                    <button id="btRCCrearRelacion" class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-user icono-2x"></i><br />Crear Relación
+                    </button>
+                }
+                else
+                {
+                    <button id="btRCCrearVarRelacion" class="w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-recycle icono-2x"></i><br />Ing. Varias. R
+                    </button>
+
+                    <button id="btRCCrearRelacion" class="w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-user icono-2x"></i><br />Crear Relación
+                    </button>
+                }
+                <button id="btRCCerrar" class="w-100 btn btn-outline-secondary">
+                    <i class="fas fa-window-close icono-2x"></i><br />Salir
+                </button>
+            </center>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+     $("#txtRCFechIni").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+     $("#txtRCFechTer").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+     $("#txtRCFechVeri").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+     $("#txtRCFechVal").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+    $("#ckRCDatAsoc").change(function () {
+        if ($("#ckRCDatAsoc").prop('checked')) {
+            $("#txtRCFechVal").prop('readonly', false);
+            $("#cbRCExpresado").prop('disabled', false);
+            $("#txtRCValasoc").prop('readonly', false);
+        }
+        else {
+            $("#txtRCFechVal").val("");
+             document.getElementById('cbRCExpresado').value="";
+            $("#txtRCValasoc").val("");
+            $("#txtRCFechVal").prop('readonly', true);
+            $("#cbRCExpresado").prop('disabled', true);
+            $("#txtRCValasoc").prop('readonly', true);            
+        }
+    });
+
+     function PreparaIngresoRelClientes(normal){
+         $("#txtRCCorrRel").val("01");
+         if($("#cbRCCodRel").prop('disabled')){
+             $("#cbRCCodRel").prop('disabled',false);
+             $("#cbRCCodAsoc").prop('disabled',false);             
+             $("#ckRCDatAsoc").prop('disabled',false);
+             $("#txtRCFechIni").prop('readonly',false);
+             $("#txtRCFechTer").prop('readonly',false);
+             $("#txtRCFechVeri").prop('readonly',false);
+             $("#txtRCValasoc").prop('readonly',false);
+             $("#txtRCFechVal").prop('readonly',false);
+             $("#cbRCExpresado").prop('disabled',false);
+         }
+        $("#btRCModificar").hide();
+        $("#btRCEliminar").hide();
+        $("#btRCCrearMulRelacion").show();
+        $("#btRCCrearVarRelacion").show();
+        $("#btRCCrearRelacion").show();
+        $("#txtRCIDDoc2").val("");
+        $("#txtRCtIDDoc2").val("");
+        $("#txtRCRazSoc2").val("");
+        $("#txtRCFechIni").val("");
+        $("#txtRCFechTer").val("");
+        $("#txtRCFechVeri").val("");
+        $("#txtRCValasoc").val("");
+        $("#txtRCFechVal").val("");
+        $("#ckRCDatAsoc").prop('checked',false).change();
+        document.getElementById('rbRCRelY').checked = true;
+        $("#btRCCrearMulRelacion").prop('disabled', false);
+        $("#btRCCrearVarRelacion").prop('disabled', !normal);
+        $("#btRCCrearRelacion").prop('disabled', !normal);
+    }
+    function PreparaIngresoVariasRelClientes(){
+        $("#txtRCCorrRel").val("01");
+        $("#btRCCrearVarRelacion").prop('disabled', false);
+        $("#btRCCrearMulRelacion").prop('disabled', true);        
+        $("#btRCCrearRelacion").prop('disabled', true);
+        document.getElementById('rbRCRelY').checked = true;
+        $("#txtRCIDDoc2").val("");
+        $("#txtRCtIDDoc2").val("");
+        $("#txtRCRazSoc2").val("");       
+        $("#cbRCCodRel").prop('disabled',true);
+        $("#cbRCCodAsoc").prop('disabled',true);             
+        $("#ckRCDatAsoc").prop('disabled',true);
+        $("#txtRCFechIni").prop('readonly',true);
+        $("#txtRCFechTer").prop('readonly',true);
+        $("#txtRCFechVeri").prop('readonly',true);
+        $("#txtRCValasoc").prop('readonly',true);
+        $("#txtRCFechVal").prop('readonly',true);
+        $("#cbRCExpresado").prop('disabled',true);
+    }
+    function PreparaModificacionRelClientes(data){
+        $("#btRCModificar").show();
+        $("#btRCEliminar").show();
+        $("#btRCCrearMulRelacion").hide();
+        $("#btRCCrearVarRelacion").hide();
+        $("#btRCCrearRelacion").hide();       
+        var id=data[0];
+        $("#txtRCCorrRel").val(id);
+        document.getElementById('cbRCCodRel').value=data[1];
+        $("#txtRCRazSoc2").val(data[2]);
+        $("#txtRCIDDoc2").val(data[3]);
+        $("#txtRCtIDDoc2").val(data[4]);
+        if(data[5]=="S"){
+            document.getElementById('rbRCRelY').checked = true;
+        }
+        else{
+            document.getElementById('rbRCRelN').checked = true;
+        }
+        document.getElementById('cbRCCodAsoc').value=data[6];
+        $("#txtRCFechIni").val(data[7]);
+        $("#txtRCFechTer").val(data[8]);
+        $("#txtRCFechVeri").val(data[9]);
+        var valorAsociado=data[10];
+        if(valorAsociado==null ||valorAsociado=='undefined' || valorAsociado==""){
+            $("#ckRCDatAsoc").prop('checked',false).change();
+        }
+        else{
+            $("#ckRCDatAsoc").prop('checked',true).change();
+            $("#txtRCValasoc").val(valorAsociado);
+            $("#txtRCFechVal").val(data[11]);
+             document.getElementById('cbRCExpresado').value=data[12];
+        }
+     }
+</script>

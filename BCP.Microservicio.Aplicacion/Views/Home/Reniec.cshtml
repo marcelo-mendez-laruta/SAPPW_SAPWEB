@@ -1,0 +1,97 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Reniec: ";
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <header>
+            <h4>Reniec:</h4>
+        </header>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="container border border-dark mt-1">
+                    <div class="form-row">
+                        <label for="txtIDC" class="col-sm-3 col-form-label">
+                            Doc. de Identidad:
+                        </label>
+                        <div class="col-sm-7">
+                            <input type="hidden" value="" id="Ftxtidc" />
+                            <input id="txtIDC" onkeyup="validarIDC(this)" maxlength="12" class="form-control" type="text" autofocus />
+                        </div>
+                        <div class="col-sm-1">
+                            <input id="txtexpIDC" class="form-control" type="text" />
+                        </div>
+                        <div class="col-sm-1">
+                            <input id="txttIDC" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="txtpaterno" class="col-sm-3 col-form-label">
+                            Apellido Paterno:
+                        </label>
+                        <div class="col-sm-9">
+                            <input id="txtpaterno" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="txtmaterno" class="col-sm-3 col-form-label">
+                            Apellido Materno:
+                        </label>
+                        <div class="col-sm-9">
+                            <input id="txtmaterno" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="txtnombre" class="col-sm-3 col-form-label">
+                            Nombres:
+                        </label>
+                        <div class="col-sm-9">
+                            <input id="txtnombre" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="txtdireccion" class="col-sm-3 col-form-label">
+                            Dirección:
+                        </label>
+                        <div class="col-sm-9">
+                            <input id="txtdireccion" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="txtnac" class="col-sm-3 col-form-label">
+                            Fecha de Nacimiento:
+                        </label>
+                        <div class="col-sm-9">
+                            <input id="txtnac" class="form-control" type="text" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <div class="container border">
+                            <p>Foto</p>
+                            <div class="container border-dark" style="border-style:dotted;height:80px;"></div>
+                            <!--<img src="@@Model" style="border-style:dotted;width:100%;" />-->
+                        </div>
+                        <div class="container border p-1">
+                            <p>Firma</p>
+                            <div class="container border-dark" style="border-style:dotted;height:30px;"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="row p-1">
+                                <button class="col col-lg-12 btn btn-outline-secondary m-1">
+                                    <i class="fas fa-print icono-2x"></i><br />Consultar
+                                </button>
+                                <button class="col col-lg-12 btn btn-outline-secondary m-1">
+                                    <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                                </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

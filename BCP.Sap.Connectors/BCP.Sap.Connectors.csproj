@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BCP.Framework.Common\BCP.Framework.Common.csproj" />
+    <ProjectReference Include="..\BCP.Sap.Models\BCP.Sap.Models.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,296 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Cambio Tarjeta: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Cambio Rápido de Tarjetas:</h4>
+    </header>
+    <form id="CRT" name="cambioRapido" method="post" action='@Url.Action("RegistrarContrato")'>
+        <div class="form-row">
+            <div class="col-lg-10">
+                <div class="container">
+                    <fieldset class="border border-dark">
+                        <legend class="w-auto" style="font-size:14px;">
+                            Tarjeta Antigua
+                        </legend>
+                        <div class="container">
+                            <div class="form-row">
+                                <label for="txtTA" class="col-sm-3 col-form-label">
+                                    Número de Tarjeta:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txtTA" class="form-control" type="text" autofocus name="tarjetaAntigua" value=""  placeholder="0000-0000-0000-0000" maxlength="19" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="txtPIN" class="col-sm-3 col-form-label">
+                                    Pin:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input type="hidden" value="" name="pin" id="hPin" />
+                                    <input id="txtPIN" class="form-control" type="password" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="container">
+                    <fieldset class="border border-dark">
+                        <legend class="w-auto" style="font-size:14px;">
+                            Tarjeta Nueva
+                        </legend>
+                        <div class="container">
+                            <div class="form-group row">
+                                <label for="txtTN" class="col-sm-3 col-form-label">
+                                    Número de Tarjeta:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txtTN" class="form-control" type="text" name="tarjetaNueva"  placeholder="0000-0000-0000-0000" maxlength="19" />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="col-lg-1">
+                <div class="row">
+                        @if (politicas.Contains("SAPP_BO_TAR_CAM_TAR"))
+                        {
+                            <button id="btAceptarCambioRapido" type="button" class="col col-lg-12 btn btn-outline-secondary m-1">
+                                <i class="fas fa-check icono-2x"></i><br>Aceptar
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="col col-lg-12 btn btn-outline-secondary m-1" disabled>
+                                <i class="fas fa-check icono-2x"></i><br>Aceptar
+                            </button>
+                        }
+
+                        @if (politicas.Contains("SAPP_BO_REP_IMP_CON"))
+                        {
+                            <button disabled id="btContrato" type="submit" class="col col-lg-12 btn btn-outline-secondary m-1">
+                                <i class="fas fa-print icono-2x"></i><br>Contrato
+                            </button>
+                        }
+                        else
+                        {
+                             <button disabled type="button" class="col col-lg-12 btn btn-outline-secondary m-1">
+                                <i class="fas fa-print icono-2x"></i><br>Contrato
+                            </button>
+                        }
+                        <button type="button" onclick="location.href='@Url.Action("Index","Home")'" class="col col-lg-12 btn btn-outline-secondary m-1">
+                            <i class="fas fa-window-close icono-2x"></i><br>Cerrar
+                        </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+@if (politicas.Contains("SAPP_BO_REP_IMP_CON"))
+    {
+        <form id="imprimirContratoSat" name="imprimirContratoSat" method="post" action='@Url.Action("RegistrarContrato","Tarjeta")'>
+            <input id="btSatNAO" type="hidden" name="original" value="false" />
+            <input id="btSatNAC" type="hidden" name="copia" value="false" />
+        </form>
+        <div class="modal fade" id="ICOCModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalIC" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalIC">Imprimir Contrato</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            await Html.RenderPartialAsync("../Home/PrnQry");
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+<script type="text/javascript">
+    $('#btAceptarCambioRapido').click(function (e) {
+        var parametros = $('#CRT').serialize();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("CambioTarjetaRapido","Tarjeta")',
+            dataType: 'json',
+            data: parametros,
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                alert(l.message);
+                if (l.success) {
+                    $("#btContrato").prop('disabled',false);
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+               AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                 DespuesAjax();
+            }
+        });
+    });
+    $("#txtTA").keyup(function (e) {
+        var key=e.keyCode;
+        $(this).val(formatoInputTarjeta($(this).val(),key));          
+    });
+    $("#txtTA").keydown(function (e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 123) {
+            e.preventDefault();
+            $.ajax({
+                type: 'GET',
+                data: {id:0},
+                url: 'http://localhost:9991/Values/GetTarjeta',
+                cache: false,
+                dataType: 'text',
+                beforeSend: function () {
+	                $("#lbCargandoElementoModal").html("El Cliente debe pasar su Tarjeta...");
+	                AntesAjax();
+                },
+                success: function (l) {
+                    if (l == null || l == "") {
+                        alert("NO SE PUDO COMUNICAR CON EL PIN PAD");
+                    }
+                    else {
+                        var resultado = l.replace(/"/g, "").split(',');
+                        if (resultado[1] == null || resultado[1] == "") {
+                            alert("NO SE PUDO COMUNICAR CON EL PIN PAD");
+                        }
+                        else if (resultado[0] == "00") {
+                            if(resultado[1].length==16){
+                                $("#txtTA").val(resultado[1].substr(0, 4)+"-"+resultado[1].substr(4, 4)+"-"+resultado[1].substr(8, 4)+"-"+resultado[1].substr(12, 4));
+                            }
+                            else{
+                                $("#txtTA").val(resultado[1]);
+                            }                            
+                        }
+                        else {
+                            alert(resultado[1]);
+                        }
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                },
+                complete: function () {
+                    DespuesAjax();
+                    $("#lbCargandoElementoModal").html("Cargando...");
+                }
+            });
+        }
+    });
+    $("#txtTN").keyup(function (e) {
+        var key=e.keyCode;
+        $(this).val(formatoInputTarjeta($(this).val(),key));  
+    });
+    $("#txtPIN").keydown(function (e) {
+        var keyCode = e.keyCode || e.which;
+        if(keyCode === 8){
+            e.preventDefault();
+            $("#hPin").val("");
+            $("#txtPIN").val("");
+        }
+        else if (keyCode === 123) {
+            e.preventDefault();
+            var tarjeta = $("#txtTA").val().replace(/-/g, "").replace(/ /g, "");
+            if (tarjeta != "") {
+                var url = 'http://localhost:9991/Values/GetPin/' + tarjeta;
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    cache: false,
+                    dataType: 'text',
+                    beforeSend: function () {
+	                    $("#lbCargandoElementoModal").html("El Cliente debe digitar su Clave...");
+	                    AntesAjax();
+                    },
+                    success: function (l) {
+                        if (l == null || l == "") {
+                            alert("NO SE PUDO COMUNICAR CON EL PIN PAD");
+                        }
+                        else {
+                            var resultado = l.replace(/"/g, "").split(',');
+                            if (resultado[1] == null || resultado[1] == "") {
+                                alert("NO SE PUDO COMUNICAR CON EL PIN PAD");
+                                $("#hPin").val("");
+                            }
+                            else if (resultado[0] == "00") {
+                                $("#hPin").val(resultado[1]);
+                                $("#txtPIN").val("1234");
+
+                            }
+                            else {
+                                alert("DATOS DEL PIN NO RECUPERADOS, INTENTE NUEVAMENTE");
+                                $("#hPin").val("");
+                                $("#txtPIN").val("ÔÕÖ×");
+                            }
+                        }
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    },
+                    complete: function () {
+                        DespuesAjax();
+                        $("#lbCargandoElementoModal").html("Cargando...");
+                    }
+                });
+            }
+            else {
+                alert("DEBE INGRESAR LA TARJETA PRIMERO");
+            }
+        }
+    });
+    $("#btContrato").click(function () {
+        $.ajax({
+			type: 'POST',
+			url: '@Url.Action("RegistrarContrato20190","Tarjeta")',
+			dataType: 'text',
+            beforeSend: AntesAjax(),
+			success: function (l) {
+				if (l == "OK") {
+					$("#ICOCModal").modal();
+				}
+				else {
+					alert("OCURRIO UN ERROR AL GENERAR EL FORMULARIO 20190.");
+				}
+			},
+			error: function (ex, textStatus, errorThrown) {
+				AjaxErrorHandler(ex, textStatus, errorThrown);
+			},
+			complete: function () { DespuesAjax(); }
+		});        
+    });
+    $("#btPrnQryCerrar").click(function () {
+        $("#ICOCModal").modal("hide");
+    });
+    $("#btPrnQryAceptar").click(function () {
+        $("#btSatNAO").val($("#ckOriginal").prop('checked'));
+        $("#btSatNAC").val($("#ckCopia").prop('checked'));
+        $("#ICOCModal").modal("hide");
+        document.imprimirContratoSat.submit();
+    });
+</script>

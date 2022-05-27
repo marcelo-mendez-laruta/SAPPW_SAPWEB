@@ -1,0 +1,50 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Permiso de Entrega de Tarjetas: ";
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <header>
+            <h4 id="mNomVentana">Permiso de Entrega de Tarjetas:</h4>
+        </header>
+        <div class="form-row">
+            <div class="col-lg-10">
+                <div class="container">
+                    <fieldset class="border border-dark">
+                        <legend class="w-auto" style="font-size:14px;">
+                            Ingrese el Código de Autorización
+                        </legend>
+                        <div class="container">
+                            <div class="form-row">
+                                <label for="txtEEUsuario" class="col-sm-3 col-form-label">
+                                    Matrícula:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txtEEUsuario" value="" class="form-control" type="text" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="txtEEContrasena" class="col-sm-3 col-form-label">
+                                    Password:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txtEEContrasena" class="form-control" type="password" />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="form-row m-0 p-0">
+                        <button onclick="EETarjeta('3')" class="col col-lg-12 btn btn-outline-secondary m-1">
+                            <i class="fas fa-check icono-2x"></i><br />Aceptar
+                        </button>
+                        <button onclick="EETarjeta('1')" class="col col-lg-12 btn btn-outline-secondary m-1">
+                            <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                        </button>
+                </div>
+            </div>
+        </div>
+    </div>

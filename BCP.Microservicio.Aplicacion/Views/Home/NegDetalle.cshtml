@@ -1,0 +1,41 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Neg Detalle: ";
+}
+    <div class="container border border-dark" style="background-color:lightgrey">
+        <header>
+            <h4>Neg Detalle:</h4>
+        </header>
+        <div class="row p-1">
+            <div class="col-lg-10">
+                <div class="form-group row p-1 mb-2">
+                    <label for="txtnombresD" class="col-sm-3 col-form-label">
+                        Nombres:
+                    </label>
+                    <div class="col-sm-9">
+                        <input id="txtnombresD" class="form-control" type="text" readonly />
+                    </div>
+                </div>
+                <div class="table-responsive bg-white" style="max-height:200px;">
+                    <table id="tbAND" class="table table-bordered table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Descripción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="container h-100 align-bottom">
+                    <button id="btCerrarAND" class="col col-lg-12 btn btn-outline-secondary m-1">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,562 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model string;
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Visualización de Reportes: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Visualización de Reportes:</h4>
+    </header>
+    <div class="row p-1">
+        <div class="col-lg-10">
+            <div class="container mb-2 border border-dark p-2">
+                <div class="row p-1">
+                    @if (politicas.Contains("SAPP_BO_PRO_APE_PRO"))
+                    {
+                        <div class="col-sm-4">
+                            <div class="form-check">
+                                <input id="rbAC" value="AC" name="rgTipoRep" class="form-check-input" type="radio" checked />
+                                <label for="rbAC" class="form-check-label">
+                                    Apertura de Cuentas
+                                </label>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-4">
+                            <div class="form-check">
+                                <input id="rbAC" value="AC" name="rgTipoRep" class="form-check-input" type="radio" checked />
+                                <label for="rbAC" class="form-check-label">
+                                    Apertura de Cuentas
+                                </label>
+                            </div>
+                        </div>
+                    }
+                    @if (politicas.Contains("SAPP_BO_TAR"))
+                    {
+                        <div class="col-sm-4">
+                            <div class="form-check">
+                                <input id="rbTC" value="TC" name="rgTipoRep" class="form-check-input" type="radio" />
+                                <label for="rbTC" class="form-check-label">
+                                    Tarjeta Credimas
+                                </label>
+                            </div>
+                        </div>
+                    }
+            else
+            {
+                <div class="col-sm-4" style="display:none;">
+                    <div class="form-check">
+                        <input id="rbTC" value="TC" name="rgTipoRep" class="form-check-input" type="radio" />
+                        <label for="rbTC" class="form-check-label">
+                            Tarjeta Credimas
+                        </label>
+                    </div>
+                </div>
+            }
+                    <div class="col-sm-4" style="display:none;">
+                        <div class="form-check">
+                            <input id="rbAD" value="AD" name="rgTipoRep" class="form-check-input" type="radio" />
+                            <label for="rbAD" class="form-check-label">
+                                Actualización de Datos
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="divApertura" class="container p-1">
+                <form id="rptApertura" name="rptApertura" method="post" action='@Url.Action("ReporteApertura", "Home")'>
+                    <div class="row p-1">
+                        <div class="col-sm-6">
+                            <div class="container mb-2">
+                                <fieldset class="border border-dark p-2">
+                                    <legend class="w-auto" style="font-size:13px;">
+                                        Persona
+                                    </legend>
+                                    <div class="container p-1">
+                                        <div class="form-check">
+                                            <input id="rbAPN" value="true" name="personaNatural" class="form-check-input" type="radio" checked />
+                                            <label for="rbAPN" class="form-check-label">
+                                                Persona Natural
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input id="rbAPJ" value="false" name="personaNatural" class="form-check-input" type="radio" />
+                                            <label for="rbAPJ" class="form-check-label">
+                                                Persona Jurídica
+                                            </label>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="container">
+                                <fieldset class="border border-dark p-2">
+                                    <legend class="w-auto" style="font-size:13px;">
+                                        Fecha
+                                    </legend>
+                                    <div class="container p-1">
+                                        <div class="container">
+                                            <div class="form-check">
+                                                <input id="rbAtHoy" onchange="elemento('rbAtFecha','txtrbAtFecha','readonly')" value="@DateTime.Now.ToString("dd/MM/yyyy")" name="fecha" class="form-check-input" type="radio" checked />
+                                                <label for="rbAtHoy" class="form-check-label">
+                                                    Hoy
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <input id="rbAtFecha" value="" name="fecha" type="radio" onchange="elemento('rbAtFecha','txtrbAtFecha','readonly')" />
+                                                </div>
+                                            </div>
+                                            <input readonly id="txtrbAtFecha" class="form-control" type="text" value="" required />
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="container mb-2">
+                                <fieldset class="border border-dark p-2">
+                                    <legend class="w-auto" style="font-size:13px;">
+                                        Usuario
+                                    </legend>
+                                    <div class="container p-1">
+                                        @if (politicas.Contains("SAPP_BO_REP_APE_TOD_USR") )
+                                        {
+                                        <div class="container">
+                                            <div class="form-check">
+                                                <input id="rbcAUsuario" onchange="elemento('rb1AUsuario','txt1AUsuario','readonly')" value="" name="usuario" class="form-check-input" type="radio" checked />
+                                                <label for="rbcAUsuario" class="form-check-label">
+                                                    Todos
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <div class="form-check">
+                                                        <input id="rb1AUsuario" onchange="elemento('rb1AUsuario','txt1AUsuario','readonly')" value="" name="usuario" type="radio" />
+                                                        <label for="rb1AUsuario">
+                                                            Usuario
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input readonly id="txt1AUsuario" class="form-control" type="text" value="" required />
+                                        </div>
+                                        }
+                                        else{
+                                        <div class="container">
+                                            <div class="form-check">
+                                                <input id="rbcAUsuario" disabled value="" name="usuario" class="form-check-input" type="radio" />
+                                                <label for="rbcAUsuario" class="form-check-label">
+                                                    Todos
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">
+                                                    <div class="form-check">
+                                                        <input id="rb1AUsuario"  checked value="@Model" name="usuario" type="radio" />
+                                                        <label for="rb1AUsuario">
+                                                            Usuario
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <input readonly id="txt1AUsuario" class="form-control" type="text" value="@Model" required />
+                                        </div>
+                                        }
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="container">
+                                <fieldset class="border border-dark p-2">
+                                    <legend class="w-auto" style="font-size:13px;">
+                                        Operación
+                                    </legend>
+                                    <div class="container p-1">
+                                        <div class="container p-1">
+                                            <div class="container">
+                                                <div class="form-check">
+                                                    <input id="rbAcOpc" onchange="elemento('rbA1Opc','cbA1Opc','disabled')" value="" name="tipoOperacion" class="form-check-input" type="radio" checked />
+                                                    <label for="rbAcOpc" class="form-check-label">
+                                                        Todas
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <input id="rbA1Opc" onchange="elemento('rbA1Opc','cbA1Opc','disabled')" value="" name="tipoOperacion" type="radio" />
+                                                    </div>
+                                                </div>
+                                                <select disabled id="cbA1Opc" class="form-control" required>
+                                                    <option selected>Select</option>
+                                                    <option value="AHA">AHORRO CUENTA SUELDO</option>
+                                                    <option value="AHB">AHORRO BS. UFV</option>
+                                                    <option value="AHC">AHORRO PLAN GANANCIA</option>
+                                                    <option value="AHG">AHORRO GANANCIA</option>
+                                                    <option value="AHL">AHORRO LIBRE</option>
+                                                    <option value="AHO">AHORRO ORO</option>
+                                                    <option value="AHP">AHORRO GANANCIA PROMOCION</option>
+                                                    <option value="AHS">AHORROS</option>
+                                                    <option value="AHT">AHORRO PLAN LIBRE</option>
+                                                    <option value="CCB">CUENTA CORRIENTE BS. UFV</option>
+                                                    <option value="CCS">CUENTA CORRIENTE SYSTEMATICS</option>
+                                                    <option value="DIN">DPF INTERBANCARIO</option>
+                                                    <option value="DNI">DPF ESPECIAL</option>
+                                                    <option value="DPO">DPF NORMAL</option>
+                                                    <option value="DPR">DPF RENTAMAS</option>
+                                                    <option value="FIS">CUENTA FISCAL</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                             <div class="container">
+                                <fieldset class="border border-dark p-2">
+                                    <legend class="w-auto" style="font-size:13px;">
+                                        Modalidad
+                                    </legend>
+                                    <div class="container p-1">
+                                        <div class="container p-1">
+                                            <div class="container">
+                                                <div class="form-check">
+                                                    <input id="rbAcIndM" onchange="elemento('rbA1IndM','cbA1IndM','disabled')" name="indModalidad" value="" class="form-check-input" type="radio" checked />
+                                                    <label for="rbAcIndM" class="form-check-label">
+                                                        Todas
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <div class="input-group-text">
+                                                        <input id="rbA1IndM" onchange="elemento('rbA1IndM','cbA1IndM','disabled')" name="indModalidad" value="" type="radio" />
+                                                    </div>
+                                                </div>
+                                                <select disabled id="cbA1IndM" class="form-control" required>
+                                                    <option selected>Select</option>
+                                                    <option value="IN">INDIVIDUAL</option>
+                                                    <option value="MI">MC. INDISTINTA</option>
+                                                    <option value="MC">MC. CONJUNTA</option>
+                                                    <option value="BE">BENEMERITO</option>
+                                                    <option value="ME">MENOR</option>
+                                                    <option value="MD">MENOR DONACION</option>
+                                                    <option value="JU">JURIDICO</option>
+                                                    <option value="SL">SF. LUCRO</option>
+                                                    <option value="IA">INST. ARMADOS</option>
+                                                    <option value="EF">ENTIDAD FINANCIERA</option>
+                                                    <option value="OF">OTRAS E.F.</option>
+                                                    <option value="MC">MUTUAL/COOPERATIVA</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="divTarjeta" class="container p-1" style="display:none">
+                <form id="rptTarjeta" name="rptTarjeta" method="post" action='@Url.Action("ReporteTarjeta", "Home")'>
+                    <div class="form-row">
+                        <div class="col-sm-4">
+                            <fieldset class="border border-dark p-2">
+                                <legend class="w-auto" style="font-size:13px;">
+                                    Operación:
+                                </legend>
+                                <div class="container p-1">
+                                    <div class="form-check">
+                                        <input id="rbOT" onchange="elemento('rbOET','cbOperacionT','disabled')" value="" name="tipoOperacion" class="form-check-input" type="radio" checked />
+                                        <label for="rbOT" class="form-check-label">
+                                            Todas
+                                        </label>
+                                    </div>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text">
+                                                <input id="rbOET" value="" onchange="elemento('rbOET','cbOperacionT','disabled')" name="tipoOperacion" type="radio" />
+                                            </div>
+                                        </div>
+                                        <select id="cbOperacionT" disabled class="form-control" required>
+                                            <option selected>Select</option>
+                                            <option value="AP">APERTURA</option>
+                                            <option value="CA">CAMBIO</option>
+                                            <option value="MO">MODIFICACION</option>
+                                            <option value="EN">ENTREGA DIFERIDA</option>
+                                            <option value="EV">ENTREGA CON V°B°</option>
+                                            <option value="EE">ELIMINACION ENTREGA</option>
+                                            <option value="CO">CONSULTA</option>
+                                            <option value="EX">TARJ. BCA. EXC.</option>
+                                            <option value="BL">BLOQUEO</option>
+                                            <option value="TT">EN TRAMITE</option>
+                                            <option value="CR">CAMBIO RAPIDO</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-sm-4">
+                            <fieldset class="border border-dark p-2">
+                                <legend class="w-auto" style="font-size:13px;">
+                                    Usuario:
+                                </legend>
+                                <div class="container p-1">
+                                    @if (politicas.Contains("SAPP_BO_REP_TAR_OPE_TOD_USR") )
+                                        {
+                                    <div class="form-check">
+                                        <input id="rbTUT" onchange="elemento('rbTUU','txtrbTUU','readonly')" value="" name="usuario" class="form-check-input" type="radio" checked />
+                                        <label for="rbTUT" class="form-check-label">
+                                            Todas
+                                        </label>
+                                    </div>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text">
+                                                <div class="form-check">
+                                                    <input id="rbTUU" value="" onchange="elemento('rbTUU','txtrbTUU','readonly')" name="usuario" type="radio" />
+                                                    <label for="rbTUU">
+                                                        Por Usuario
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input readonly id="txtrbTUU" class="form-control" type="text" value="" required />
+                                    </div>
+                                    }
+                                    else{
+                                    <div class="form-check">
+                                        <input id="rbTUT" disabled value="" name="usuario" class="form-check-input" type="radio"  />
+                                        <label for="rbTUT" class="form-check-label">
+                                            Todas
+                                        </label>
+                                    </div>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text">
+                                                <div class="form-check">
+                                                    <input id="rbTUU" value="@Model" checked name="usuario" type="radio" />
+                                                    <label for="rbTUU">
+                                                        Por Usuario
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input readonly id="txtrbTUU" class="form-control" type="text" value="@Model" required />
+                                    </div>
+                                    }
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-sm-4">
+                            <fieldset class="border border-dark p-2">
+                                <legend class="w-auto" style="font-size:13px;">
+                                    Fecha:
+                                </legend>
+                                <div class="container p-1">
+                                    <div class="form-check">
+                                        <input id="rbTFH" onchange="elemento('rbTFF','txtrbTFH','readonly')" value="@DateTime.Now.ToString("dd/MM/yyyy")" name="fecha" class="form-check-input" type="radio" checked />
+                                        <label for="rbTFH" class="form-check-label">
+                                            Hoy
+                                        </label>
+                                    </div>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text">
+                                                <input id="rbTFF" value="" onchange="elemento('rbTFF','txtrbTFH','readonly')" name="fecha" type="radio" />
+                                            </div>
+                                        </div>
+                                        <input id="txtrbTFH" value="" class="form-control" readonly required />
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div id="divActualizacion" class="container p-1" style="display:none;">
+                <div class="form-row">
+                    <div class="col-sm-4">
+                        <fieldset class="border border-dark p-2">
+                            <legend class="w-auto" style="font-size:13px;">
+                                Tipo de Persona:
+                            </legend>
+                            <div class="container p-1">
+                                <div class="form-check">
+                                    <input id="rbAPN" checked type="radio" value="natural" name="rgAP" class="form-check-input" />
+                                    <div class="form-check-label">
+                                        Natural
+                                    </div>
+                                </div>
+                                <div class="form-group form-check">
+                                    <input id="rbAPJ" type="radio" value="juridico" name="rgAP" class="form-check-input" />
+                                    <div class="form-check-label">
+                                        Juridica
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-sm-4">
+                        <fieldset class="border border-dark p-2">
+                            <legend class="w-auto" style="font-size:13px;">
+                                Usuario:
+                            </legend>
+                            <div class="container p-1">
+                                <div class="form-check">
+                                    <input id="rbAUT" onchange="elemento('rbAUU','txtrbAUU','readonly')" value="todas" name="rgAUsuario" class="form-check-input" type="radio" checked />
+                                    <label for="rbAUT" class="form-check-label">
+                                        Todas
+                                    </label>
+                                </div>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <div class="form-check">
+                                                <input id="rbAUU" onchange="elemento('rbAUU','txtrbAUU','readonly')" name="rgAUsuario" type="radio" />
+                                                <label for="rbAUU">
+                                                    Por Usuario
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input readonly id="txtrbAUU" class="form-control" type="text" />
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-sm-4">
+                        <fieldset class="border border-dark p-2">
+                            <legend class="w-auto" style="font-size:13px;">
+                                Fecha:
+                            </legend>
+                            <div class="container p-1">
+                                <div class="form-check">
+                                    <input id="rbAFH" onchange="elemento('rbAFF','txtrbAFH','readonly')" value="todas" name="rgAFecha" class="form-check-input" type="radio" checked />
+                                    <label for="rbAFH" class="form-check-label">
+                                        Hoy
+                                    </label>
+                                </div>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <input id="rbAFF" onchange="elemento('rbAFF','txtrbAFH','readonly')" name="rgAFecha" type="radio" />
+                                        </div>
+                                    </div>
+                                    <input id="txtrbAFH" readonly class="form-control" />
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <div class="row m-0 p-0">
+                    @if (politicas.Contains("SAPP_BO_REP_APE") && politicas.Contains("SAPP_BO_REP_TAR"))
+                    {
+                        <button onclick="generarReporte()" type="button" class="col col-lg-12 btn btn-outline-secondary m-1">
+                            <i class="fas fa-print icono-2x"></i><br />Consultar
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="col col-lg-12 btn btn-outline-secondary m-1" disabled>
+                            <i class="fas fa-print icono-2x"></i><br />Consultar
+                        </button>
+                    }
+                    <button type="button" class="col col-lg-12 btn btn-outline-secondary m-1" onclick="location.href='@Url.Action("Index", "Home")'">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cancelar
+                    </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $("input[type=radio][name=rgTipoRep]").change(function () {
+        switch (this.value) {
+            case 'AC':
+                $('#divApertura').show();
+                $('#divTarjeta').hide();
+                $('#divActualizacion').hide();
+                break;
+            case 'TC':
+                $('#divApertura').hide();
+                $('#divTarjeta').show();
+                $('#divActualizacion').hide();
+                break;
+            case 'AD':
+                $('#divApertura').hide();
+                $('#divTarjeta').hide();
+                $('#divActualizacion').show();
+                break;
+        }
+    });
+    function elemento(nombre, texto, atributo) {
+        if ($("#" + nombre).prop('checked')) {
+            $("#" + texto).prop(atributo, false);
+        }
+        else {
+            $("#" + texto).prop(atributo, true);
+        }
+    }
+    function generarReporte() {
+        var operacion = $("input[type=radio][name=rgTipoRep]:checked").val();
+        switch (operacion) {
+            case 'AC':
+                document.rptApertura.submit();
+                break;
+            case 'TC':
+                document.rptTarjeta.submit();
+                break;
+            case 'AD':
+                alert('si');
+                break;
+        }
+    }
+    $("#cbOperacionT").change(function () {
+        $("#rbOET").val($(this).val());
+    });
+    $("#cbA1Opc").change(function () {
+        $("#rbA1Opc").val($(this).val());
+    });
+    $("#cbA1IndM").change(function () {
+        $("#rbA1IndM").val($(this).val());
+    });
+    $("#txtrbTUU").keyup(function (e) {
+        $("#rbTUU").val($(this).val());
+    });
+    $("#txtrbTFH").keyup(function (e) {
+        $("#rbTFF").val($(this).val());
+    });
+    $("#txtrbAtFecha").keyup(function (e) {
+        $("#rbAtFecha").val($(this).val());
+    });
+    $("#txt1AUsuario ").keyup(function (e) {
+        $("#rb1AUsuario ").val($(this).val());
+    });
+</script>

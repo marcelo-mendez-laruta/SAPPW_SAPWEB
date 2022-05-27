@@ -1,0 +1,213 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@using BCP.Sap.Models.Rebibir;
+@model ALSProductoClienteResponseData;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "ALS-Consulta de Productos por Clientes: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>ALS-Consulta de Productos por Clientes:</h4>
+    </header>
+    <div class="form-row">
+        <div class="col-lg-11">
+            <div class="container mb-1">
+                <div class="form-row">
+                    <label asp-for="customer" class="col-sm-2 col-form-label">
+                        Customer:
+                    </label>
+                    <div class="col-sm-10">
+                        <input asp-for="customer" class="col-sm-10 form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="table-responsive bg-white" style="max-height:300px;">
+                    <table id="tbALSPC" class="table table-bordered table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Cod. Crédito</th>
+                                <th>Tipo de relación</th>
+                                <th>Tipo de Producto</th>
+                                <th>Saldo Actual</th>
+                                <th>Fecha de Vencimiento</th>
+                                <th>Nombre Corto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.total; i++)
+                            {
+                                <tr id="@(i+1)">
+                                    <td>@Model.rows[i].codigoCredito</td>
+                                    <td>@Model.rows[i].tipoRelacion</td>
+                                    <td>@Model.rows[i].tipoProducto</td>
+                                    <td>@Model.rows[i].saldoActual</td>
+                                    <td id="tdPC@(i+1)">@Model.rows[i].fechaVencimiento</td>
+                                    <td id="tdPCN@(i+1)">@Model.rows[i].nombreCorto</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1">
+            <form id="ALSPC" name="fALSCA" method="post" action="@Url.Action("InfoProductoAls")">
+                <input type="hidden" name="codigoCredito" id="hCredito" value="" />
+                <input type="hidden" name="nombre" id="hCnombre" value="" />
+                <center>
+                    @if (politicas.Contains("SAPP_BO_CON_ALS"))
+                    {
+                        <button type="button" id="btConsulta" class="w-100 btn btn-outline-secondary">
+                            <i class="fas fa-print icono-2x"></i><br />Consultar
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="w-100 btn btn-outline-secondary" disabled>
+                            <i class="fas fa-print icono-2x"></i><br />Consultar
+                        </button>
+                    }
+                    <button type="submit" id="btAceptar" class="w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-check icono-2x"></i><br />Aceptar
+                    </button>
+                    <button id="btAnterior" onclick="cambiarSeleccion(0, -1)" type="button" class="w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-arrow-up icono-2x"></i><br />Anterior
+                    </button>
+                    <button id="btSiguiente" onclick="cambiarSeleccion(0, 1)" type="button" class="w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                    </button>
+                    <button type="button" class="w-100 btn btn-outline-secondary" onclick="window.history.back()">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                    </button>
+                </center>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ($("#tbALSPC tr").length > 1) {
+            $("#tbALSPC #1").addClass("bg-info");
+            $("#hCredito").val($("#tdPC1").html());
+            $("#hCnombre").val($("#tdPCN1").html());
+            $("#btSiguiente").prop('disabled', false);
+            $("#btAceptar").prop('disabled', false);
+        }
+    });
+    $("#btConsulta").click(function () {
+        if ($("#customer").val() != "") {
+            var parametros = {
+                datos: {
+                    customer: $("#customer").val()
+                }
+            };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ConsultaProductoClienteALS", "Consulta")',
+                data: parametros,
+                beforeSend: AntesAjax(),
+                dataType: 'json',
+                success: function (l) {
+                    DespuesAjax();
+                    if (l == null) {
+                        alert("Error de conexion al microservicio");
+                    }
+                    else if (l.state == null) {
+                        alert('Error de procesamiento de la consulta');
+                    }
+                    else if (!l.success) {
+                        alert("Producto no encontrado");
+                    }
+                    else {
+                        $("#tbALSPC tbody").empty();
+                        $("#btAnterior").prop('disabled', true);
+                        $("#btSiguiente").prop('disabled', true);
+                        $("#btAceptar").prop('disabled', true);
+                        $("#hCredito").val("");
+                        $("#hCnombre").val("");
+                        for (var i = 0; i < l.data.total; i++) {
+                            var fia = '<tr id="' + (i + 1) + '">' +
+                                '<td>' + l.data.rows[i].codigoCredito + '</td>' +
+                                '<td>' + l.data.rows[i].tipoRelacion + '</td>' +
+                                '<td id="tdC' + (i + 1) + '">' + l.data.rows[i].tipoProducto + '</td>' +
+                                '<td>' + l.data.rows[i].saldoActual + '</td>' +
+                                '<td id="tdPC'+(i+1)+'">' + l.data.rows[i].codigoCredito + '</td>' +
+                                '<td id="tdPCN'+(i+1)+'">' + l.data.rows[i].nombreCorto + '</td>' +
+                                '</tr>';
+                            $("#tbALSPC tbody").append(fia);
+                        }
+                        if (l.data.total > 1) {
+                            $("#tbALSPC #1").addClass("bg-info");
+                            $("#hCredito").val($("#tdPC1").html());
+                            $("#hCnombre").val($("#tdPCN1").html());
+                            $("#btSiguiente").prop('disabled', false);
+                            $("#btAceptar").prop('disabled', false);
+                        }
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                }
+            });
+        }
+        else {
+            alert("Debe ingresar el Customer");
+        }
+    });
+    $('#tbALSPC').on('click', 'td', function () {
+        var id = $(this).parents('tr').attr('id');
+        cambiarSeleccion(id, 0);
+    });
+    $('#ALSPC').on('submit', function (e) {
+        if ($("#hCredito").val() == "") {
+            e.preventDefault();
+            alert("No se selcciono producto");
+        }
+    });
+    function cambiarSeleccion(id, incremento) {
+        var nfila = ($("#tbALSPC tr").length) - 1;
+        if (nfila > 1) {
+            for (var i = 1; i <= nfila; i++) {
+                if ($("#tbALSPC #" + i + "").hasClass("bg-info")) {
+                    $("#tbALSPC #" + i + "").removeClass("bg-info");
+                    if (id == 0) {
+                        id = (i +(1* incremento));
+                    }
+                    break;
+                }
+            }
+            $("#tbALSPC #" + id + "").addClass("bg-info");
+            $("#hCredito").val($("#tdPC" + id + "").html());
+            $("#hCnombre").val($("#tdPCN" + id + "").html());
+            if (id == 1) {
+                $("#btAnterior").prop('disabled', true);
+            }
+            else if (id == nfila) {
+                $("#btSiguiente").prop('disabled', true);
+            }
+            else {
+                $("#btAnterior").prop('disabled', false);
+                $("#btSiguiente").prop('disabled', false);
+            }
+        }
+    }
+</script>
+

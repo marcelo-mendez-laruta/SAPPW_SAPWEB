@@ -1,0 +1,159 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap; 
+@model List<DatosCliente>;
+@{
+    ViewData["Title"] = "Paso 6: ";
+    string[] datos=new string[2];
+    if (TempData["TipoPersona"] != null)
+    {
+        datos = TempData["TipoPersona"].ToString().Split('-');
+    }
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <header>
+            <h4>Registro Paso 8:</h4>
+        </header>
+        <div class="container mb-1">
+            <div class="table-responsive bg-white">
+                <table id="tbCliente" class="table table-bordered table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Sat</th>
+                            <th>Documento</th>
+                            <th>Tipo</th>
+                            @if (datos[0].Equals("J"))
+                            {
+                                <th>Razon Social</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            }
+                            else
+                            {
+                                <th>Apellido Paterno</th>
+                                <th>Apellido Materno</th>
+                                <th>Nombre</th>
+                                <th></th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!(datos[0]==null||datos[0].Equals("")))
+                        {
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                        <tr id="@(i + 1)">
+                            <td>
+                                @if (datos[1].Contains("MC") && i > 0)
+                                {
+                                    <i id="i@(i+1)" class="border fas fa-check"></i>
+                                }
+                                else if (Model[i].tarjeta == null|| Model[i].tarjeta == "")
+                                {
+                                    <i id="i@(i+1)" class="border fas fa-times"></i>
+                                }
+                                else
+                                {
+                                    <i id="i@(i+1)" class="border fas fa-check"></i>
+                                }
+                            </td>
+                            <td>@Model[i].idC</td>
+                            <td>@Model[i].idT</td>
+                            @if (datos[0].Equals("J"))
+                            {
+                                <th>@Model[i].pj.razonSocial</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            }
+                            else
+                            {
+                                <td>@Model[i].pn.paterno</td>
+                                <td>@Model[i].pn.materno</td>
+                                <td>@Model[i].pn.nombres</td>
+                                <td></td>
+                            }
+                        </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-12 text-right mb-3" style="display:none;">
+            <div class="row p1">
+                <div class="col">
+                    <button class="btn">
+                        <i class="fas fa-check icono-1x"></i>
+                    </button>
+                </div>
+                <div class="col">
+                    <button class="btn">
+                        <i class="fas fa-closed-captioning icono-1x"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="d-inline p-1">
+            <form id="Paso6" name="Paso6" method="post" action='@Url.Action("ImpContrato","Home")'>
+                <footer>
+                    <input id="hindice" name="indice" type="hidden" value="0" />
+                    
+                        <div class="form-row justify-content-center align-items-center">
+                            <div class="col-auto m-1">
+                                <button type="button" class="btn border btn-light" onclick="cancelarProceso('@Url.Action("Index","Home")');">Cancelar</button>
+                            </div>
+                            <div class="col-auto m-1">
+                                <button id="btAnterior" disabled type="button" class="btn border btn-light" onclick="window.history.back()">&lt;&lt;Anterior<<</button>
+                            </div>
+                            <div class="col-auto m-1">
+                                <input id="btEnviar" type="submit" class="btn border btn-light" value="Imprimir" />
+                            </div>
+                        </div>
+                </footer>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if ($("#tbCliente tr").length > 1) {
+                $("#tbCliente #1").addClass("bg-info");
+                $("#hindice").val('0');
+                var nfila = ($("#tbCliente tr").length) - 1;
+                var c = 0;
+                for (var i = 1; i <= nfila; i++) {
+                    if ($("#i" + i + "").hasClass("fa-times")) {
+                        c = c + 1;
+                    }
+                }
+                if (c > 0) {
+                        $("#Paso6").attr('action', '@Url.Action("AlfabeticaTarjeta","Consulta")');
+                        $("#btEnviar").val(">>Siguiente>>");
+                        $("h4").html("Registro Paso 6:");
+                    if (c == nfila) {
+                        $("#btAnterior").prop('disabled', false);
+                    }
+                }
+            }
+        });
+        $('#tbCliente').on('click', 'tbody tr', function () {
+            var selected=$(this).hasClass("bg-info");
+            if(!selected){
+                var id = $(this).attr('id');
+                $("#tbCliente tbody tr").removeClass("bg-info");
+                $(this).addClass("bg-info");
+                $("#hindice").val(id - 1);
+            } 
+        });
+        $('#Paso6').on('submit', function (e) {
+            var indice = parseInt($("#hindice").val()) + 1;
+            if ($("#btEnviar").val() == ">>Siguiente>>") {
+                if ($("#i" + indice + "").hasClass("fa-check")) {
+                    e.preventDefault();
+                    alert('Tarjeta ya fue afiliada a cliente');
+                }
+            }
+        });
+    </script>

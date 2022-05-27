@@ -1,0 +1,193 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Configuracion
+@using BCP.Sap.Models.Sap;
+@model List<AperturaCuenta>;
+@{
+    ViewData["Title"] = "Paso 5: ";
+    string persona = "";
+    if (TempData["TipoPersona"] != null)
+    {
+        persona = TempData["TipoPersona"].ToString();
+    }
+    int integro = (from t in Model where t.cuentaProducto.producto[0].Equals('A') || t.cuentaProducto.producto.Substring(0, 2).Equals("CC") select t.cuentaProducto.producto).Count();
+    int dpf = Model.Count - integro;
+    string Atarjeta = "si";
+    if (persona.Equals("J") || integro == 0)
+    {
+        Atarjeta = "no";
+    }
+    List<ConfiguracionSeguros> listaSeguros = new List<ConfiguracionSeguros>();
+    string FULLidc = "";
+    string idc = "";
+    string tipoidc = "";
+    string extension = "";
+    string complemento = "00";//por ahora, no es seguro
+    string[] cuenta={}; //Model.FirstOrDefault().detalleCuenta.nroCuenta;    
+    string SegurosUrl = Url.Action("AfiliarSeguro", "Seguros");
+    string listaSegurosRaw = "";   
+    if (!persona.Equals("J"))
+    {
+        cuenta = (from t in Model where t.cuentaProducto.producto[0].Equals('A') && !t.cuentaProducto.codigoModalidad.Equals("103") select t.detalleCuenta.nroCuenta).ToArray();
+        if (cuenta.Length > 0)
+        {
+            if (ViewBag.ListaSeguros != null)
+            {
+                FULLidc = ViewBag.idC;// 12345678LP  No se evalua complemento
+                idc = FULLidc.Substring(0, 8);
+                tipoidc = ViewBag.Idt;
+                extension = FULLidc.Substring(8, 2);
+                listaSeguros = ViewBag.ListaSeguros;
+                listaSeguros.ForEach(data =>
+                {
+                        listaSegurosRaw=listaSegurosRaw+"-"+data.Tipo.FirstOrDefault().Codigo;        
+                });
+            }
+        }
+    }
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Registro Paso 5:</h4>
+    </header>
+    <div class="container mb-1">
+        <div class="table-responsive bg-white">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Tipo Cuenta</th>
+                        <th>Moneda</th>
+                        <th>Num. Cuenta</th>
+                        <th>Nombre</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var i in Model)
+                    {
+                        <tr>
+                            <td>@i.cuentaProducto.producto</td>
+                            <td>@i.detalleCuenta.moneda</td>
+                            <td>@i.detalleCuenta.nroCuenta</td>
+                            <td>@i.detalleCuenta.nombreCuenta</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (!listaSegurosRaw.Equals(""))
+    {
+        <div class="row justify-content-center my-2">
+            <fieldset class="border border-dark p-2 col-11">
+                <legend class="w-auto" style="font-size:14px;">
+                    ¿Desea registrarse a un seguro?
+                </legend>
+                <div class="container">
+                    <div class="row">
+                        @foreach (ConfiguracionSeguros Seguro in listaSeguros)
+                        {
+                            <partial name="~/Views/Shared/Componentes/_BotonSeguros.cshtml" model="Seguro" />
+                        }
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    }
+    <form id="Ingreso5" name="Ingreso5" method="post" action='@Url.Action("Paso6")'>
+        <div class="container mb-3">
+            <div class="row">
+                <div class="col-sm-5">
+                    <fieldset class="border border-dark p-2">
+                        <legend class="w-auto" style="font-size:14px;">
+                            ¿Desea abrir otra cuenta?
+                        </legend>
+                        <div class="container">
+                            <div class="form-check form-check-inline">
+                                <input id="rbNCS" value="S" name="nuevaCuenta" class="form-check-input" type="radio" />
+                                <label for="rbNCS" class="form-check-label">Si</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input id="rbNCS" value="N" name="nuevaCuenta" class="form-check-input" type="radio" checked />
+                                <label for="rbNCS" class="form-check-label">No</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                @if (persona.Equals("J") && integro > 0)
+                {
+                    <div id="divTarjeta" class="col-sm-7">
+                        <div class="form-check">
+                            <input id="ckAT" class="form-check-input" type="checkbox" />
+                            <label for="ckAT" class="form-check-label">Necesita Asignar Tarjeta</label>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="d-inline p-1">
+            <input id="hTarjeta" name="asignarTarjeta" type="hidden" value="@Atarjeta" />
+            <footer>
+                <div class="form-row justify-content-center align-items-center">
+                    <div class="col-auto m-1">
+                        <button type="button" class="btn border btn-light" onclick="cancelarProceso('@Url.Action("Index","Home")');">Cancelar</button>
+                    </div>
+                    <div class="col-auto m-1">
+                        <button disabled type="button" class="btn border btn-light">&lt;&lt;Anterior<<</button>
+                    </div>
+                    @if (!listaSegurosRaw.Equals(""))
+                    {
+                        <div class="col-auto m-1">
+                            <button id="Ingreso5Button" type="button" class="btn border btn-light" onclick="requestSeguros($('input[type=radio][name=nuevaCuenta]:checked').val(),'@SegurosUrl','@listaSegurosRaw','@idc','@tipoidc','@extension','@complemento','@string.Join(",", cuenta)')">>>Siguiente>></button>
+                            <input hidden id="Ingreso5Submit" type="submit" class="btn border btn-light" value=">>Siguiente>>" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-auto m-1">
+                            <input type="submit" class="btn border btn-light" value=">>Siguiente>>" />
+                        </div>
+                    }
+                </div>
+            </footer>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $("#ckAT").change(function () {
+        if (this.checked) {
+            $("#hTarjeta").val("si");
+        }
+        else {
+            $("#hTarjeta").val("no");
+        }
+    });
+    function direccionarP5() {
+        var OptOtraCuenta = "";
+        var TipoCliente = "@persona";
+        var bGoSat = true;
+        if (OptOtraCuenta.length != 0) {
+            location.href = '@Url.Action("Paso3")';
+        }
+        else {
+            if (TipoCliente == "N") {
+                if (bGoSat) {
+                    location.href = '@Url.Action("Paso6")';
+                }
+                else {
+                    location.href = '@Url.Action("Index","Home")'
+                }
+            }
+            else {
+                if (TipoCliente == "J") {
+                    if (bGoSat) {
+                        location.href = '@Url.Action("Paso6")';
+                    }
+                    else {
+                        location.href = '@Url.Action("Index","Home")';
+                    }
+                }
+            }
+        }
+    }
+</script>

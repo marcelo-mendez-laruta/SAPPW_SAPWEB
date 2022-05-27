@@ -1,0 +1,126 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@model Sesion;  
+@{
+    ViewData["Title"] = "Config: ";
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <header>
+            <h4>Config:</h4>
+        </header>
+        <div class="row">
+            <div class="col-sm-10">
+                <div class="container border border-dark mb-1">
+                    <ul class="nav nav-tabs" id="tabConfig" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#config1" role="tab" aria-controls="home" aria-expanded="true">Usuario</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#config2" role="tab" aria-controls="profile" aria-expanded="true">Estación</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#config3" role="tab" aria-controls="profile" aria-expanded="true">Oficina</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content p-1" id="tabDatAdiCliEMPContent">
+                        <div class="tab-pane fade show active" id="config1" role="tabpanel" aria-labelledby="1-tab">
+                            <div class="form-row">
+                                <label for="" class="col-sm-3 col-form-label">
+                                    Matrícula:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" value="@Model.usuario.usuario" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label class="col-sm-3 col-form-label">
+                                    Nombre:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" value="@Model.usuario.nombre" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="" class="col-sm-3 col-form-label">
+                                    Descripción:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" value="" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="config2" role="tabpanel" aria-labelledby="2-tab">
+                            <div class="form-row">
+                                <label for="" class="col-sm-3 col-form-label">
+                                    TETI:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" value="@Model.host.teti" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="" class="col-sm-3 col-form-label">
+                                    Número de LU:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" value="" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="" class="col-sm-3 col-form-label">
+                                    CICS:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" value="" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="config3" role="tabpanel" aria-labelledby="3-tab">
+                            <div class="form-row">
+                                <label class="col-sm-3 col-form-label">
+                                    Nombre:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" value="" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="" class="col-sm-3 col-form-label">
+                                    Sucursal:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" value="@Model.host.sucursal" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="" class="col-sm-3 col-form-label">
+                                    Agencia CONSIST:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" value="@Model.host.agencia" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="" class="col-sm-3 col-form-label">
+                                    Agencia Sat:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" value="@Model.host.agencia" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="container p-1">
+                    <button class="btn btn-outline-secondary" onclick="location.href='@Url.Action("Index","Home")'">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+

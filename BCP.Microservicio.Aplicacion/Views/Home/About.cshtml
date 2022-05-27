@@ -1,0 +1,39 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "About: ";
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <header>
+            <h4>About:</h4>
+        </header>
+        <div class="form-row">
+            <div class="col-lg-3">
+                <div class="row h-100 justify-content-center align-items-center">
+                    <i class="fas fa-clipboard icono-5x"></i>
+                </div>
+
+            </div>
+            <div class="col-lg-6">
+                <p><b>Administrador de Productos</b></p>
+                <p><b>Versión 4.2 Build 3</b></p>
+                <p><b>Copyrigth &copy; 20XX</b></p>
+                <p><b>Banco de Crédito de Bolivia</b></p>
+            </div>
+            <div class="col-lg-3 align-items-end">
+                <div class="container">
+                    <button class="btn border btn-light w-50" onclick="location.href='@Url.Action("SoporteTecnico","Home")'">Soporte</button>
+                </div>
+                <div class="container">
+                    <button class="w-50 btn btn-outline-secondary" onclick="location.href='@Url.Action("Index","Home")'">
+                        <i class="fas fa-window-close icono-2x"></i><br />
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <p>Sap Versión TLS1.2 2020</p>
+        </div>
+    </div>

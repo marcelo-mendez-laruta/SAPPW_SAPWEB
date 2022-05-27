@@ -1,0 +1,95 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Registro de Datos del Bloqueo de Tarjetas: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Registro de Datos del Bloqueo de Tarjetas:</h4>
+    </header>
+    <form id="SelBloqueo" name="selBloqueo" method="post" action='@Url.Action("Bloqueo")'>
+        <div class="row p-1">
+
+            <div class="col-lg-10">
+                <fieldset class="border border-dark p-2">
+                    <legend class="w-auto" style="font-size:18px;">
+                        Selección
+                    </legend>
+                    <div class="container p-1">
+                        <div class="form-check">
+                            <input id="rbSelBloq" onchange="habilitarCredimas()" name="rgSel" value="si" class="form-check-input" type="radio" />
+                            <label for="rbSelBloq" class="form-check-label">
+                                Credimas y Saldomático no registrdos en su debido momento
+                            </label>
+                        </div>
+                        <div id="divTarjeta" class="row p-1" style="display:none;">
+                            <label for="txtNroTar" class="col-sm-5 col-form-label">
+                                Nro. Tarjeta
+                            </label>
+                            <div class="col-sm-7">
+                                <input id="txtNroTar" class="form-control" type="text" autofocus name="tarjeta" required value="" placeholder="0000-0000-0000-0000" maxlength="19" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-lg-2">
+                <div class="row m-0 p-0">
+                        @if (politicas.Contains("SAPP_BO_TAR_COT_BLO_REG_BLO"))
+                        {
+                            <button id="btAceptar" type="submit" class="col col-lg-12 btn btn-outline-secondary m-1">
+                                <i class="fas fa-check icono-2x"></i><br />Aceptar
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="col col-lg-12 btn btn-outline-secondary m-1" onclick="alert('No se tiene permisos para registrar bloqueos');">
+                                <i class="fas fa-check icono-2x"></i><br />Aceptar
+                            </button>
+                        }
+                        <button type="button" class="col col-lg-12 btn btn-outline-secondary m-1" onclick="location.href='@Url.Action("Index","Home")'">
+                            <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                        </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $('#SelBloqueo').on('submit', function (e) {
+         if (!document.getElementById('rbSelBloq').checked) {
+            e.preventDefault();
+        }
+
+    });
+    function habilitarCredimas() {
+        var mancomuna = document.getElementById('divTarjeta');
+        if (document.getElementById('rbSelBloq').checked) {
+            mancomuna.style.display = "block";
+        }
+        else {
+            mancomuna.style.display = "none";
+        }
+    }
+    $("#txtNroTar").keyup(function (e) {
+        var key=e.keyCode;
+        $(this).val(formatoInputTarjeta($(this).val(),key));  
+    });
+</script>

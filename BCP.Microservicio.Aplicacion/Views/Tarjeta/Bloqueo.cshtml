@@ -1,0 +1,203 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@using BCP.Sap.Models.Enviar.Tarjeta;
+@model BloqueoDBData;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Bloqueo: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Bloqueo:</h4>
+    </header>
+    <form id="BloqueoDB" name="BloqueoDB" method="post" action="#">
+        <div class="container mb-1">
+            <div class="form-row">
+                <label asp-for="codBloqueo" class="col-sm-2 col-form-label">
+                    Nro. Bloqueo:
+                </label>
+                <div class="col-sm-4">
+                    <input readonly id="txtRBcodBloqueo" asp-for="codBloqueo" class="form-control" />
+                </div>
+                <label for="cbRBmotivo" class="col-sm-3 col-form-label">
+                    Motivo de Bloqueo:
+                </label>
+                <div class="col-sm-3">
+                    <select id="cbRBmotivo" class="form-control" name="motivo">
+                        <option selected value="E">EXTRAVIO</option>
+                        <option value="R">ROBO</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-lg-10">
+                <div class="container mb-1">
+                    <fieldset class="border border-dark">
+                        <legend class="w-auto" style="font-size:14px;">
+                            Datos de Tarjeta
+                        </legend>
+                        <div class="container">
+                            <div class="form-row">
+                                <label asp-for="tarjeta" class="col-sm-3 col-form-label">
+                                    Tarjeta nro:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txtRBTarjeta" class="form-control" asp-for="tarjeta" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label asp-for="fechaVenTarj" class="col-sm-3 col-form-label">
+                                    Fecha de Vencimiento:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input readonly id="txtRBfechaVenTarj" class="form-control" asp-for="fechaVenTarj"  />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="container">
+                    <fieldset class="border border-dark">
+                        <legend class="w-auto" style="font-size:14px;">
+                            Datos del Titular
+                        </legend>
+                        <div class="container">
+                            <div class="form-row">
+                                <label asp-for="idcDB" class="col-sm-3 col-form-label">
+                                    IDC:
+                                </label>
+                                <div class="col-sm-7">
+                                    <input id="txtRBIDC" class="form-control" asp-for="idcDB" readonly />
+                                </div>
+                                <div class="col-sm-1">
+                                    <input id="txttRBIDC" class="form-control" asp-for="tidcDB" readonly/>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label asp-for="nombre" class="col-sm-3 col-form-label">
+                                    Nombre:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txtRBNombre" class="form-control" asp-for="nombre" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="txRBTelefono" class="col-sm-3 col-form-label">
+                                    Teléfono:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txRBTelefono" class="form-control" type="text" name="telefono" />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="container mb-1">
+                    <fieldset class="border border-dark">
+                        <legend class="w-auto" style="font-size:14px;">
+                            Del bloqueo
+                        </legend>
+                        <div class="container">
+                            <div class="form-row">
+                                <label for="txtRBNomReporta" class="col-sm-3 col-form-label">
+                                    Nombre de quien reportó el bloqueo:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txtRBNomReporta" class="form-control" type="text" name="nombreReporta" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="txtRBObservaciones" class="col-sm-3 col-form-label">
+                                    Observaciones:
+                                </label>
+                                <div class="col-sm-9">
+                                    <textarea id="txtRBObservaciones" class="form-control" name="observaciones"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="txtRBFechBloqueo" class="col-sm-3 col-form-label">
+                                    Fecha y Hora de Bloqueo:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txtRBFechBloqueo" class="form-control" type="text" value="@DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="col h-100 w-100">
+                    <div class="align-text-bottom w-100">
+                        @if (politicas.Contains("SAPP_BO_TAR_COT_BLO_REG_BLO"))
+                        {
+                            <button type="submit" class="my-1 w-100 btn btn-outline-secondary">
+                                <i class="fas fa-check icono-2x"></i><br>
+                                Aceptar
+                            </button><br>
+                            <button class="my-1 w-100 btn btn-outline-secondary">
+                                <i class="fas fa-edit icono-2x"></i><br>
+                                Nuevo
+                            </button><br>
+                        }
+                        else
+                        {
+                            <button class="my-1 w-100 btn btn-outline-secondary" disabled>
+                                <i class="fas fa-check icono-2x"></i><br>
+                                Aceptar
+                            </button><br>
+                            <button class="my-1 w-100 btn btn-outline-secondary" disabled>
+                                <i class="fas fa-edit icono-2x"></i><br>
+                                Nuevo
+                            </button><br>
+
+                        }
+                        <button id="btRBloqueoCerrar" type="button" onclick="location.href='@Url.Action("Index","Home")'" class="my-1 w-100 btn btn-outline-secondary">
+                            <i class="fas fa-window-close icono-2x"></i><br>
+                            Cerrar
+                        </button>
+                    </div>
+                        
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $('#BloqueoDB').on('submit', function (e) {
+        e.preventDefault();
+        var parametros = $(this).serialize();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("RegistroBloqueoDB","Tarjeta")',
+            dataType: 'json',
+            data: parametros,
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                DespuesAjax();
+                alert(l.message);
+            },
+            error: function (ex, textStatus, errorThrown) {
+                DespuesAjax();
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            }
+        });
+    } );
+</script>

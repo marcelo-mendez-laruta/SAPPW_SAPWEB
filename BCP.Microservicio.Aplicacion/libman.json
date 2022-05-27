@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "font-awesome@5.14.0",
+      "destination": "wwwroot/lib/font-awesome"
+    },
+    {
+      "library": "jquery-ajaxtransport-xdomainrequest@1.0.3",
+      "destination": "wwwroot/lib/jquery-ajaxtransport-xdomainrequest/"
+    }
+  ]
+}

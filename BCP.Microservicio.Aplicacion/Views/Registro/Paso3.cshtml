@@ -1,0 +1,266 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Newtonsoft.Json;
+@using BCP.Sap.Models.Rebibir; 
+@model List<TipoCuenta>;
+@{
+    ViewData["Title"] = "Paso 3: ";
+ string edad;
+ if (TempData["edad"] == null)
+ {
+     edad = "0";
+ }
+ else
+ {
+     edad = TempData["edad"].ToString();
+ }
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <header>
+            <h4>Registro Paso 3:</h4>
+        </header>
+        <form id="Paso3" name="Paso3" method="post" action='@Url.Action("Paso4")'>
+            <div class="container mb-1">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label for="cbLVCuenta" >Tipo de cuenta</label>
+                        @Html.DropDownList("producto", new SelectList(Model, "codigo", "descripcion", Model[0].codigo), "", new { @required = "required", @id = "cbLVCuenta", @class = "form-control", @size = "10" })
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="cbLVMC">Modalidad de Cuenta</label>
+                        <select name="idModalidad" class="form-control" id="cbLVMC" size="10" required>
+                        </select>
+                    </div>
+                    <div class="col-sm-6" style="display:none;">
+                        <fieldset class="border border-dark">
+                            <legend class="w-auto" style="font-size:14px;">
+                                Tipo de Cuenta
+                            </legend>
+                            <div class="container">
+                                <div class="form-check">
+                                    <input id="rbAHO" type="radio" name="rgTC" class="form-check-input" value="Ahorros" />
+                                    <label for="rbAHO" class="form-check-label">
+                                        Ahorros
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbCCS" type="radio" name="rgTC" class="form-check-input" value="Cuenta Corriente" />
+                                    <label for="rbCCS" class="form-check-label">
+                                        Cuenta Corriente
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbCM" type="radio" name="rgTC" class="form-check-input" value="Cuenta Maestra" />
+                                    <label for="rbCM" class="form-check-label">
+                                        Cuenta Maestra
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbCPX" type="radio" name="rgTC" class="form-check-input" value="Cuenta a Plazo Exclusiva" />
+                                    <label for="rbCPX" class="form-check-label">
+                                        Cuenta a Plazo Exclusiva
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbCP" type="radio" name="rgTC" class="form-check-input" value="Cuenta a Plazo" />
+                                    <label for="rbCP" class="form-check-label">
+                                        Cuenta a Plazo
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbCPE" type="radio" name="rgTC" class="form-check-input" value="Cuenta a Plazo Especial" />
+                                    <label for="rbCPE" class="form-check-label">
+                                        Cuenta a Plazo Especial
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbCB" type="radio" name="rgTC" class="form-check-input" value="Certificado Bancario" />
+                                    <label for="rbCB" class="form-check-label">
+                                        Certificado Bancario
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbCI" type="radio" name="rgTC" class="form-check-input" value="Cuenta Interna" />
+                                    <label for="rbCI" class="form-check-label">
+                                        Cuenta Interna
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbCC" type="radio" name="rgTC" class="form-check-input" value="Cuenta Crediobra" />
+                                    <label for="rbCC" class="form-check-label">
+                                        Cuenta Crediobra
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-sm-6" style="display:none;">
+                        <fieldset class="border border-dark">
+                            <legend class="w-auto" style="font-size:14px;">
+                                Modalidad de la Cuenta
+                            </legend>
+                            <div class="container">
+                                <div class="form-check">
+                                    <input id="rbI" type="radio" name="rgMD" class="form-check-input" value="Individual" />
+                                    <label for="rbI" class="form-check-label">
+                                        Individual
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbMC" type="radio" name="rgMD" class="form-check-input" value="Mancomuna Conjunta" />
+                                    <label for="rbMC" class="form-check-label">
+                                        Mancomuna Conjunta
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbMI" type="radio" name="rgMD" class="form-check-input" value="Mancomuna Indistinta" />
+                                    <label for="rbMI" class="form-check-label">
+                                        Mancomuna Indistinta
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbM" type="radio" name="rgMD" class="form-check-input" value="Menor" />
+                                    <label for="rbM" class="form-check-label">
+                                        Menor
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input id="rbMD" type="radio" name="rgMD" class="form-check-input" value="Menor Donacion" />
+                                    <label for="rbMD" class="form-check-label">
+                                        Menor Donación
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="d-inline p-1">
+                <input type="hidden" name="codigoProducto" id="hTipoCuenta" />
+                <input type="hidden" name="codigoModalidad" id="hTipoProducto" />
+                <footer>
+                    <div class="form-row justify-content-center align-items-center">
+                        <div class="col-auto m-1">
+                            <button type="button" class="btn border btn-light" onclick="cancelarProceso('@Url.Action("Index","Home")');">Cancelar</button>
+                        </div>
+                        <div class="col-auto m-1">
+                            <button type="button" class="btn border btn-light" onclick="location.href='@Url.Action("LimpiarPaso3","Registro")'">&lt;&lt;Anterior&lt;&lt;</button>
+                        </div>
+                        <div class="col-auto m-1">
+                            <input class="btn border btn-light" type="submit" value="Siguiente>>" />
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </form>
+    </div>
+    <script type="text/javascript">
+    var tipoCuenta =@Html.Raw(JsonConvert.SerializeObject(Model));
+    var tipoProducto;
+    $(document).ready(function () {       
+        if ("@Model[0].codigo" != "") {
+            var valor = ($("#cbLVCuenta").val());
+            cargarModalidad(valor);
+        }
+        else {
+            alert("Error de comunicación con la Base de Datos");
+        }
+    });
+    $("#cbLVCuenta").change(function (e) {
+        var valor = ($(this).val());
+        if (!(valor == "")) {
+            cargarModalidad(valor);
+        }
+    });
+    $('#Paso3').on('submit', function (e) {
+        var indice = ($("#cbLVMC option:selected").index()) - 1;
+        $('#hTipoProducto').val(tipoProducto[indice].codigoHost);
+        var tp = '@TempData["tipoPersona"].ToString()';
+        if (tp=='J') {
+
+        }
+        else {
+            var modalidad = $('#cbLVMC option:selected').text();
+            var edad=@edad;
+            if (tp == 'N1') {
+                if (modalidad == 'Mancomunada Indistinta' || modalidad == 'Mancomunada Conjunta') {
+                    alert("Clientes individuales no pueden creer cuentas mancomunadas");
+                    e.preventDefault();
+                }
+                else {                    
+                    if (edad < 18) {
+                        if (modalidad == 'Menor' || modalidad == 'Menor Donacion') {
+
+                        }
+                        else {
+                            alert("Menores de edad no pueden aperturar este tipo de cuentas");
+                            e.preventDefault();
+                        }
+                    }
+                    else {
+                        if (modalidad == 'Individual' || modalidad == 'Benemerito') {
+
+                        }
+                        else {
+                            alert("Menores de edad no pueden aperturar este tipo de cuentas");
+                            e.preventDefault();
+                        }
+                    }
+                }
+            }
+            else {
+                if (modalidad == 'Mancomunada Indistinta' || modalidad == 'Mancomunada Conjunta') {
+                    if (edad < 18) 
+                    {
+                        alert("Menores de edad no pueden aperturar este tipo de cuentas");
+                        e.preventDefault();
+                    }
+                }
+                else {
+                    alert("Debe asociar los clientes a cuentas de mancomunas");
+                    e.preventDefault();
+                }
+            }
+        }
+    });
+    function cargarModalidad(cuenta) {
+        var indice = ($("#cbLVCuenta option:selected").index()) - 1;
+        $('#hTipoCuenta').val(tipoCuenta[indice].codigoHost);
+        $("#cbLVMC").empty();
+        $.ajax({
+            type: 'POST',
+            url:'@Url.Action("ListaModalidad")',
+            dataType: 'json',
+            data: { valor: cuenta },
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.state == null) {
+                    alert("error de conexion al microservicio");
+                }
+                else if (l.success) {
+                        var fia = '<option value=""> </option>';
+                        $("#cbLVMC").append(fia);
+                        tipoProducto = l.data;
+                        $.each(l.data, function (i, k) {
+                            fia = '<option value="' + k.modalidadId + '">' + k.descripcion + '</option>';
+                            $("#cbLVMC").append(fia);
+                        });
+                        if ($("#tbCA tr").length > 1)
+                        {
+                            $("#divTAlfCli").show();
+                            $("#tbCA #1").addClass("bg-info");
+                        }
+                    }
+                else {
+                    $("#divTAlfCli").hide();
+                    alert("Error de consulta al microservicio");
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () { DespuesAjax(); }
+        });
+}
+    </script>

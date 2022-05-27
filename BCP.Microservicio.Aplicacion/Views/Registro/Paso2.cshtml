@@ -1,0 +1,2176 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model List<List<SelectListItem>>;
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    if (Model[5].Count > 1)
+    {
+        Model[5][0].Value = "A";
+        Model[5][1].Value = "I";
+        Model[5][1].Selected = true;
+    }
+    string navegacion = "0";
+    if (TempData["navegacion"] != null)
+    {
+        navegacion = TempData["navegacion"].ToString();
+    }
+    string[] proceso = TempData["proceso"].ToString().Split('-');
+    int tamanio = 12;
+    if (proceso[1] == "J")
+    {
+        tamanio = 10;
+    }
+    string guid = "T";
+    string txtIndMancomuno = string.Empty;
+    if (proceso[2].Equals("S1"))
+    {
+        guid = proceso[1];        
+    }
+    if (!proceso[2][1].Equals('1'))
+    {
+        txtIndMancomuno  = "Datos del Mancomuno "+(proceso[2][1].ToString());
+    }    
+    
+    ViewData["Title"] = proceso[0] + " Paso 2: "+txtIndMancomuno;
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>@proceso[0] Paso2: @txtIndMancomuno </h4>
+    </header>
+        <div class="row">
+            <div class="col-lg-@tamanio">
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Del Cliente
+                    </legend>
+                    <div class="container mb-1">
+                        <div class="row">
+                            <div class="col-lg-10">
+                                <div class="container border border-dark">
+                                    <ul class="nav nav-tabs" id="tabPaso2" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#P1" role="tab" aria-controls="home" aria-expanded="true">Datos Principales</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#P2" role="tab" aria-controls="profile" aria-expanded="true">Datos Adicionales</a>
+                                        </li>
+                                        @if (!(proceso[1] == "J"))
+                                        {
+                                            <li class="nav-item">
+                                                <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#P3" role="tab" aria-controls="profile" aria-expanded="true">Datos Adicionales</a>
+                                            </li>
+                                        }
+                                    </ul>
+                                    <div class="tab-content" id="tabPaso2Content">                                      
+                                        <div class="tab-pane fade show active" id="P1" role="tabpanel" aria-labelledby="1-tab">
+                                            <div class="form-row">
+                                                <label for="txtDID" class="col-sm-3 col-form-label">
+                                                    Doc de Identidad:
+                                                </label>
+                                                <div class="col-sm-3">
+                                                    <input id="txtDID" maxlength="12" onkeyup="validarIDC(this)" name="docIdentidad" class="form-control" type="text" autofocus />
+                                                </div>
+                                                <div class="col-sm-2">
+                                                    <input id="txttDID" name="TtipoDocumento" class="form-control" type="text" />
+                                                </div>
+                                            @if (proceso[1] == "J")
+                                            {
+                                                <label id="lbENit" for="cbENit" class="col-sm-2 col-form-label" style="display:none;">
+                                                    Estado Nit:
+                                                </label>
+                                                <div id="divENit" class="col-sm-2" style="display:none;">
+                                                    @Html.DropDownList("estadoNIT", Model[5], new {@disabled = "true", @id = "cbENit", @class = "form-control" })
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                               <div class="col-sm-12" style="display:none;"></div> 
+                                            }
+                                        </div>
+                                            <div id="P11">
+                                            @if (proceso[1] == "J")
+                                            {
+                                                <div class="form-row">
+                                                    <label for="txtRSocial" class="col-sm-3 col-form-label">
+                                                        Razón Social:
+                                                    </label>
+                                                    <div class="col-sm-9">
+                                                        <input readonly id="txtRSocial" name="razonSocial" class="form-control" type="text" value="" required />
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <label for="txtFechConst" class="col-sm-3 col-form-label">
+                                                        Fecha de Constituc.:
+                                                    </label>
+                                                    <div class="col-sm-3">
+                                                        <input readonly id="txtFechConst" name="fechaConstitucion" class="form-control" type="text" placeholder="00/00/0000" maxlength="10"/>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="form-check">
+                                                            <input id="ckResidente" name="residente" type="checkbox" value="false" class="form-check-input" disabled />
+                                                            <label for="ckResidente" class="form-check-label">
+                                                                Residente
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="form-row">
+                                                    <label for="txtPaterno" class="col-sm-3 col-form-label">
+                                                        Apellido Paterno:
+                                                    </label>
+                                                    <div class="col-sm-9">
+                                                        <input readonly id="txtPaterno" name="paterno" class="form-control" type="text" value="" required />
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <label for="txtMaterno" class="col-sm-3 col-form-label">
+                                                        Apellido Materno:
+                                                    </label>
+                                                    <div class="col-sm-9">
+                                                        <input readonly id="txtMaterno" name="materno" class="form-control" type="text" value="" />
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <label for="txtNombre" class="col-sm-3 col-form-label">
+                                                        Nombres:
+                                                    </label>
+                                                    <div class="col-sm-9">
+                                                        <input readonly id="txtNombre" name="nombres" class="form-control" type="text" value="" />
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <label for="txtNacimiento" class="col-sm-3 col-form-label">
+                                                        Fecha de Nacimiento:
+                                                    </label>
+                                                    <div class="col-sm-3">
+                                                        <input readonly id="txtNacimiento" name="fechaNacimiento" class="form-control" type="text" placeholder="00/00/0000" maxlength="10"/>
+                                                    </div>
+                                                    <label for="cbECivil" class="col-sm-2">
+                                                        Estado Civil:
+                                                    </label>
+                                                    <div class="col-sm-4">
+                                                        @Html.DropDownList("estadoCivil", Model[4], "Select", new { @disabled = "true", @id = "cbECivil", @class = "form-control" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <label for="cbGenero" class="col-sm-3 col-form-label">
+                                                        Sexo:
+                                                    </label>
+                                                    <div class="col-sm-3">
+                                                        @Html.DropDownList("sexo", Model[15], "Select", new { @disabled = "true", @id = "cbGenero", @class = "form-control" })
+                                                    </div>
+                                                    <label for="cbNacionalidad" class="col-sm-2 col-form-label">
+                                                        Nacionalidad:
+                                                    </label>
+                                                    <div class="col-sm-4">
+                                                        @Html.DropDownList("nacionalidad", Model[11], "Select", new { @disabled = "true", @id = "cbNacionalidad", @class = "form-control" })
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="P2" role="tabpanel" aria-labelledby="2-tab">
+                                            <div class="container" id="divCargaDireccion" style="display: none;">
+                                                <div class="form-row">
+                                                    <div class="col-sm-5 form-group">
+                                                        <label for="cbJACalle">
+                                                            Jr./Av./Calle
+                                                        </label>
+                                                        <div class="form-row">
+                                                            <div class="col-sm-6">
+                                                                @Html.DropDownList("calle", Model[19], "Select", new { @id = "cbJACalle", @class = "form-control" })
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <input id="txtJACalle" class="form-control" type="text" value="" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-3 form-row">
+                                                        <div class="col-sm-4 form-group">
+                                                            <label for="txtnro">
+                                                                Nro.
+                                                            </label>
+                                                            <input id="txtnro" class="form-control" type="text" value="" />
+                                                        </div>
+                                                        <div class="col-sm-4 form-group">
+                                                            <label for="txtmz">
+                                                                Mz.
+                                                            </label>
+                                                            <input id="txtmz" class="form-control" type="text" />
+                                                        </div>
+                                                        <div class="col-sm-4 form-group">
+                                                            <label for="txtlote">
+                                                                Lote
+                                                            </label>
+                                                            <input id="txtlote" class="form-control" type="text" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-4 form-group">
+                                                        <label for="cbDPI">
+                                                            Dept./Piso/Int.
+                                                        </label>
+                                                        <div class="form-row">
+                                                            <div class="col-sm-6">
+                                                                @Html.DropDownList("departamento", Model[20], "Select", new { @id = "cbDPI", @class = "form-control" })
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <input id="txtDPI" class="form-control" type="text" value="" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-sm-8">
+                                                        <label for="cbURIV">
+                                                            Urb/Res/Ind/Und Vec
+                                                        </label>
+                                                        <div class="form-row">
+                                                            <div class="col-sm-6">
+                                                                @Html.DropDownList("Urb", Model[21], "Select", new { @id = "cbURIV", @class = "form-control" })
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <input id="txtURIV" class="form-control" type="text" value="" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-4 form-group">
+                                                        <label for="cbEtZ">
+                                                            Etapa/Zona
+                                                        </label>
+                                                        <div class="form-row">
+                                                            <div class="col-sm-6">
+                                                                @Html.DropDownList("EtapaZona", Model[22], "Select", new { @id = "cbEtZ", @class = "form-control" })
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <input id="txtEtZ" class="form-control" type="text" value="" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="divConsultaDireccion" class="container">
+                                                <div class="form-row">
+                                                    <label for="txtDireccion" class="col-sm-2 col-form-label">
+                                                        Dirección:
+                                                    </label>
+                                                    <div class="col-sm-10">
+                                                        <input id="txtDireccion" name="direccion" class="form-control" type="text" readonly />
+                                                    </div>
+                                                </div>
+                                                @if (politicas.Contains("SAPP_BO_CLI_DIR_MOD_DIR"))
+                                                {
+                                                    <div class="form-row">
+                                                        <div class="col-sm-8"></div>
+                                                        <div class="col-sm-4">
+                                                            <button disabled type="button" class="btn btn-light col-sm-12" id="btP2MD" onclick="cambiarDireccionDAC()">Modificar Dirección</button>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {                                                
+                                                    <div class="form-row" style="display:none;">
+                                                        <div class="col-sm-8"></div>
+                                                       <div class="col-sm-4">
+                                                            <button disabled type="button" class="btn btn-light col-sm-12" id="btP2MD">Modificar Dirección</button>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div id="P22" class="container">
+                                                <div class="form-row">
+                                                    <label for="cbLocalidad" class="col-sm-2 col-form-label">
+                                                        Localidad:
+                                                    </label>
+                                                    <div class="col-sm-4">
+                                                        <input type="hidden" name="localidadNombre" id="hLocalidad" value="" />
+                                                        @Html.DropDownList("localidad", Model[9], "Select", new {@disabled = "true", @id = "cbLocalidad", @class = "form-control" })
+                                                    </div>
+                                                    <label for="txtTelefono" class="col-sm-2 col-form-label">
+                                                        Teléfono:
+                                                    </label>
+                                                    <div class="col-sm-4">
+                                                        <input id="txtTelefono" name="telefono" class="form-control" type="text" readonly />
+                                                    </div>
+                                                </div>
+                                                @if (proceso[1].Equals("J"))
+                                                {
+                                                    <div class="form-row">
+                                                        <label for="cbCiiu0" class="col-sm-2 col-form-label">
+                                                            C.I.I.U:
+                                                        </label>
+                                                        <div class="col-sm-4">
+                                                            @Html.DropDownList("ciiu", Model[2], "Select", new {@disabled = "true", @id = "cbCiiu0", @class = "form-control" })
+                                                        </div>
+                                                        <label for="cbFinSoc" class="col-sm-2 col-form-label">
+                                                            Fin Social:
+                                                        </label>
+                                                        <div class="col-sm-4">
+                                                            @Html.DropDownList("finSocial", Model[6], "Select", new {@disabled = "true", @id = "cbFinSoc", @class = "form-control" })
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        @if (!(proceso[1] == "J"))
+                                        {
+                                            <div class="tab-pane fade" id="P3" role="tabpanel" aria-labelledby="3-tab">
+                                                <div class="form-row">
+                                                    <label for="cbProfesion" class="col-sm-2 col-form-label">
+                                                        Profesión:
+                                                    </label>
+                                                    <div class="col-sm-4">
+                                                        @Html.DropDownList("profesion", Model[13], "Select", new { @disabled = "true", @id = "cbProfesion", @class = "form-control" })
+                                                    </div>
+                                                    <label for="cbSitLab" class="col-sm-3 col-form-label">
+                                                        Situación Laboral:
+                                                    </label>
+                                                    <div class="col-sm-3">
+                                                        @Html.DropDownList("situacionLaboral", Model[16], "Select", new { @disabled = "true", @id = "cbSitLab", @class = "form-control" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <label for="cbVivienda" class="col-sm-2 col-form-label">
+                                                        Vivienda:
+                                                    </label>
+                                                    <div class="col-sm-4">
+                                                        @Html.DropDownList("indicadorVivienda", Model[7], "Select", new { @disabled = "true", @id = "cbVivienda", @class = "form-control" })
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="form-check">
+                                                            <input id="ckNegPro" value="false" class="form-check-input" type="checkbox" name="negocioPropio" disabled />
+                                                            <label for="ckNegPro" class="form-check-label">
+                                                                Negocio Propio
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div id="SL1" class="form-row">
+                                                    <label for="txtNit" class="col-sm-2 col-form-label">
+                                                        Nit:
+                                                    </label>
+                                                    <div class="col-sm-4">
+                                                        <input readonly id="txtNit" name="nit" class="form-control" type="text" />
+                                                    </div>
+                                                    <label for="txtNomCom" class="col-sm-3 col-form-label">
+                                                        Nombre Comercial:
+                                                    </label>
+                                                    <div class="col-sm-3">
+                                                        <input readonly id="txtNomCom" name="nombreComercial" class="form-control" type="text" />
+                                                    </div>
+                                                </div>
+                                                <div id="SL2" class="form-row" style="display:none;">
+                                                    <label for="txtEmpTra" class="col-sm-2 col-form-label">
+                                                        Empresa de trabajo:
+                                                    </label>
+                                                    <div class="col-sm-4">
+                                                        <input id="txtEmpTra" name="nombreEmpresa" class="form-control" type="text" readonly />
+                                                    </div>
+                                                    <label for="txtNitEmpresa" class="col-sm-3 col-form-label">
+                                                        Nit:
+                                                    </label>
+                                                    <div class="col-sm-3">
+                                                        <div class="input-group">
+                                                            <input id="txtNitEmpresa" type="text" class="form-control" name="ruc" readonly>
+                                                            <div class="input-group-append">
+                                                                <button onclick="CAEmpleador()" class="btn btn-outline-secondary" type="button">&or;</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <label for="cbCiiu0" class="col-sm-2 col-form-label">
+                                                        C.I.I.U:
+                                                    </label>
+                                                    <div class="col-sm-4">
+                                                        @Html.DropDownList("ciiu", Model[2], "Select", new { @disabled = "true", @id = "cbCiiu0", @class = "form-control" })
+                                                    </div>
+                                                    <div class="col-sm-2 ">
+                                                        <div class="form-check">
+                                                            <input id="ckResidente" name="residente" type="checkbox" value="false" class="form-check-input" disable />
+                                                            <label for="ckResidente" class="form-check-label">
+                                                                Residente
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <label id="lbPaisResidente" for="cbPaisResidente" class="col-sm-1 col-form-label">
+                                                        Pais:
+                                                    </label>
+                                                    <div id="divPaisResidente" class="col-sm-3 ">
+                                                        @Html.DropDownList("paisResidenciaHost", Model[11], "Select", new { @id = "cbPaisNResidente", @class = "form-control" })
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <label for="txtEmail" class="col-sm-2 col-form-label">
+                                                        Email:
+                                                    </label>
+                                                    <div class="col-sm-4">
+                                                        <input id="txtEmail" class="form-control" type="text" name="mail" readonly />
+                                                    </div>
+                                                    <label for="txtCelular" class="col-sm-3 col-form-label">
+                                                        Celular:
+                                                    </label>
+                                                    <div class="col-sm-3">
+                                                        <input id="txtCelular" class="form-control" type="text" name="celular" readonly />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="row">
+                                    <center>
+                                        <div class="col-auto">
+                                            <button id="btConsultaPNJ" type="button" class="btn btn-outline-secondary ">
+                                                <i class="fas fa-book-reader icono-2x"></i><br />&nbsp;&nbsp;&nbsp;&nbsp;Consultar&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            </button>
+                                        </div>
+
+                                        <div id="divbtCrearCliente" class="col-auto" style="display:none;">
+                                            <button id="btCrearPNJ" type="button" class="btn btn-outline-secondary">
+                                                <i class="fas fa-running icono-2x"></i><br />&nbsp;&nbsp;Crear&nbsp;Cliente&nbsp;&nbsp;
+                                            </button>
+                                        </div>
+                                        <div id="divFacta1" class="col-auto" style="display:none;">
+                                            <button id="btFacta" onclick="CrearFacta()" type="button" class="btn btn-outline-secondary">
+                                                <i class="fas fa-running icono-2x"></i><br />Actualizar&nbsp;Facta
+                                            </button>
+                                        </div>
+                                    </center>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            @if (!(proceso[1] == "J"))
+            {
+                <div class="col-lg-10">
+                    <fieldset class="border border-dark">
+                        <legend class="w-auto" style="font-size:14px;">
+                            Información FATCA
+                        </legend>
+                        <div class="container" id="divDatosFacta">
+                            <div class="form-row">
+                                <label for="cbPaisNac" class="col-sm-3 col-form-label">
+                                    Pais de Nacimiento:
+                                </label>
+                                <div class="col-sm-3">
+                                    @Html.DropDownList("paisNacionalidadHost", Model[11], "Select", new { @id = "cbPaisNac", @class = "form-control", @required = "required" })
+                                </div>
+                                <label for="cbsNac" class="col-sm-3 col-form-label">
+                                    Segunda Nacionalidad:
+                                </label>
+                                <div class="col-sm-3">
+                                    @Html.DropDownList("paisSegundaNacionalidadHost", Model[11], "Select", new { @id = "cbsNac", @class = "form-control", @required = "required" })
+                                </div>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="ckDF" name="residenciaFiscal" />
+                                <label for="ckDF" class="form-check-label">
+                                    ¿Tiene obligaciones fiscales en Estados Unidos y/o territorios adheridos a Estados Unidos y/o en algún país diferente a Bolivia por Nacionalidad,Ciudadanía y/o Residencia Fiscal?
+                                </label>
+                            </div>
+                            <div class="container mb-1">
+                                <fieldset class="border border-dark">
+                                    <legend class="w-auto" style="font-size:12px;">
+                                        Datos Fiscales
+                                    </legend>
+                                    <div class="container">
+                                        <div class="form-row">
+                                            <div class="col-sm-4 form-group">
+                                                <label for="cbPaisFiscal">
+                                                    País
+                                                </label>
+                                                @Html.DropDownList("paisResidenciaFiscalHost", Model[11], "Select", new { @id = "cbPaisFiscal", @class = "form-control", @required = "required", @disabled = "disabled" })
+                                            </div>
+                                            <div class="col-sm-5 form-group">
+                                                <label for="txttin">
+                                                    Nro. de Identifiación de Contribuyente (TIN)
+                                                </label>
+                                                <input id="txttin" name="numeroIdentificacionContribuyente" class="form-control" type="text" required readonly />
+                                            </div>
+                                            <div class="col-sm-3 form-group">
+                                                <label for="txtSegSoc">
+                                                    Nro. de Seguro Social
+                                                </label>
+                                                <input id="txtSegSoc" name="numeroSeguroSocial" class="form-control" type="text" required readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            }
+            <div class="col-lg-2">
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Tipo de Persona
+                    </legend>
+                    <div class="container">
+                        <center>
+                            <div class="col-sm-auto form-check">
+                                <label for="ckTPArchNeg" class="form-check-label">
+                                    Archivo Negativo
+                                </label>
+                                <input type="hidden" id="ckTPArchNeg" name="TPArchNeg" value="false" />
+                                <i id="ickTPArchNeg" class="fas fa-searchengin border border-dark"></i>
+                            </div>
+                            <div class="col-sm-auto form-check">
+                                <label for="ckTPEC" class="form-check-label">
+                                    Ename Cheker
+                                </label>
+                                <input type="hidden" id="ckTPEC" name="EnameChecker" value="false" />
+                                <i id="ickTPEC" class="fas fa-searchengin border border-dark"></i>
+                            </div>
+                        </center>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        @if (proceso[0] == "Apertura" || proceso[0] == "Ingreso a Custodia DPF" || proceso[0] == "Mantenimiento de Ahorros")
+        {
+            <div id="divBotonesP2" class="container">
+                <div class="row">
+                    <div id="divBTCA" class="col-sm-4" style="display:none;">
+                        <div class="form-group row">
+                            <div class="col-auto">
+                                @if (politicas.Contains("SAPP_BO_CLI_CON_ALF"))
+                                {
+                                    <button id="btCAP2" type="button" class="btn border btn-light">
+                                        Consulta Alfabetica
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button id="btCAP2" type="button" class="btn border btn-light" disabled>
+                                        Consulta Alfabetica
+                                    </button>
+                                }
+                            </div>
+                            <div class="col form-check">
+                                <input id="ckCA" value="false" type="hidden" />
+                                <i id="ickCA" class="fas fa-searchengin border border-dark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="divBTAN" class="col-sm-4" style="display:none;">
+                        <div class="form-group row">
+                            <div class="col-auto">
+                                <button id="btAN" type="button" class="btn border btn-light">
+                                        Archivo negativo
+                                </button>
+                            </div>
+                            <div class="col form-check">
+                                <input id="ckAN" value="false" type="hidden" class="form-check-input" />
+                                <i id="ickAN" class="fas fa-searchengin border border-dark"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4" style="display:none;">
+                        <div class="form-group row">
+                            <div class="col-auto">
+                                <button type="button" class="btn border btn-light">
+                                    Actualizar Ingreso
+                                </button>
+                            </div>
+                            <div class="col form-check">
+                                <input id="ckAI" value="false" type="hidden" class="form-check-input" />
+                                <i id="ickAI" class="fas fa-searchengin border border-dark"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="divTAlfCli" class="container p-1 mb-1" style="display:none;">
+                <div class="form-row">
+                    <div class="col-lg-11">
+                        <div class="container">
+                            <div class="table-responsive bg-white" style="max-height:200px;">
+                                <table id="tbCA" class="table table-bordered table-striped">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Documento</th>
+                                            <th>Tipo</th>
+                                            <th>&nbsp;</th>
+                                            <th>Nombres</th>
+                                            <th>T.Cliente</th>
+                                            <th>T.Banca</th>
+                                            <th>Oficina</th>
+                                            <th>Fun. Neg.</th>
+                                            <th>Fecha Nac.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1">
+                        <center>
+                            <button id="btCAUbicado" type="button" class="w-100 btn btn-outline-secondary">
+                                <i class="fas fa-check icono-2x"></i><br />Ubicado
+                            </button>
+                            <button id="btCACrear" type="button" class="w-100 btn btn-outline-secondary">
+                                <i class="fas fa-times icono-2x"></i><br />No Ubicado
+                            </button>
+                            <button id="btCASiguiente" type="button" class="w-100 btn btn-outline-secondary" style="display:none;">
+                                <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                            </button>
+                        </center>
+                    </div>
+                </div>
+            </div>
+            <div id="divCReniec" class="container p-1 m-1" style="display:none;">
+                @await Html.PartialAsync("../Home/Reniec")
+            </div>
+            <div id="divTAN" class="container p-1 mb-1" style="display:none;">
+                <div class="form-row">
+                    <div class="col-sm-11">
+                        <div class="container">
+                            <div class="table-responsive bg-white" style="max-height:200px;">
+                                <table id="tbAN" class="table table-bordered table-striped">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Código Identificación</th>
+                                            <th>Nombre de Cliente</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-1">
+                        <center>
+                            <button id="btANTAceptar" type="button" class="w-100 btn btn-outline-secondary">
+                                <i class="fas fa-check icono-2x"></i><br />Ubicado
+                            </button>
+                            <button type="button" class="w-100 btn btn-outline-secondary">
+                                <i class="fas fa-times icono-2x"></i><br />No Ubicado
+                            </button>
+                            <button id="btANTSiguiente" type="button" class="w-100 btn btn-outline-secondary">
+                                <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                            </button>
+                        </center>
+                    </div>
+                </div>
+            </div>
+        }
+<div class="d-inline p-1">
+    <input type="hidden" name="strAdicional1" id="strAdicional1" value="" />
+    <input type="hidden" id="strModificar" value="0" />
+    <input type="hidden" id="strModificarE" value="0" />
+    <input type="hidden" id="hfiltroCuentas" value="0"/>
+    <footer>
+        <div class="form-row justify-content-center align-items-center">
+            <div class="col-auto m-1">
+                <button type="button" class="btn border btn-light" onclick="location.href='@Url.Action("LimpiarPaso1","Registro")'">&lt;&lt;Anterior&lt;&lt;</button>
+            </div>
+            <div class="col-auto m-1">
+                <button type="button" class="btn border btn-light" onclick="cancelarProceso('@Url.Action("Index","Home")');">Cancelar</button>
+            </div>
+            <div class="col-auto m-1">
+                <input type="button" onclick="AntesAjax(); redirigirPaso2();" class="btn border btn-light" value=">>Siguiente>>" />
+            </div>
+            <div class="col-auto m-1" style="display:none">
+                <div class="form-group form-row">
+                    <div class="col-auto">
+                        <button type="button" class="btn border btn-light">Reniec</button>
+                    </div>
+                    <div class="col form-check">
+                        @Html.CheckBox("reniec", false, new { @id = "ckReniec", @class = "form-check-input" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+    @if (!(proceso[1] == "J"))
+    {
+        <div class="modal fade" id="CAModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalCA" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalCA">Consulta Alfabetica de Clientes</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            await Html.RenderPartialAsync("../Consulta/AlfabeticaCliente");
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if ( politicas.Contains("SAPP_BO_CLI_DIR_MOD_DIR"))
+    {
+        <div class="modal fade" id="DACModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalPermiso" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="Modal-title" id="modalDAC">Cambiar Direccion</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @{
+                                TempData["VistaModal"] = "SI";
+                                await Html.RenderPartialAsync("../DAC/DatAdiCli",Model);
+                            }
+                        </div>
+                    </div>
+                </div>
+        </div>
+    }
+</div>
+<script type="text/javascript">
+    var primeraConsulta = true;
+    $(document).ready(function () {
+        if ("@navegacion" == "1") {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("RecargarDatosGuardados")',
+                dataType: 'json',
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                    $("#txtDID").val(l.idC);
+                    $("#txttDID").val(l.idT);
+                    $("#ickTPArchNeg").removeClass('fa-searchengin');
+                    $("#ickTPEC").removeClass('fa-searchengin');
+                    if (l.an) {
+                        $("#ickTPArchNeg").addClass('fa-check');
+                    }
+                    else {
+                        $("#ickTPArchNeg").addClass('fa-times');
+                    }
+                    if (l.ec) {
+                        $("#ickTPEC").addClass('fa-check');
+                    }
+                    else {
+                        $("#ickTPEC").addClass('fa-times');
+                    }
+                    var nProceso = '@proceso[0]';
+                    if (nProceso == "Apertura" || nProceso == "Ingreso a Custodia DPF" || nProceso=="Ingreso a Custodia DPF") {
+                        $("#divBTCA").show();
+                    }
+                    if (!(l.localidadDescripcion == null || l.localidadDescripcion == "")) {
+                        if (nProceso == "Apertura" || nProceso == "Ingreso a Custodia DPF"||nProceso=="Ingreso a Custodia DPF") {
+                            $("#divBTAN").show();
+                            $("#ickAN").removeClass('fa-searchengin');
+                            $("#ickCA").removeClass('fa-searchengin');
+                            $("#ickCA").addClass('fa-check');
+                            $("#ickAN").addClass('fa-check');
+                        }
+                    }
+                    var z = {};
+                    if ("@proceso[1]" == "J") {
+                        z = l.pj;
+                    }
+                    else {
+                        FACTA(l.pn.cic);
+                        z = l.pn;
+                    }
+                    for (var j in z) {
+                        recorrido = document.getElementsByName(j);
+                        if (recorrido.length > 0) {
+                            switch (recorrido[0].type) {
+                                case "checkbox":
+                                    if (z[j] == "S") {
+                                        //$("input[name=" + j + "]").val("true");
+                                        $("input[name=" + j + "]").prop("checked", true).change();
+                                        $("input[name=" + j + "]").prop("disabled", true);
+                                    }
+                                    else {
+                                        $("input[name=" + j + "]").val("false");
+                                    }
+                                    break;
+                                case "text":
+                                    $("input[name=" + j + "]").val(z[j]);
+                                    break;
+                                case "select-one":
+                                    $("select[name=" + j + "]").val(z[j]).change();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    DespuesAjax();
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                },
+                complete: function () { DespuesAjax(); }
+            });
+        }
+        else {
+            var guid = "@guid";
+            if (guid != "T") {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GUID")',
+                    dataType: 'json',
+                    data: { tipo: guid },
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        if (l.state != null) {
+                            if (l.success) {
+                                if (l.success) {
+                                    $("#txtDID").val(l.data.idcNumero + l.data.idcExtension);
+                                    $("#txttDID").val(l.data.idcTipo);
+                                    validarNacionalidad(l.data.idcTipo);
+                                }
+                            }
+                        }
+                        DespuesAjax();
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    }
+                });
+            }
+        }
+    });
+    function habilitarCampos(valor) {
+        //$("#divbtCrearCliente").show();
+        HabilitarDesabilitarInput("P11", valor);
+        HabilitarDesabilitarInput("P22", valor);
+        if ('@proceso[1]' != 'J') {
+            HabilitarDesabilitarInput("P3", valor);
+            //$("#txtNomCom").attr('readonly', true);
+            //$("#ckNegPro").attr('disabled', false);
+            if (valor == false) {
+                $("#cbSitLab").val('NDI').change();
+            }
+        }
+        if (valor == false) {
+            $("#ckResidente").attr('disabled', false);
+        }
+        /*else {
+            $("#txtPaterno").attr('readonly', false);
+            $("#txtMaterno").attr('readonly', false);
+            $("#txtNombre").attr('readonly', false);
+            $("#cbGenero").attr('disabled', false);
+            $("#txtNacimiento").attr('readonly', false);
+            $("#cbECivil").attr('disabled', false);
+            $("#cbNacionalidad").attr('disabled', false);
+
+            $("#cbCiiu0").attr('disabled', false);
+            $("#cbSitLab").attr('disabled', false);
+            $("#cbProfesion").attr('disabled', false);
+            $("#txtNit").attr('readonly', false);
+            $("#cbVivienda").attr('disabled', false);
+
+        }*/
+    }
+    $("#ckResidente").change(function () {
+        if (this.checked) {
+            $("#divPaisResidente").hide();
+            $("#lbPaisResidente").hide();
+            // $("#icA").removeClass('fa-times');
+            //$("#icA").addClass('fa-check');
+        }
+        else {
+            $("#divPaisResidente").show();
+            $("#lbPaisResidente").show();
+            //$(this).removeClass('fa-check');
+            //$(this).addClass('fa-times');
+        }
+    });
+    function removerClases(id) {
+        $('#i' + id).removeClass('fa-searchengin');
+        $('#i' + id).removeClass('fa-times');
+        $('#i' + id).removeClass('fa-check');
+    }
+    function FANEC(operacion, idCK,id,tid) {
+        var tipo = '@(proceso[1].ToLower())';
+        var paterno='';
+        var materno='';
+        var nombres='';
+        if (tipo == 'J') {
+            paterno = $("#txtRSocial").val();
+        }
+        else {
+            paterno=$("#txtPaterno").val();
+            materno=$("#txtMaterno").val();
+            nombres=$("#txtNombre").val();
+        }
+        var parametros = {
+            id: id,
+            tid: tid,
+            paterno:paterno,
+            materno:materno,
+            nombres: nombres,
+            tipoPersona:tipo,
+            operacion:operacion
+        };
+        var idT = idCK.substring(1);
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ANEC")',
+            dataType: 'json',
+            data: parametros,
+            async:false,
+            success: function (l) {
+                if (l.state == null) {
+                    alert("error de conexion al microservicio");
+                    removerClases(idT);
+                    $('#i' + idT).addClass('fa-searchengin');
+                }
+                else if (!l.success) {
+                    removerClases(idT);
+                    $('#i' + idT).addClass('fa-searchengin');
+                    alert("Error de operaciones en el microservicio");
+                }
+                else if (l.data.encontrado) {
+                    $(idCK).val(true);
+                    removerClases(idT);
+                    $('#i' + idT).addClass('fa-times');
+                }
+                else {
+                    $(idCK).val(false);
+                    removerClases(idT);
+                    $('#i' + idT).addClass('fa-check');
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                $('#i' + idT).addClass('fa-searchengin');
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            }
+        });
+    }
+    function RegistroFiltro() {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("RegistroFiltro")',
+            dataType: 'json',
+            async:false,
+            success: function (l) {
+
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            }
+        });
+    }
+    function FACTA(cic) {
+        $("#divFacta").hide();
+        var parametros = {
+            id: $("#txtDID").val(),
+            tid: $("#txttDID").val(),
+            cic:cic
+        };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ConsultaFacta")',
+            dataType: 'json',
+            data: parametros,
+            success: function (l) {
+                if (l.state == null) {
+                    alert('Error de consulta Facta');
+                }
+                else if (!l.success) {
+                    alert("Datos Facta no encontrados");
+                    $("#divFacta").show();
+                }
+                else {
+                    $("#ckDF").prop('checked', l.data.residenciaFiscal).change();
+                    $("#cbPaisNac").val(l.data.paisNacimientoHost);
+                    $("#cbsNac").val(l.data.paisSegundaNacionalidadHost);
+                    if (!($("#ckResidente").prop('checked'))) {
+                        $("#cbPaisResidente").val(l.data.paisResidenciaHost);
+                    }
+                    $("#cbPaisFiscal").val( l.data.paisResidenciaFiscalHost);
+                    $("#txttin").val(l.data.numeroIdentificacionContribuyente);
+                    $("#txtSegSoc").val(l.data.numeroSeguroSocial);
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            }
+        });
+    }
+    $("#ckDF").change(function () {
+        if ($(this).prop('checked')) {
+            $("#cbPaisFiscal").prop('disabled', false);
+            $("#txttin").prop('readonly', false);
+            $("#txtSegSoc").prop('readonly', false);
+        }
+        else {
+            $("#cbPaisFiscal").prop('disabled', true);
+            $("#txttin").prop('readonly', true);
+            $("#txtSegSoc").prop('readonly', true);
+        }
+    });
+    $("#btConsultaPNJ").click(function () {
+        var idc = $("#txtDID").val();
+        var tidc = $("#txttDID").val();
+        if (idc==""||tidc=="") {
+            alert('Los campos de IDC son obligatorios');
+        }
+        else {
+            var pn = ['P', 'Q', 'S', 'Y'];
+            var pj = ['J', 'K', 'R', 'V', 'W', 'Y', 'Z'];
+            var personaApropiada = true;
+            if ('@proceso[1]' == 'J') {
+                if (pj.indexOf(tidc) === -1) {
+                    personaApropiada = false;
+                }
+            }
+            else {
+                if (pn.indexOf(tidc) === -1) {
+                    personaApropiada = false;
+                }
+            }
+            if (personaApropiada) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ConsultaPNJ")',
+                    dataType: 'json',
+                    data: { id: idc, tid: tidc, primeraConsulta: primeraConsulta },
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        if (l == null) {
+                            alert("Error de conexion al microservicio");
+                        }
+                        else if(l.success) {
+                            if (l.data.cambioQR) {
+                                alert("Favor actualizar el IDC de Cliente en host");
+                            }
+                            if (!primeraConsulta) {
+                                limpiarCP2();
+                            }
+                            if ('@proceso[1]' == 'J') {
+                                if (!($("#txtRSocial").attr('readonly'))) {
+                                    $("#btCrearPNJ").hide();
+                                    habilitarCampos(true);
+                                    limpiarCP2();
+                                }
+                            }
+                            else {
+                                if (!($("#txtPaterno").attr('readonly'))) {
+                                    $("#btCrearPNJ").hide();
+                                    habilitarCampos(true);
+                                    limpiarCP2();
+                                }
+                            }
+                            $("#btP2MD").prop("disabled",false);
+                            var recorrido;
+                            var sinLlenar = "";
+                            primeraConsulta = false;
+                            for (var j in l.data) {
+                                recorrido = document.getElementsByName(j);
+                                if (recorrido.length > 0) {
+                                    switch (recorrido[0].type) {
+	                                    case "checkbox":
+		                                    if (l.data[j] == "S") {
+			                                    $("input[name=" + j + "]").prop("checked", true).change();
+			                                    $("input[name=" + j + "]").prop("disabled", true);
+		                                    }
+                                            else if(j=='residente'){
+                                                $("#strModificar").val("1");
+                                            }
+		                                    break;
+	                                    case "text":
+		                                    if (l.data[j] == null || l.data[j] == "") {
+                                                if(!(j == 'nombreComercial' || j == 'nit' || j == 'nombreEmpresa' || j == 'ruc')){
+			                                        $("input[name=" + j + "]").prop("readonly",false);
+                                                    if(!(j == 'mail' || j == 'celular' || j == 'telefono')){
+			                                            sinLlenar = sinLlenar + j + ",";
+                                                    }
+                                                    else if(j == 'mail' || j == 'celular'){
+                                                        $("#strModificarE").val("1");
+                                                    }
+                                                    else{
+                                                        $("#strModificar").val("1");
+                                                    }
+                                                }
+		                                    }
+		                                    else{
+			                                    $("input[name=" + j + "]").val(l.data[j]);
+		                                    }
+		                                    break;
+	                                    case "select-one":
+	                                    if (l.data[j] == null || l.data[j] == "") {
+                                                if(!(j == 'ciiu' || j == "estadoNIT")){
+			                                        $("input[name=" + j + "]").prop("disabled",false);
+			                                        sinLlenar = sinLlenar + j + ",";
+                                                    $("#strModificar").val("1");
+                                                }
+		                                    }
+		                                    else{
+                                                $("select[name=" + j + "]").val(l.data[j]).change();                                               
+                                            }
+		                                    break;
+	                                    default:
+		                                    break;
+                                    }
+                                }
+                            }
+                            if(l.data.ciiu == null || l.data.ciiu == ""){
+                                $("#cbCiiu0").prop("disabled",false);
+                                sinLlenar = sinLlenar + "ciiu,";
+                                $("#strModificar").val("1");
+                            }
+                            if(l.data.situacionLaboral=='IND' && l.data.negocioPropio=="N"){
+                                $("#ckNegPro").prop("disabled",false);
+                                $("#txtNomCom").prop("readonly",false);
+                                $("#strModificar").val("1");
+                            }                                                    
+                            if(l.data.direccion == null || l.data.direccion == ""){
+                                sinLlenar = sinLlenar + "Direccion,";
+                                $("#strModificar").val("1");
+                            }
+                            else{
+                                $("#divCargaDireccion").hide();
+                                $("#divConsultaDireccion").show();
+                            }
+                            $("#hLocalidad").val($("#cbLocalidad option:selected").text());
+                            var tipo = '@(proceso[1].ToLower())';
+                            var datUltFechAct='';
+                            var valUltFechAct='';
+                            if(tipo=='j'){
+	                            datUltFechAct="txtFechConst";
+	                            valUltFechAct=l.data.fechaConstitucion
+                            }
+                            else{
+	                            datUltFechAct="txtNacimiento";
+	                            valUltFechAct=l.data.fechaNacimiento;
+                            }
+                            if (valUltFechAct!='01/01/0001' && l.data.fechaUltActualizacion.length == 8) {
+	                            var fechaActualizacion = new Date(l.data.fechaUltActualizacion.substr(4) + '/' + l.data.fechaUltActualizacion.substr(2, 2) + '/' + l.data.fechaUltActualizacion.substr(0, 2));
+	                            var fechaActual = new Date();
+	                            var diferencia = fechaActual.getTime() - fechaActualizacion.getTime();
+	                            var dias = Math.round(diferencia / (1000 * 60 * 60 * 24));
+	                            if (dias > 120) {
+		                            alert("El Cliente debe llenar el formulario de Actualización de Datos");
+	                            }
+                            }
+                            else {
+	                            alert("Formato de fecha no reconocido");
+	                            if(tipo != 'j'){
+		                            sinLlenar = "Fecha de Nacimiento," + sinLlenar;
+		                            $("#"+datUltFechAct+"").prop('readonly',false);
+		                            $("#"+datUltFechAct+"").val('');
+		                            $("#strModificar").val("1");
+	                            }	
+                            }
+                            if(tipo != 'j'){
+	                            $("#strAdicional1").val($("#cbECivil option:selected").text());
+	                            FACTA(l.data.cic);
+                            } 
+                            if (sinLlenar != "") {
+                                alert("Debe completar los siguientes campos: " + sinLlenar.substr(0, sinLlenar.length - 1));
+                            }
+                            FANEC('AN', "#ckTPArchNeg", $("#txtDID").val(), $("#txttDID").val());
+                            FANEC('EC', "#ckTPEC", $("#txtDID").val(), $("#txttDID").val());
+                            RegistroFiltro();
+                            var nProceso = '@proceso[0]';
+                            if (nProceso == "Apertura" || nProceso == "Ingreso a Custodia DPF" || nProceso=="Ingreso a Custodia DPF") {
+                                $("#divBTCA").show();
+                                $("#divBTAN").hide();
+                                removerClases('ckAN');
+                                removerClases('ckCA');
+                                $("#ickAN").addClass('fa-searchengin');
+                                $("#ickCA").addClass('fa-searchengin');
+                            }
+                        }
+                        else if(l.state=="11"){
+                            habilitarCampos(false);
+                            $("#divCargaDireccion").show();
+                            $("#divConsultaDireccion").hide();
+                            $("#divBTCA").show();
+                            alert(l.message);
+                        }
+                        else {
+                            alert(l.message);
+                            if(l.state!="77"){
+                                $("#divBTCA").hide();
+                                $("#divCargaDireccion").show();
+                                $("#divConsultaDireccion").hide();                            
+                            }
+                        }                        
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    },
+                    complete: function () { DespuesAjax(); }
+                });
+            }
+            else {
+                alert("tipo de idc no correponde.");
+            }
+        }
+    });
+    function validarNacionalidad(val) {
+        var y = ['P', 'Y', 'Z'];
+        var n = ['J', 'K', 'R', 'V', 'W', 'Q', 'S'];
+        if (y.indexOf(val) === -1) {
+            if (n.indexOf(val) === -1) {
+                alert("TIPO DE DOCUMENTO INVALIDO");
+            }
+            else {
+                $("#ckResidente").prop('checked', true).change();
+                $("#ckResidente").attr('disabled', true);
+                if ('@proceso[1]' != 'J') {
+                    $("#cbNacionalidad").val('BOL');
+                    $("#cbNacionalidad").prop('disabled', true);
+                }
+                else {
+                    if (val == "R") {
+                        //$("#icA").removeClass('fa-times');
+                        $("#lbENit").show();
+                        $("#divENit").show();
+                    }
+                }
+            }
+        }
+        else {//y
+            $("#ckResidente").prop('checked', false).change();
+            $("#ckResidente").attr('disabled', false);
+            if ('@proceso[1]' != 'J') {
+                $("#cbNacionalidad").prop('disabled', false);
+            }
+        }
+    }
+    $("#txttDID").keypress(function (e) {
+        $("#lbENit").hide();
+        $("#divENit").hide();
+        $input = $(this);
+        var pn = ['P', 'Q', 'S', 'Y'];
+        var pj = ['J', 'K', 'R', 'V', 'W', 'Y', 'Z'];
+
+        setTimeout(function () {
+            $input.val($input.val().toUpperCase());
+            if ('@proceso[1]' == 'J') {
+                if (pj.indexOf($input.val()) === -1) {
+                    $input.val("")
+                }
+            }
+            else {
+                if (pn.indexOf($input.val()) === -1) {
+                    $input.val("")
+                }
+            }
+            validarNacionalidad($input.val());
+        }, 50);
+    });
+    function CrearFacta() {
+        var residencia='';
+        if ($("#ckResidente").prop('checked')) {
+            residencia = 'cbNacionalidad';
+        }
+        else {
+            residencia = 'cbPaisResidente';
+        }
+        var parametros = {
+            id: $("#txtDID").val(),
+            tid: $("#txttDID").val(),
+            facta: {
+                nombres: $("#txtNombre").val(),
+                paterno: $("#txtPaterno").val(),
+                materno: $("#txtMaterno").val(),
+                tipoPersona:'@proceso[1]',
+                residenciaFiscal: $("#ckDF").prop('checked'),
+                paisNacionalidadText: $("#cbNacionalidad option:selected").text(),
+                paisNacimientoText: $("#cbPaisNac option:selected").text(),
+                paisSegundaNacionalidadText: $("#cbsNac option:selected").text(),
+                paisResidenciaText: $("#" + residencia + " option:selected").text(),
+                paisResidenciaFiscalText: $("#cbPaisFiscal option:selected").text(),
+                paisNacimientoHost: $("#cbPaisNac").val(),
+                paisNacionalidadHost:$("#cbNacionalidad").val(),
+                paisSegundaNacionalidadHost: $("#cbsNac").val(),
+                paisResidenciaHost: $("#" + residencia + "").val(),
+                paisResidenciaFiscalHost: $("#cbPaisFiscal").val(),
+                numeroIdentificacionContribuyente: $("#txttin").val(),
+                numeroSeguroSocial: $("#txtSegSoc").val()
+            }
+        };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("CreacionFacta")',
+            dataType: 'json',
+            data: parametros,
+            async: false,
+            success: function (l) {
+                if (l.success) {
+                    alert("Datos FACTA actualizados");
+                }
+                else {   
+                    alert('DATOS FACTA NO CREADOS');                    
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            }
+        });
+    }
+    $("#btCASiguiente").click(function () {
+        var nfila = ($("#tbCA tr").length) - 1;
+        var pn = ["P", "Q", "S", "Y"];
+        var idt = $("#yidt" + (nfila) + "").html();
+        var nombres = $("#ynom" + (nfila) + "").html();
+        if (!(pn.indexOf(idt) === -1)) {
+            nombres = nombres.replace(' ', '|');
+            nombres = nombres.replace(' ', '|');
+        }
+        CACP2(nombres, true, $("#yidc" + (nfila) + "").html(), idt, $("#yide" + (nfila) + "").html());
+    });
+    $("#btCAUbicado").click(function () {
+        var uso = true;
+        if ('@proceso[1]' == 'J') {
+            if ($("#txtRSocial").attr('readonly')) {
+                uso = true;
+            }
+            else {
+                uso = false;
+            }
+        }
+        else {
+            if ($("#txtPaterno").attr('readonly')) {
+                uso = true;
+            }
+            else {
+                uso = false;
+            }
+        }
+        if (uso) {
+            $("#divBTAN").show();
+            removerClases("ckCA");
+            $("#ickCA").addClass('fa-check');
+        }
+        else {
+            alert("CLIENTE NO EXISTE");
+        }
+    });
+    $("#btCACrear").click(function () {
+        var nombres = "";
+        var nacimiento = "";
+        var nomCom = "";
+        var nacCom = "";
+        var existe = false;
+        if ('@proceso[1]' == 'J') {
+            nomCom = $("#txtRSocial").val();
+            if ($("#txtRSocial").attr('readonly')) {
+                nacCom = "";
+            }
+            else {
+                nacCom = $("#txtFechConst").val();
+            }
+
+        }
+        else {
+            nomCom = $("#txtPaterno").val() + " " + $("#txtMaterno").val() + " " + $("#txtNombre").val();
+            nacCom = $("#txtNacimiento").val();
+        }
+        var nfila = ($("#tbCA tr").length) - 1;
+        for (var i = 1; i <= nfila; i++) {
+            nombres = $("#ynom" + (i) + "").html();
+            nacimiento = $("#ynac" + (i) + "").html();
+            if (nacCom == nacimiento) {
+                if (nombres.length <= nomCom.length) {
+                    if (nombres == nomCom.substr(0, nombres.length)) {
+                        existe = true;
+                        break;
+                    }
+                }
+                else {
+                    if (nomCom == nombres.substr(0, nomCom.length)) {
+                        existe = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (existe) {
+            alert("CLIENTE CIF YA EXISTE");
+        }
+        else {
+            $("#divBTAN").show();
+            removerClases("ckCA");
+            $("#ickCA").addClass('fa-times');
+        }
+    });
+    function datosTabla(nombre) {
+        var nfila = ($("#" + nombre + " tr").length) - 1;
+        var z = {};
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#" + nombre + " #" + i + "").hasClass("bg-info")) {
+
+                $("#" + nombre + " #" + i + "").find("td").each(function (index) {
+                    z[index] = ($(this).html());
+                });
+                break;
+            }
+        }
+        return z;
+    }
+    $("#btAN").click(function () {
+	    removerClases("ckAN");
+	    $("#divTAlfCli").hide();
+	    var tipo = '@(proceso[1].ToLower())';
+	    var paterno='';
+	    var materno='';
+	    var nombres='';
+	    if (tipo == 'J') {
+		    paterno = $("#txtRSocial").val();
+	    }
+	    else {
+		    paterno=$("#txtPaterno").val();
+		    materno=$("#txtMaterno").val();
+		    nombres=$("#txtNombre").val();
+	    }
+	    var parametros = {
+		    id: $("#txtDID").val(),
+		    tid: $("#txttDID").val(),
+		    paterno:paterno,
+		    materno:materno,
+		    nombres: nombres,
+		    tipoPersona:tipo
+	    };
+	    $.ajax({
+		    type: 'POST',
+		    url: '@Url.Action("ArchivoNegativo")',
+		    dataType: 'text',
+		    data: parametros,
+            beforeSend: AntesAjax(),
+		    success: function (l) {
+			    if (l == '1') {
+				    $('#ickAN').addClass('fa-times');
+				    alert("El Cliente tiene ingresados motivos en Archivo Negativo");
+			    }
+			    else {
+				    $('#ickAN').addClass('fa-check');
+                    $("#hfiltroCuentas").val(l);
+				    if ($("#ickCA").hasClass('fa-times')) {
+					    $("#divbtCrearCliente").show();
+				    }
+				    if (l == '2') {
+					    alert("Usuario registrado en Archivo Negativo, solo se procederá a la apertura de algunas cuentas");
+				    }
+			    }
+		    },
+		    error: function (ex) {
+			    $('#ickAN').addClass('fa-times');
+		    },
+            complete: function () { DespuesAjax(); }
+	    });
+    });
+    $('#tbCA').on('click', 'tbody tr', function () {
+        var selected=$(this).hasClass("bg-info");
+        if(!selected){
+            $("#tbCA tbody tr").removeClass("bg-info");
+            $(this).addClass("bg-info");        
+        } 
+    });
+    function CACP2(nombres,completo,idc, idt,ide) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ConsultaAlfabetica","Registro")',
+            dataType: 'json',
+            data: { cliente: nombres, completo: completo, idc: idc, idt:idt, ide:ide },
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.state == null) {
+                    alert("error de conexion al microservicio");
+                }
+                else {
+                    if (l.success) {
+                        var nfila = ($("#tbCA tr").length) - 1;
+                        if (l.data.length > 0) {
+                            for (var i = 0; i < l.data.length; i++) {
+                                if (i > 0 || completo == false) {
+                                    nfila = nfila + 1;
+                                    var fia = '<tr id="' + (nfila) + '">' +
+                                        '<td id="yidc' + (nfila) + '">' + l.data[i].idcNumero + '</td>' +
+                                        '<td id="yidt' + (nfila) + '">' + l.data[i].idcTipo + '</td>' +
+                                        '<td id="yide' + (nfila) + '">' + l.data[i].idcExtension + '</td>' +
+                                        '<td id="ynom' + (nfila) + '">' + l.data[i].nombreCompleto + '</td>' +
+                                        '<td>' + l.data[i].tipoCliente + '</td>' +
+                                        '<td>' + l.data[i].tipoBanca + '</td>' +
+                                        '<td>' + l.data[i].oficina + '</td>' +
+                                        '<td>' + l.data[i].codigo + '</td>' +
+                                        '<td id="ynac' + (nfila) + '">' + l.data[i].fechaNacimiento + '</td>' +
+                                        '</tr>';
+                                    $("#tbCA tbody").append(fia);
+                                    if (nfila == 1) {
+                                        $("#btCASiguiente").show();
+                                        $("#divTAlfCli").show();
+                                        $("#tbCA #1").addClass("bg-info");
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            $("#btCASiguiente").hide();
+                            alert("NO SE ENCONTRARON MAS COINCIDENCIAS");
+                        }
+                    }
+                    else {
+                        alert("Error de consulta al microservicio");
+                    }
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () { DespuesAjax(); }
+        });
+    }
+    $("#btCAP2").click(function () {
+        if ($("#txtPaterno").prop('readonly')==false) {
+            removerClases('ckCA');
+            $("#ickCA").addClass('fa-searchengin');
+        }
+        if (!$("#ickCA").hasClass('fa-searchengin')) {
+            $("#divTAlfCli").show();
+        }
+        else {           
+            var nombres = agruparNombres();
+            if (nombres == "X") {
+                alert("Debe ingresar Apellido Paterno/Razon Social");
+            }
+            else {
+                $("#tbCA tbody").empty();
+                CACP2(nombres, false, "", "", "");
+            }
+        }
+    });
+    function agruparNombres(){
+        var nombres = "";
+        if ('@proceso[1]' == 'J') {
+            nombres = $("#txtRSocial").val();
+            if (nombres == "" || nombres == " ") {
+                nombres = "X";
+            }
+        }
+        else {
+            nombres=$("#txtPaterno").val();
+            if (nombres == "" || nombres == " ") {
+                nombres = "X";
+            }
+            else {
+                if (!($("#txtMaterno").val() == "" || $("#txtMaterno").val() == " ")) {
+                    nombres = nombres + "|" + $("#txtMaterno").val();
+                }
+                if (!($("#txtNombre").val() == "" || $("#txtNombre").val() == " ")) {
+                    nombres = nombres + "|" + $("#txtNombre").val();
+                }
+            }
+        }
+        return nombres;
+    }
+    $("#btCrearPNJ").click(function () {
+        var confirmar = confirm("¿Esta seguro de realizar un nuevo registro?");
+        if (confirmar == true) {
+            var camposValidados = true;
+            cambiarTabActivo("P1", "P2", "P3");
+            var campo1 = validarCamposLlenos("P1", true);
+            cambiarTabActivo("P2", "P1", "P3");
+            var campo2 = validarCamposLlenos("P22", false);
+            var campo3 = "";
+            if ('@proceso[1]' != 'J') {
+                cambiarTabActivo("P3", "P1", "P2");
+                campo3 = validarCamposLlenos("P3", false);
+            }
+            $('#tabPaso2 a:first').tab('show');
+            var campos = campo1 + campo2 + campo3;
+            if (campos != "") {
+                camposValidados = false;
+                alert("DEBE LLENAR LOS SIGUIENTES CAMPOS: " + campos.substr(0, campos.length - 1));
+            }
+            if (camposValidados) {
+                var parametros = datosCreacionPNJ();
+                var datos = {
+                    id: $("#txtDID").val(),
+                    tid: $("#txttDID").val(),
+                    cliente: JSON.stringify(parametros),
+                    tipoPersona: '@proceso[1].ToLower()[0]',
+                    complemento: JSON.stringify(datosRegistroINFOCLIENTE())
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("CrearPNJ")',
+                    dataType: 'json',
+                    data: datos,
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        if (l.state == null) {
+                            alert('Error de consulta al microservicio')
+                        }
+                        else {
+                            if (l.success) {
+                                FANEC('AN', "#ckTPArchNeg", $("#txtDID").val(), $("#txttDID").val(), agruparNombres());
+                                FANEC('EC', "#ckTPEC", $("#txtDID").val(), $("#txttDID").val(), agruparNombres());
+                                RegistroFiltro();
+                                //removerClases("ckTPArchNeg");
+                                //removerClases("ckTPEC");
+                                //$("#ickTPArchNeg").addClass("fa-check");
+                                //$("#ickTPEC").addClass("fa-check");
+                                $("#divCargaDireccion").hide();
+                                $("#divConsultaDireccion").show();
+                            }
+                            alert(l.message);
+                        }
+                        //$("#divBTCA").show();
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    },
+                    complete: function () { DespuesAjax(); }
+                });
+            }
+        }
+    });
+    $("#txtNacimiento").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+    $("#txtFechConst").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+    function datosCreacionPNJ() {
+        var residente = 'N';
+        var negpro = 'N';
+        if ($("#ckResidente").prop('checked')) {
+            residente = 'S';
+        }
+        if ('@proceso[1]' != 'J') {
+            if ($("#ckNegPro").prop('checked') && $("#txtNomCom").val()!='') {
+                negpro='S';
+            }
+            else{
+                $("#ckNegPro").prop('checked',false);
+                $("#txtNomCom").val("");
+            }
+        }
+        var parametros = {
+            residente: residente,
+            direccion: obtenerDireccion(true),
+            localidad: $("#cbLocalidad").val(),
+            ciiu: $("#cbCiiu0").val(),
+            telefono: $("#txtTelefono").val(),
+            negocioPropio: negpro,
+            nombreComercial: $("#txtNomCom").val()
+        };
+        if ('@proceso[1]' == 'J') {
+            parametros.razonSocial = $("#txtRSocial").val();
+            parametros.fechaConstitucion = $("#txtFechConst").val();
+
+            parametros.finSocial = $("#cbFinSoc").val();
+            parametros.categoria = $("#cbCat").val();
+            parametros.naturalezaJuridica = $("#cbNatJur").val();
+            parametros.tipoEmpresa= $("#cbTEmpresa").val();
+        }
+        else {
+            parametros.paterno = $("#txtPaterno").val();
+            parametros.materno = $("#txtMaterno").val();
+            parametros.nombres = $("#txtNombre").val();
+            parametros.sexo = $("#cbGenero").val();
+            parametros.fechaNacimiento = $("#txtNacimiento").val();
+            parametros.estadoCivil = $("#cbECivil").val();
+            parametros.nacionalidad = $("#cbNacionalidad").val();
+            parametros.situacionLaboral = $("#cbSitLab").val();
+            parametros.profesion = $("#cbProfesion").val();
+            parametros.nit = $("#txtNit").val();
+            parametros.tipoVivienda = $("#cbVivienda").val();
+            parametros.nombreEmpresa = $("#txtEmpTra").val();
+            parametros.ruc = $("#txtNitEmpresa").val();
+            parametros.mail = $("#txtEmail").val();
+            parametros.celular = $("#txtCelular").val();
+        }
+        return parametros;
+    }
+    function datosRegistroINFOCLIENTE() {
+        if ('@proceso[1]' != 'J') {
+            var residente = 'N';
+            var negpro = 'N';
+            if ($("#ckResidente").prop('checked')) {
+                residente = 'S';
+            }
+            if ($("#ckNegPro").prop('checked') && $("#txtNomCom").val()!='') {
+                negpro = 'S';
+            }
+            var parametros = {
+                residente: residente,
+                ciiu: $("#cbCiiu0 option:selected").text(),//$("#cbCiiu0").val(),
+                negocioPropio: negpro,
+                telefono: $("#txtTelefono").val(),
+                paterno: $("#txtPaterno").val(),
+                materno: $("#txtMaterno").val(),
+                nombres: $("#txtNombre").val(),
+                sexo: $("#cbGenero").val(),
+                fechaNacimiento: $("#txtNacimiento").val(),
+                mail: $("#txtEmail").val(),
+                celular: $("#txtCelular").val(),
+                domicilio: $('#txtJACalle').val(),
+                strNumeroDomicilio: $('#txtnro').val(),
+                strManzana: $('#txtmz').val(),
+                strLote: $('#txtlote').val(),
+                strDepPiso: $('#txtDPI').val(),
+                strUrbanizacion: $('#txtURIV').val(),
+                strSector: $('#txtEtZ').val(),
+                localidad: $("#cbLocalidad option:selected").text(),
+                estadoCivil: $("#cbECivil option:selected").text(),
+                nacionalidad: $("#cbNacionalidad option:selected").text(),
+                situacionLaboral: $("#cbSitLab option:selected").text(),
+                profesion: $("#cbProfesion option:selected").text(),
+                tipoVivienda: $("#cbVivienda option:selected").text(),
+                strCalle: $('#cbJACalle option:selected').text(),
+                strDepartamento: $('#cbDPI option:selected').text(),
+                strUrbanizacionTipo: $('#cbURIV option:selected').text(),
+                strSectorTipo: $('#cbEtZ option:selected').text()
+            };
+            var situacionLaboral = $("#cbSitLab").val();
+            if (situacionLaboral == "DEP" || situacionLaboral == "EST" || situacionLaboral == "JUB") {
+                parametros.nombreEmpresa = $("#txtEmpTra").val();
+                parametros.nit = $("#txtNitEmpresa").val();
+            }
+            else {
+                parametros.nombreEmpresa = $("#txtNomCom").val();
+                parametros.nit = $("#txtNit").val();
+            }
+            return parametros;
+        }
+        else {
+            return '';
+        }
+    }
+    function actualizardatosPN() {
+        var direccion=obtenerDireccion(false);
+        var negpro = 'N';
+        if ($("#ckNegPro").prop('checked') && $("#txtNomCom").val()!='') {
+            negpro = 'S';
+        }
+        else{
+            $("#ckNegPro").prop('checked',false);
+            $("#txtNomCom").val("");
+        }
+        var residente = 'N';
+        if ($("#ckResidente").prop('checked')) {
+            residente = 'S';
+        }
+        var parametros = {
+            residente: residente,
+            direccion: direccion,
+            localidad: $("#cbLocalidad").val(),
+            ciiu: $("#cbCiiu0").val(),
+            telefono: $("#txtTelefono").val(),
+            negocioPropio: negpro,
+            nombreComercial: $("#txtNomCom").val(),
+            sexo : $("#cbGenero").val(),
+            fechaNacimiento : $("#txtNacimiento").val(),
+            estadoCivil : $("#cbECivil").val(),
+            nacionalidad : $("#cbNacionalidad").val(),
+            situacionLaboral :$("#cbSitLab").val(),
+            profesion : $("#cbProfesion").val(),
+            nit : $("#txtNit").val(),
+            indicadorVivienda : $("#cbVivienda").val(),
+            nombreEmpresa : $("#txtEmpTra").val(),
+            ruc : $("#txtNitEmpresa").val(),
+            mail : $("#txtEmail").val(),
+            celular : $("#txtCelular").val()
+        };
+        return parametros;
+    }
+    function obtenerDireccion(registro) {
+        var direccion='';
+        if (registro) {
+            if($('#cbJACalle').val()!=null && $('#cbJACalle').val()!=''){
+                direccion=direccion+$('#cbJACalle').val();
+            }
+            if($('#txtJACalle').val()!=''){
+                direccion=direccion+$('#txtJACalle').val()+' ';
+            }
+            if($('#txtnro').val()!=''){
+                direccion=direccion+'N.'+$('#txtnro').val()+' ';
+            }   
+            if($('#txtmz').val()!=''){
+                direccion=direccion+'MZ.'+$('#txtmz').val()+' ';
+            } 
+            if($('#txtlote').val()!=''){
+                direccion=direccion+'LT.'+$('#txtlote').val()+' ';
+            }
+            if($('#cbDPI').val()!=null && $('#cbDPI').val()!=''){
+                direccion=direccion+$('#cbDPI').val();
+            }
+            if($('#txtDPI').val()!=''){
+                direccion=direccion+$('#txtDPI').val()+' ';
+            }
+            if($('#cbURIV').val()!=null && $('#cbURIV').val()!=''){
+                direccion=direccion+$('#cbURIV').val();
+            }
+            if($('#txtURIV').val()!=''){
+                direccion=direccion+$('#txtURIV').val()+' ';
+            }
+            if($('#cbEtZ').val()!=null && $('#cbEtZ').val()!=''){
+                direccion=direccion+$('#cbEtZ').val();
+            }
+            if($('#txtEtZ').val()!=''){
+                direccion=direccion+$('#txtEtZ').val()+' ';
+            }
+            $("#txtDireccion").val(direccion);
+        }
+        else{
+            direccion=$("#txtDireccion").val();
+        }
+        return direccion;
+    }
+    $("#cbLocalidad").change(function () {
+        $("#hLocalidad").val($("#cbLocalidad option:selected").text());
+    });
+    $("#cbECivil").change(function () {
+        $("#strAdicional1").val($("#cbECivil option:selected").text());
+    });
+    function validarDatosFatca() {
+        var nombre = '';
+        var cz = {};
+        cz = validarDatosModificados("divDatosFacta", cz);
+        for (var i in cz) {
+            if (cz[i] == null || cz[i] == "") {
+                nombre = nombre + i + ",";
+            }
+        }
+        return nombre;
+    }
+    function HabilitarDesabilitarInput(idDiv, condicional) {
+        $('#' + idDiv + ' :input').each(function () {
+            if($(this).get(0).tagName=='SELECT') {
+               $(this).attr('disabled', condicional);
+            }
+            else{
+                 $(this).attr('readonly', condicional);
+            }
+        });
+    }
+    function validarCamposLlenos(idDiv,todos) {
+        var campos = "";
+        var nombre = "";
+        $('#' + idDiv + ' :input').each(function () {
+            //alert ($(this).get(0).name);
+            //alert($(this).get(0).value);
+            if ($(this).is(":visible")) {
+                if ($(this).get(0).tagName == 'SELECT' || todos) {
+                    nombre = $(this).get(0).name;
+                    if (nombre != "") {
+                        if (nombre != "paisResidenciaHost") {
+                            if ($(this).get(0).value == "") {
+                                campos = campos + $(this).get(0).name + ",";
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        return campos;
+    }
+    function validarDatosModificados(idDiv, parametros) {
+        var nombre = "";
+        $('#' + idDiv + ' :input').each(function () {
+            //alert ($(this).get(0).name);
+            //alert($(this).get(0).value);
+            if ($(this).is(":visible")) {
+                if ($(this).get(0).tagName == 'SELECT') {
+                    nombre = $(this).get(0).name;
+                    if (nombre != "") {
+                        if (nombre != "paisResidenciaHost") {
+                            if ($(this).prop('disabled')==false) {
+                                parametros[nombre] = ($(this).val());
+                            }
+                        }
+                    }
+                }
+                else {
+                    nombre = $(this).get(0).name;
+                    if (nombre != "") {
+                        if (nombre != "residente") {
+                            if ($(this).prop('readonly') == false) {
+                                parametros[nombre] = ($(this).val());
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        return parametros;
+    }
+    function cambiarTabActivo(activar,remover1,remover2) {
+        $("#"+remover1).removeClass("active");  // this deactivates the home tab
+        $("#"+remover2).removeClass("active");
+        $("#" + activar).addClass("active");
+    }
+    $("#cbSitLab").change(function () {
+        switch (this.value) {
+            case 'DEP':
+                $("#SL1").hide();
+                $("#SL2").show();
+                $("#ckNegPro").attr('disabled', true);
+                $("#ckNegPro").attr('checked', false);
+                $("#cbCiiu0").val('00091');
+                $("#cbCiiu0").prop('disabled',true);
+                break;
+            case 'EST':
+                $("#SL1").hide();
+                $("#SL2").show();
+                $("#cbCiiu0").val('99002');
+                $("#cbCiiu0").prop('disabled', true);
+                $("#ckNegPro").attr('disabled', true);
+                $("#ckNegPro").attr('checked', false);
+                break;
+            case 'JUB':
+                $("#SL1").hide();
+                $("#SL2").show();
+                $("#cbCiiu0").val('99001');
+                $("#cbCiiu0").prop('disabled', true);
+                $("#ckNegPro").attr('disabled', true);
+                $("#ckNegPro").attr('checked', false);
+                break;
+            case 'IND':
+                $("#SL2").hide();
+                $("#SL1").show();
+                $("#txtNit").attr('readonly', false);
+                $("#txtNomCom").attr('readonly', false);
+                $("#ckNegPro").attr('disabled', false);
+                $("#cbCiiu0").prop('disabled', false);
+                break;
+            case 'DES':
+            case 'SUC':
+            case 'LDC':
+            case 'TEC':
+            case 'NDI':
+                $("#SL2").hide();
+                $("#SL1").show();
+                $("#txtNit").attr('readonly', true);
+                $("#txtNomCom").attr('readonly', true);
+                $("#ckNegPro").attr('disabled', true);
+                $("#ckNegPro").attr('checked', false);
+                $("#cbCiiu0").prop('disabled', false);
+                break;
+        }
+    });
+    $("#txtEmpTra").keyup(function () {
+        $("#txtApRS").val($(this).val());
+    });
+    function CAEmpleador() {
+        $('#btCerrar').hide();
+        $("#btCAAceptar").show();
+        $("#CAModal").modal();
+    }
+    $("#btCAAceptar").click(function cargarNit() {
+        var z = datosTabla('tbCAC');
+        if (z != null) {
+            $("#txtEmpTra").val(z[3]);
+            $("#txtNitEmpresa").val(z[0] + z[2]);
+        }
+        $("#CAModal").modal("hide");
+    });
+    function redirigirPaso2() {
+	    if (!($("#ickTPArchNeg").hasClass('fa-searchengin') || $("#ickTPEC").hasClass('fa-searchengin'))) {
+		    var nProceso = '@proceso[0]';
+		    var siguientePaso = true;
+            var parametros="";
+            if ('@proceso[1]' != 'J') {
+				var nombre = validarDatosFatca();
+				if (nombre != '') {
+					siguientePaso = false;
+					alert("DEBE LLENAR LA SIGUIENTE INFORMACION FACTA: " + nombre.substr(0, nombre.length - 1));
+				}
+				else {
+                    CrearFacta();                           				
+				}
+			}
+            if(siguientePaso){
+		        if (nProceso == "Apertura" || nProceso == "Ingreso a Custodia DPF" || nProceso == 'Mantenimiento de Ahorros') {
+			        if($("#ickCA").hasClass('fa-searchengin')){
+				        alert("Debe realizar la consulta alfabetica");
+				        siguientePaso=false;
+			        }
+			        else if ($("#ickAN").hasClass('fa-times')) {
+				        alert("El Cliente existe en el Archivo Negativo");
+				        siguientePaso=false;
+			        }
+			        if(siguientePaso){
+				        actualizarFunNeg();
+				        if ('@proceso[1]' != 'J') {
+					        if ($("#strModificarE").val() == '1' || $("#strModificar").val() == '1') {
+                                var actpn = actualizardatosPN();
+                                parametros=JSON.stringify(actpn);
+						    }
+				        }
+			        }
+		        }
+		        else{
+			        actualizarFunNeg();
+		        }             
+		        if (siguientePaso){
+                    var data={ 
+                        localidad: $("#hLocalidad").val(), 
+                        adicional: $("#strAdicional1").val(), 
+                        filtroCuentas: $("#hfiltroCuentas").val(),
+                        parametros: parametros,
+                        modificarData:$("#strModificar").val(),
+                        modificarDataE:$("#strModificarE").val()
+                    };
+			        $.ajax({
+				        type: 'POST',
+				        url: '@Url.Action("RegistroPaso2")',
+				        dataType: 'text',
+				        data: data,
+				        success: function (l) {
+					        if (l == "0") {
+						        alert('Ocurrio un erro al tratar de guardar los datos');
+					        }
+					        else {
+						        location.href = l;
+					        }
+				        },
+				        error: function (ex, textStatus, errorThrown) {
+					        AjaxErrorHandler(ex, textStatus, errorThrown);
+				        },
+				        complete: function () { DespuesAjax(); }
+			        });
+		        }
+                else{
+                    DespuesAjax();
+                }
+            }
+            else{
+                DespuesAjax();
+            }
+	    }
+        else{
+            DespuesAjax();
+        }
+    }
+    function actualizarFunNeg() {
+        var indicador = "";
+        if ('@proceso[1]' != 'J') {
+            indicador = "N";
+            if ($("#ckNegPro").prop('checked') && $("#txtNomCom").val()!='') {
+                indicador = 'S';
+            }
+        }
+        else {
+            indicador = $("#cbFinSoc").val();
+        }
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ActualizarFunNeg")',
+            dataType: 'json',
+            data: { indicador:indicador},
+            async:false,
+            success: function (l) {
+                //
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            }
+        });
+    }
+    function limpiarCP2() {
+        /*DESHABILITADO TEMPORALMENTE
+        limpiarDivP2("tabPaso2Content");
+        if ('@@proceso[1]' != 'J') {
+            limpiarDivP2("divDatosFacta");
+        }*/
+    }
+    function limpiarDivP2(div) {
+        $('#' + div + ' :input').each(function () {
+            var tipo = $(this).get(0).type;
+            var nombre = $(this).get(0).name;
+            if (tipo == 'checkbox') {
+                if (nombre != 'residente') {
+                    $(this).prop('checked', false).change();
+                }
+            }
+            else {
+                if (!(nombre == 'docIdentidad' || nombre == 'TtipoDocumento')) {
+                    $(this).val("");
+                }
+            }
+        });
+    }
+    function cambiarDireccionDAC(){
+        $("#1-tabDAC").prop("disabled", true);
+        $("#2-tabDAC").prop("disabled", true);
+        $("#3-tabDAC").prop("disabled", true);
+        $("#4-tabDAC").prop("disabled", true);
+        $("#5-tabDAC").prop("disabled", true);
+        document.getElementById("btCerrarDAC").setAttribute("onClick", "$('#DACModal').modal('hide');");
+        $("#txtDACDID").prop("readonly",true);
+        $("#txtDACtDID").prop("readonly",true);
+        $("#txtDACDID").val($("#txtDID").val());
+        $("#txtDACtDID").val($("#txttDID").val());
+        $("#DACModal").modal();
+    }
+    function modificarDireccionDAC() {
+        var nfila = ($("#tbDireccion tr").length) - 1;
+        var index = 0;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbDireccion #" + i + "").hasClass("bg-info")) {
+                index = i;
+                break;
+            }
+        }
+        if (index > 0) {
+            if($("#fTipo" + i + "").html()=="M"){
+                alert("NO ES POSIBLE RELACIONAR CON DIRECCION DE CORREO ELECTRONICO.");
+            }
+            else if($("#fCorr" + i + "").html()!="S"){
+                alert("NO ES POSIBLE RELACIONAR CON DIRECCION QUE NO ES DE CORRESPONDENCIA.");
+            }
+            else{
+                $("#txtDireccion").val($("#fDir" + i + "").html());
+                $("#txtTelefono").val($("#fDTel" + i + "").html());
+                $("#cbLocalidad").val($("#fCLoc" + i + "").html()).change();
+                $("#tbDireccion tbody").empty();
+                $("#btIngresar").attr('disabled', true);
+                $("#txtNom").val("");
+                $("#divDirBusqAv").show();
+                $("#divTbDirProd").hide();
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ModificarDireccionP2")',
+                    dataType: 'text',
+                    data: {direccion:$("#txtDireccion").val(),localidad: $("#cbLocalidad").val(),telefono:$("#txtTelefono").val()},
+                    //beforeSend: AntesAjax(),
+                    success: function (l) {
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    },
+                    complete: function () {
+                        //DespuesAjax();
+                    }
+                });
+            }
+        }
+        $("#DACModal").modal('hide');
+    }
+</script>

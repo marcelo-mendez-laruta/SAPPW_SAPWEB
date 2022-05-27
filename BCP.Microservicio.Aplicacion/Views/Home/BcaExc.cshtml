@@ -1,0 +1,78 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Banca Exclusiva: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <div class="form-row">
+        <div class="col-lg-10">
+            <div class="container border border-dark">
+                <div class="form-row">
+                    <label for="txtBCNT" class="col-sm-2 col-form-label">
+                        Tarjeta Número:
+                    </label>
+                    <div class="col-sm-10">
+                        <input id="txtBCNT" class="form-control" type="text" autofocus />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="txtBENombre" class="col-sm-2 col-form-label">
+                        Nombre:
+                    </label>
+                    <div class="col-sm-10">
+                        <input id="txtBENombre" class="form-control" type="text" />
+                    </div>
+                </div>
+                <div id="ckBECO" class="form-check">
+                    <input id="ckBECO" class="form-check-input" type="checkbox" />
+                    <label for="ckBECO" class="form-check-label">
+                        Confirmo Operación
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <div class="row p-1">
+                    @if (politicas.Contains("SAPP_BO_TAR_MAN_BAN_EXC_DUP_TAR"))
+                    {
+                        <button onclick="OperacionBcEx('D')" class="col col-lg-12 btn btn-outline-secondary m-1">
+                            <i class="fas fa-glasses icono-2x"></i><br />Duplicado
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="col col-lg-12 btn btn-outline-secondary m-1" disabled>
+                            <i class="fas fa-glasses icono-2x"></i><br />Duplicado
+                        </button>
+                    }
+
+                    <button onclick="OperacionBcEx('A')" class="col col-lg-12 btn btn-outline-secondary m-1">
+                        <i class="fas fa-arrow-left icono-2x"></i><br />Ingresar
+                    </button>
+                    <button onclick="OperacionBcEx('B')" class="col col-lg-12 btn btn-outline-secondary m-1">
+                        <i class="fas fa-arrow-right icono-2x"></i><br />Depurar
+                    </button>
+                    <button id="btBexcCerrar" class="col col-lg-12 btn btn-outline-secondary m-1">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cancelar
+                    </button>
+            </div>
+        </div>
+    </div>
+</div>

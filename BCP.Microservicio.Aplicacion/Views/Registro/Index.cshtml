@@ -1,0 +1,114 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+    
+*@
+@model string;
+@{
+    ViewData["Title"] = Model+" Registro Paso 1:";
+    string visible = "none";
+    if (Model == "Apertura"||Model== "Ingreso a Custodia DPF"||Model=="Mantenimiento de Ahorros")
+    {
+        visible = "block";
+    }
+}
+    <div class="row m-0 justify-content-center align-items-center ">
+        
+        <div class="d-inline-block p-5 border border-primary" style="background-color:lightgrey">
+            <header>
+                <h4>@Model Paso 1:</h4>
+            </header>
+            <div class="container p-3">
+                <center>
+                    <h5>Seleccione el Tipo de Persona:</h5>
+                </center>
+            </div>
+            <div class="row justify-content-center align-items-center">
+                <form id="Ingreso" name="Ingreso" method="post" action='@Url.Action("RegistroPaso1")'>
+                    <input type="hidden" value="@Model" name="nombreProceso" />
+                    <div class="container">
+                        <div class="container mb-3">
+                            <fieldset class="border border-dark p-2">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Tipo de Persona
+                                </legend>
+                                <div class="container p-2">
+                                    <div class="container p-1">
+                                        <div class="form-check">
+                                            <input id="PN" value="N" name="tipoPersona" type="radio" class="form-check-input" onchange="cambioTipoPersona()" checked />
+                                            <label class="form-check-label" for="PN">Persona Natural</label>
+                                        </div>
+                                    </div>
+                                    <div class="container p-1">
+                                        <div class="form-check">
+                                            @if (Model == "Mantenimiento de Ahorros")
+                                            {
+                                                <input disabled id="PJ" value="J" name="tipoPersona" type="radio" class="form-check-input"  />
+                                            }
+                                            else
+                                            {
+                                                <input id="PJ" value="J" name="tipoPersona" type="radio" class="form-check-input" onchange="cambioTipoPersona()" />
+                                            }
+                                            <label class="form-check-label" for="PJ">Persona Jurídica</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="container mb-3" id="ctNM" style="display:@visible;">
+                            <fieldset class="border border-dark p-2">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Número de Mancómunas
+                                </legend>
+                                <div class="container p-1">
+                                    <div class="container p-1">
+                                        <div class="form-check">
+                                            <input id="nm1" value="1" name="nMancomuna" type="radio" class="form-check-input" checked />
+                                            <label class="form-check-label" for="mn1">Uno</label>
+                                        </div>
+                                    </div>
+                                    <div class="container p-1">
+                                        <div class="form-check">
+                                            <input id="nm2" value="2" name="nMancomuna" type="radio" class="form-check-input" />
+                                            <label class="form-check-label" for="mn2">Dos</label>
+                                        </div>
+                                    </div>
+                                    <div class="container p-1">
+                                        <div class="form-check">
+                                            <input id="nm3" value="3" name="nMancomuna" type="radio" class="form-check-input" />
+                                            <label class="form-check-label" for="mn3">Tres</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="container p-1">
+                            <div class="row">
+                                <div class="col-auto m-1">
+                                    <button type="button" class="btn border btn-light" onclick="cancelarProceso('@Url.Action("Index","Home")');">Cancelar</button>
+                                </div>
+                                <div class="col-auto m-1">
+                                    <input class="btn border btn-light" type="submit" value=">>Siguiente>>" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+@if (Model == "Apertura" || Model== "Ingreso a Custodia DPF")
+{
+<script type="text/javascript">
+    
+    function cambioTipoPersona() {
+        var mancomuna = document.getElementById('ctNM');
+        if (!document.getElementById('PN').checked) {
+            mancomuna.style.display = "none";
+        }
+        else {
+            mancomuna.style.display = "block";
+        }
+    }
+</script>
+}

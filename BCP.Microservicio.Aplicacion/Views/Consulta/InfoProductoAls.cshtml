@@ -1,0 +1,459 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Rebibir;
+@model AlsInformeCrediticioItem;
+@{
+    ViewData["Title"] = "ALS Informe Crediticio de Productos: ";
+}
+<div class="container border border-dark" style="background-color:lightgrey">
+    <header>
+        <h4>ALS Informe Crediticio de Productos:</h4>
+    </header>
+    <div class="form-row">
+        <div class="col-lg-11">
+            <div class="container border border-dark">
+                <ul class="nav nav-tabs" id="tabALSIP" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#ALSIP1" role="tab" aria-controls="home" aria-expanded="true">Datos Principales</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#ALSIP2" role="tab" aria-controls="profile" aria-expanded="true">Montos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#ALSIP3" role="tab" aria-controls="profile" aria-expanded="true">Fechas</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="tabALSIPContent">
+                    <div class="tab-pane fade show active" id="ALSIP1" role="tabpanel" aria-labelledby="1-tab">
+                        <div class="container mb-1 border border-dark">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-row">
+                                        <label asp-for="nombres" class="col-sm-4 col-form-label">
+                                            Nombres:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="nombres" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="customer" class="col-sm-4 col-form-label">
+                                            Customer:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="customer" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="direccionDomicilio" class="col-sm-4 col-form-label">
+                                            Dirección Domicilio:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="direccionDomicilio" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="direccionTrabajo" class="col-sm-4 col-form-label">
+                                            Dirección Trabajo:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="direccionTrabajo" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-row">
+                                        <label asp-for="ciudad" class="col-sm-4 col-form-label">
+                                            Ciudad:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="ciudad" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="codigoPostal" class="col-sm-4 col-form-label">
+                                            Código Postal:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="codigoPostal" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="provincia" class="col-sm-4 col-form-label">
+                                            Provincia:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="provincia" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="codigoCiudad" class="col-sm-4 col-form-label">
+                                            Códigos de Ciudad:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="codigoCiudad" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="telefono" class="col-sm-4 col-form-label">
+                                            Teléfono:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input iasp-for="telefono" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-1 p-1">
+                            <div class="col-sm-6 border border-dark">
+                                <div class="form-row">
+                                    <label asp-for="cargoAutomatico" class="col-sm-6 col-form-label">
+                                        Indicador de Carga Automática:
+                                    </label>
+                                    <div class="col-sm-6">
+                                        <input asp-for="cargoAutomatico" class="form-control" readonly />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label asp-for="tipoProducto" class="col-sm-6 col-form-label">
+                                        Tipo de Producto:
+                                    </label>
+                                    <div class="col-sm-6">
+                                        <input asp-for="tipoProducto" class="form-control" readonly />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label asp-for="sectorista" class="col-sm-6 col-form-label">
+                                        Sectorista:
+                                    </label>
+                                    <div class="col-sm-6">
+                                        <input asp-for="sectorista" class="form-control" readonly />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label asp-for="callCode" class="col-sm-6 col-form-label">
+                                        Call Code:
+                                    </label>
+                                    <div class="col-sm-6">
+                                        <input asp-for="callCode" class="form-control" readonly />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label asp-for="bloqueo" class="col-sm-6 col-form-label">
+                                        Bloqueo:
+                                    </label>
+                                    <div class="col-sm-6">
+                                        <input asp-for="bloqueo" class="form-control" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="ALSIP2" role="tabpanel" aria-labelledby="2-tab">
+                        <div class="form-row mb-1">
+                            <div class="col-sm-6">
+                                <div class="container border border-dark">
+                                    <div class="form-row">
+                                        <label asp-for="deudaTotalActual" class="col-sm-6 col-form-label">
+                                            Deuda Total Actual del Cliente:
+                                        </label>
+                                        <div class="col-sm-6">
+                                            <input asp-for="deudaTotalActual" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="importeTotalOriginal" class="col-sm-6 col-form-label">
+                                            Importe Total Original:
+                                        </label>
+                                        <div class="col-sm-6">
+                                            <input asp-for="importeTotalOriginal" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="importeSolicitadoPrestamo" class="col-sm-6 col-form-label">
+                                            Importe Solicitado del Prestamo:
+                                        </label>
+                                        <div class="col-sm-6">
+                                            <input asp-for="importeSolicitadoPrestamo" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="importeInteresMonetario" class="col-sm-6 col-form-label">
+                                            Importe Interes Monetario/Comisiones:
+                                        </label>
+                                        <div class="col-sm-6">
+                                            <input asp-for="importeInteresMonetario" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="comisionesPagarPeriodo" class="col-sm-6 col-form-label">
+                                            Comisiones a Pagar en el Periodo:
+                                        </label>
+                                        <div class="col-sm-6">
+                                            <input asp-for="comisionesPagarPeriodo" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="importePrincipalDeuda" class="col-sm-6 col-form-label">
+                                            Importe Principal Actual de la Deuda:
+                                        </label>
+                                        <div class="col-sm-6">
+                                            <input asp-for="importePrincipalDeuda" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="interesesDevengados" class="col-sm-6 col-form-label">
+                                            Intereses Devengados en el periodo:
+                                        </label>
+                                        <div class="col-sm-6">
+                                            <input asp-for="interesesDevengados" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <p>XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</p>
+                                    <div class="form-row">
+                                        <label asp-for="pagoMontoRegularCuota" class="col-sm-6 col-form-label">
+                                            Monto Pago Regularmente por Cuota:
+                                        </label>
+                                        <div class="col-sm-6">
+                                            <input asp-for="pagoMontoRegularCuota" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="montoPagarProximaCuota" class="col-sm-6 col-form-label">
+                                            Monto a Pagar en la Próxima Cuota:
+                                        </label>
+                                        <div class="col-sm-6">
+                                            <input asp-for="montoPagarProximaCuota" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="montoPorCuotaVencida" class="col-sm-6 col-form-label">
+                                            Monto por Cuotas Vencidas:
+                                        </label>
+                                        <div class="col-sm-6">
+                                            <input asp-for="montoPorCuotaVencida" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <fieldset class="border border-dark">
+                                    <legend class="w-auto" style="font-size:14px;">
+                                        Repayments
+                                    </legend>
+                                    <div class="container">
+                                        <div class="form-row">
+                                            <label asp-for="numeroMesesPrestamo" class="col-sm-6 col-form-label">
+                                                Número de Meses del Préstamo:
+                                            </label>
+                                            <div class="col-sm-6">
+                                                <input asp-for="numeroMesesPrestamo" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label asp-for="numeroPagosRealizado" class="col-sm-6 col-form-label">
+                                                Número de Pagos Realizados:
+                                            </label>
+                                            <div class="col-sm-6">
+                                                <input asp-for="numeroPagosRealizado" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label asp-for="numeroCuotasPendientes" class="col-sm-6 col-form-label">
+                                                Número de Cuotas Pendientes:
+                                            </label>
+                                            <div class="col-sm-6">
+                                                <input asp-for="numeroCuotasPendientes" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label asp-for="numeroMesesPostergacion" class="col-sm-6 col-form-label">
+                                                Número de Meses de Postergación Pago:
+                                            </label>
+                                            <div class="col-sm-6">
+                                                <input asp-for="numeroMesesPostergacion" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label asp-for="indicadorRenovacionesPlazo" class="col-sm-6 col-form-label">
+                                                Ind. Renovaciones de Plazo:
+                                            </label>
+                                            <div class="col-sm-6">
+                                                <input asp-for="indicadorRenovacionesPlazo" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label asp-for="codigoGarantia" class="col-sm-6 col-form-label">
+                                                Código de Garantías:
+                                            </label>
+                                            <div class="col-sm-6">
+                                                <input asp-for="codigoGarantia" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label asp-for="tipoInteres" class="col-sm-6 col-form-label">
+                                                Tipo de Interes:
+                                            </label>
+                                            <div class="col-sm-6">
+                                                <input asp-for="tipoInteres" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label asp-for="estadoCuenta" class="col-sm-6 col-form-label">
+                                                Estado de Cuenta:
+                                            </label>
+                                            <div class="col-sm-6">
+                                                <input asp-for="estadoCuenta" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="ALSIP3" role="tabpanel" aria-labelledby="3-tab">
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Fechas
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <label asp-for="fechaApertura" class="col-sm-4 col-form-label">
+                                            Fecha de Apertura:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="fechaApertura" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="fechaVencimiento" class="col-sm-4 col-form-label">
+                                            Fecha de Vencimiento Pactada:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="fechaVencimiento" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="fechacierrePrestamo" class="col-sm-4 col-form-label">
+                                            Cancelación del Crédito:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="fechacierrePrestamo" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="fechaPagoSiguienteCuota" class="col-sm-4 col-form-label">
+                                            Fecha de Pago de la Siguiente Cuota:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="fechaPagoSiguienteCuota" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="fechaCuotaImpagaAntigua" class="col-sm-4 col-form-label">
+                                            Fecha Cuota Impaga mas Antigua:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="fechaCuotaImpagaAntigua" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="fechaUltimaTransaccion" class="col-sm-4 col-form-label">
+                                            Fecha Ult. Transacción Monetaria:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input asp-for="fechaUltimaTransaccion" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="fechaUltimoCambioSaldo" class="col-sm-4 col-form-label">
+                                            Fecha Ult. Cambio saldo Principal:
+                                        </label>
+                                        <div class="col-sm-8">
+                                            <input id="txtFechUCamSP" class="form-control" type="text" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Historia Crediticia
+                                </legend>
+                                <div class="container">
+                                    <div class="form-group">
+                                        <label for="txtDRetraso1">
+                                            Dias de Retraso:
+                                        </label>
+                                        <div class="form-row">
+                                            <div class="col-sm-2">
+                                                <input asp-for="diaRetraso01" class="form-control" readonly />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input asp-for="diaRetraso02" class="form-control" readonly />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input asp-for="diaRetraso03" class="form-control" readonly />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input asp-for="diaRetraso04" class="form-control" readonly />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input asp-for="diaRetraso05" class="form-control" readonly />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input asp-for="diaRetraso06" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="txtnRetraso1">
+                                            Número de Retraso:
+                                        </label>
+                                        <div class="form-row">
+                                            <div class="col-sm-2">
+                                                <input asp-for="numeroRetraso01" class="form-control" readonly />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input asp-for="numeroRetraso02" class="form-control" readonly />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input asp-for="numeroRetraso03" class="form-control" readonly />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input asp-for="numeroRetraso04" class="form-control" readonly />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input asp-for="numeroRetraso05" class="form-control" readonly />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input asp-for="numeroRetraso06" class="form-control" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        <div class="col-lg-1">
+                <center">
+                    <button type="button" class="w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-arrow-up icono-2x"></i><br />Anterior
+                    </button>
+                    <button type="button" class="w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                    </button>
+                    <button type="button" class="w-100 btn btn-outline-secondary" onclick="location.href='@Url.Action("Index","Home")'">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                    </button>
+                </center">
+            </div>
+    </div>
+</div>

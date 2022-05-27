@@ -1,0 +1,285 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <fieldset class="border border-dark ">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Oficina
+                    </legend>
+                    <div class="container">
+                        <div class="form-row">
+                            <label for="txtAgencia" class="col-sm-6 col-form-label">
+                                Sucursal:
+                            </label>
+                            <div class="col-sm-6">
+                                <input id="txtSucursal" name="sucursal" type="text" class="form-control" value="" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtAgencia" class="col-sm-6">
+                                Agencia:
+                            </label>
+                            <div class="col-sm-6">
+                                <input id="txtAgencia" name="agencia" type="text" class="form-control" value=""/>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Moneda
+                    </legend>
+                    <div class="container">
+                        <div class="form-check">
+                            <input id="rbMNacional" value="303" name="moneda" type="radio" class="form-check-input" checked />
+                            <label for="rbMNacional" class="form-check-label">
+                                Nacional
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input id="rbMExtranjera" value="302" name="moneda" type="radio" class="form-check-input" />
+                            <label for="rbMExtranjera" class="form-check-label">
+                                Extranjera
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+				<fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Codigo CUI
+                    </legend>
+                    <div class="container">
+                        <div class="form-row">
+                            <label for="txtCui" class="col-sm-2 col-form-label">
+                                CUI:
+                            </label>
+                            <div class="col-sm-10">
+                                <input id="txtCui" name="cui" type="text" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-sm-8">
+                <fieldset class="border border-dark p-2">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Depósito DPF - Jurídica
+                        <input type="hidden" name="indModalidad" value="JU" />
+                    </legend>
+                    <div class="container">
+                        <div class="container mb-1">
+                            <div class="row">
+                                <div class="col-lg-3">
+                                    <div class="form-check">
+                                        <input id="hCustodia" type="hidden" value="0" name="indicadorCustodia" />
+                                        <input id="ckCustodia" onchange="custodia()" type="checkbox" class="form-check-input" />
+                                        <label for="ckCustodia" class="form-check-label">
+                                            Custodia
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:13px;">
+                                            Tipo Cuenta
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-check">
+                                                <input id="rbTCNormal" value="0" name="tipoCuentaDpf" type="radio" class="form-check-input" checked />
+                                                <label for="rbTCNormal" class="form-check-label">
+                                                    Normal
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input id="rbTCRentamas" value="1" name="tipoCuentaDpf" type="radio" class="form-check-input" />
+                                                <label for="rbTCRentamas" class="form-check-label">
+                                                    Rentamas
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-lg-3">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:13px;">
+                                            Tipo Depósito
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-check">
+                                                <input id="rbTDNominal" value="1" name="tipoDeposito" type="radio" class="form-check-input" checked />
+                                                <label for="rbTDNominal" class="form-check-label">
+                                                    Nominal
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input id="rbTDUFV" value="0" name="tipoDeposito" type="radio" class="form-check-input" />
+                                                <label for="rbTDUFV" class="form-check-label">
+                                                    UFV
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-lg-3" style="display:none">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:13px;">
+                                            Tipo de Plazo
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-check">
+                                                <input id="rbTPlazoD" value="0" name="tipoPlazo" type="radio" class="form-check-input" checked />
+                                                <label for="rbTPlazoD" class="form-check-label">
+                                                    Días
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input id="rbTPlazoM" value="1" name="tipoPlazo" type="radio" class="form-check-input" />
+                                                <label for="rbTPlazoM" class="form-check-label">
+                                                    Meses
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container">
+                            <div class="form-row">
+                                <label for="cbPlazo" class="col-sm-2 col-form-label">
+                                    Plazo:
+                                </label>
+                                <div id="divPlazoDias" class="col-sm-4">
+                                    <select id="cbPlazo" name="plazo" class="form-control"></select>
+                                </div>
+                                <div id="divPlazoMeses" class="col-sm-4" style="display:none">
+                                    <input id="txtPlazo" name="plazoManual" value="" type="text" class="form-control" maxlength="3" />
+                                </div>
+                                <label for="txtMontIni" class="col-sm-2 col-form-label">
+                                    Monto Inicial:
+                                </label>
+                                <div class="col-sm-4">
+                                    <input id="txtMontIni" name="monto" type="text" class="form-control" />
+                                </div>
+                            </div>
+                            <div id="divPlazoMesesDetalle" class="form-row" style="display:none">
+                                <label for="txtTNom" class="col-sm-3 col-form-label">
+                                    Tasa Nominal:
+                                </label>
+                                <div class="col-sm-3">
+                                    <input id="txtTNom" name="tasaNominal" value="" type="text" class="form-control" />
+                                </div>
+                                <label for="txtPenalidad" class="col-sm-3 col-form-label">
+                                    Penalidad:
+                                </label>
+                                <div class="col-sm-3">
+                                    <input id="txtPenalidad" name="penalidad" value="" type="text" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="cbRenovacion" class="col-sm-3 col-form-label">
+                                    Renovación:
+                                </label>
+                                <div class="col-sm-9">
+                                    <select id="cbRenovacion" name="renovacion" class="form-control">
+                                        <option value="">Select</option>
+                                        <option value="RAU" selected>RENUEVA AUTOMÁTICAMENTE</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="cbPagIn" class="col-sm-3 col-form-label">
+                                    Pago Interés:
+                                </label>
+                                <div class="col-sm-9">
+                                    <select id="cbPagIn" name="modoPagoInteres" class="form-control">
+                                        <option value="1" selected>ABONO A CUENTA AFILIADA</option>
+                                        <option value="0">CAPITALIZACION MISMA CUENTA</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="divAbono" class="container">
+                                <fieldset class="border border-dark">
+                                    <legend class="w-auto" style="font-size:13px;">
+                                        Con abono a
+                                    </legend>
+                                    <div class="container">
+                                        <div class="form-row">
+                                            <label for="cbCCuenta" class="col-sm-3 col-form-label">
+                                                Cuenta:
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <select id="cbCCuenta" name="tipoCuenta" class="form-control">
+                                                    <option value="0" selected>AHORROS</option>
+                                                    <option value="1">CUENTA CORRIENTE</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label for="txtNcCuenta" class="col-sm-3 col-form-label">
+                                                Nro. Cta.:
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <input id="txtNcCuenta" name="nroCuenta" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            agregarPlazo('0');
+        });
+        function agregarPlazo(valor) {
+            $("#cbPlazo").empty();
+            $("#cbPagIn").empty();
+            $("#cbPlazo").append('<option value="" selected>Select</option>');
+            $("#cbPagIn").append('<option value="1" selected>ABONO A CUENTA AFILIADA</option>');
+            var plazo = ['30 dias', '60 dias, con pago int. al vcmto.', '90 dias, con pago int. al vcmto.', '180 dias, con pago int. al vcmto.', '360 dias, con pago int. al vcmto.', '370 dias, con pago int. al vcmto.', '740 dias, con pago int. al vcmto.', '1100 dias, con pago int. al vcmto.'];
+            if (!(valor == '0')) {//verdad es rentamas
+                plazo.splice(0, 2);
+                $('#cbPagIn').children('option').removeAttr("selected");
+                $("#cbPagIn").val('1').change();
+            }
+            else {
+                $("#cbPagIn").append('<option value="0">CAPITALIZACION MISMA CUENTA</option>');
+            }
+            for (var i = 0; i < plazo.length; i++) {
+                $("#cbPlazo").append('<option value="' + (i + 1) + '">' + plazo[i] + '</option>');
+            }
+        }
+        $("input[type=radio][name=tipoCuentaDpf]").change(function () {
+            agregarPlazo(this.value);
+        });
+        $("input[type=radio][name=tipoPlazo]").change(function () {
+            switch (this.value) {
+                case '0':
+                    $("#divPlazoMeses").hide();
+                    $("#divPlazoMesesDetalle").hide();
+                    $("#divPlazoDias").show();
+                    $('#txtPlazo').val('');
+                    $('#txtTNom').val('');
+                    $('#txtPenalidad').val('');
+                    break;
+                case '1':
+                    $('#txtPlazo').val('0');
+                    $('#txtTNom').val('0.00');
+                    $('#txtPenalidad').val('000.000');
+                    $("#divPlazoDias").hide();
+                    $("#divPlazoMeses").show();
+                    $("#divPlazoMesesDetalle").show();
+                    $('#cbPlazo').val('1');
+                    break;
+            }
+        });
+    </script>

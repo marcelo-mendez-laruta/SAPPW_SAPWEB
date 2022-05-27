@@ -1,0 +1,238 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+}
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <fieldset class="border border-dark ">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Oficina
+                    </legend>
+                    <div class="container">
+                        <div class="form-row">
+                            <label for="txtAgencia" class="col-sm-6 col-form-label">
+                                Sucursal:
+                            </label>
+                            <div class="col-sm-6">
+                                <input id="txtSucursal" name="sucursal" type="text" class="form-control" value="" readonly />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtAgencia" class="col-sm-6">
+                                Agencia:
+                            </label>
+                            <div class="col-sm-6">
+                                <input id="txtAgencia" name="agencia" type="text" class="form-control" value="" readonly />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Moneda
+                    </legend>
+                    <div class="container">
+                        <div class="form-check">
+                            <input id="rbMNacional" value="303" name="moneda" type="radio" class="form-check-input" checked readonly />
+                            <label for="rbMNacional" class="form-check-label">
+                                Nacional
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input id="rbMExtranjera" value="302" name="moneda" type="radio" class="form-check-input" readonly />
+                            <label for="rbMExtranjera" class="form-check-label">
+                                Extranjera
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="container mt-1">
+                    <div class=" form-group row">
+                            <!--<input readonly type="text" id="txtlcui" />-->
+                        <select id="cbCuentasAHO" name="nroCuenta" type="text" class="form-control" required>
+                            <option selected>Select</option>
+                            <option value="201-50091367-2-22">201-50091367-2-22</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-8">
+                <fieldset class="border border-dark p-2">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Depósito a Plazo Especial - Mancomunada Conjunta
+                        <input type="hidden" name="indModalidad" value="MC" />
+                    </legend>
+                    <div class="container">
+                        <div class="container mb-1">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="form-check">
+                                        <input id="hCustodia" type="hidden" value="0" name="indicadorCustodia" />
+                                        <input id="ckCustodia" onchange="custodia()" type="checkbox" class="form-check-input" readonly />
+                                        <label for="ckCustodia" class="form-check-label">
+                                            Custodia
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:13px;">
+                                            Tipo Cuenta
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-check">
+                                                <input readonly id="rbTCNormal" value="0" name="tipoCuentaDpf" type="radio" class="form-check-input" checked disabled />
+                                                <label for="rbTCNormal" class="form-check-label">
+                                                    Normal
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input readonly id="rbTCRentamas" value="1" name="tipoCuentaDpf" type="radio" class="form-check-input" disabled />
+                                                <label for="rbTCRentamas" class="form-check-label">
+                                                    Rentamas
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container">
+                            <div class="form-row align-content-center">
+                                <label for="txtMontIni" class="col-sm-3 col-form-label">
+                                    Monto Inicial:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txtMontIni" name="monto" type="text" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="txtPlazo" class="col-sm-2 col-form-label">
+                                    Plazo:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input id="txtPlazo" name="plazoManual" value="0" type="text" class="form-control" maxlength="3" />
+                                </div>
+                                <label for="txtTNom" class="col-sm-2 col-form-label">
+                                    Tasa Nominal:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input id="txtTNom" name="tasaNominal" value="0.00" type="text" class="form-control" />
+                                </div>
+                                <label for="txtPenalidad" class="col-sm-2 col-form-label">
+                                    Penalidad:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input id="txtPenalidad" name="penalidad" value="000.000" type="text" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="cbRenovacion" class="col-sm-3 col-form-label">
+                                    Renovación:
+                                </label>
+                                <div class="col-sm-9">
+                                    <select id="cbRenovacion" name="renovacion" class="form-control" disabled>
+                                        <option value="RAU" selected>RENUEVA AUTOMÁTICAMENTE</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="cbPagIn" class="col-sm-3 col-form-label">
+                                    Pago Interés:
+                                </label>
+                                <div class="col-sm-9">
+                                    <select id="cbPagIn" name="modoPagoInteres" class="form-control" disabled>
+                                        <option value="1" selected>ABONO A CUENTA AFILIADA</option>
+                                        <option value="0">CAPITALIZACION MISMA CUENTA</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="divAbono" class="container">
+                                <fieldset class="border border-dark">
+                                    <legend class="w-auto" style="font-size:13px;">
+                                        Con abono a
+                                    </legend>
+                                    <div class="container">
+                                        <div class="form-row">
+                                            <label for="cbCCuenta" class="col-sm-3 col-form-label">
+                                                Cuenta:
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <select id="cbCCuenta" name="tipoCuenta" class="form-control" disabled>
+                                                    <option value="0" selected>AHORROS</option>
+                                                    <option value="1">CUENTA CORRIENTE</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label for="txtNcCuenta" class="col-sm-3 col-form-label">
+                                                Nro. Cta.:
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <input id="txtNcCuenta" class="form-control" type="text" readonly />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    $(document).ready(function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ConsultaProCli","Registro")',
+            dataType: 'json',
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.state == null) {
+                    alert("Error de conexion al microservicio");
+                }
+                else if (!l.success) {
+                    alert("No se obtuvo datos de cuentas");
+                }
+                else {
+                    $("#cbCuentasAHO").empty();
+                    var fia = '<option selected> </option>';
+                    $("#cbCuentasAHO").append(fia);
+                    var nroCuenta = "";
+                    for (var i = 0; i < l.data.rows.length; i++) {
+                        nroCuenta = armarCuenta(l.data.rows[i].numeroDeCuentaExtra, l.data.rows[i].moneda);
+                        if (nroCuenta !="") {
+                            fia = '<option value="' + nroCuenta + '">' + nroCuenta + '</option>';
+                            $("#cbCuentasAHO").append(fia);
+                        }
+                    }
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () { DespuesAjax(); }
+        });
+    });
+    function armarCuenta(cuenta, moneda)
+    {
+        var NCuenta = '';
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("CuentaComercial","Home")',
+            dataType: 'text',
+            data: {cuentaExtra:cuenta,moneda:moneda},
+
+            async:false,
+            success: function (l) {
+                NCuenta=l;
+            }
+        });
+       return NCuenta;
+    }
+    </script>

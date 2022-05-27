@@ -1,0 +1,411 @@
+﻿@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@using BCP.Sap.Models.Sap;
+@{
+    string[] menu = { };
+    string logoutUrl = Url.Action("Salir", "Home");
+    if (Context.Session.GetString("autorizado") != null)
+    {
+        Sesion principal = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        if (!string.IsNullOrEmpty(principal.usuario.politicas))
+        {
+            menu = principal.usuario.politicas.Split('|');
+        }
+    }
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta content="IE=10" http-equiv="X-UA-Compatible" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta content="image" name="medium" />
+    <meta name="theme-color" content="#004b8e" />
+    <meta name="msapplication-navbutton-color" content="#004b8e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="#004b8e" />
+    <title>@ViewData["Title"]Sistema Administrador de Productos (SAP)</title>
+    <link rel="icon" icon="~/favicon.ico" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>    
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-ajaxtransport-xdomainrequest/jquery.xdomainrequest.min.js"></script>
+    <script src="~/lib/shortcut/shortcut.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <style>
+        html {
+            font-size: 13px;
+        }
+    </style>
+
+</head>
+<body style="background-color:dimgrey">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-toggleable-sm navbar-dark bg-white border-bottom box-shadow">
+            <div class="container">
+                <img src="~/image/logo.png" style="height:25px;" />
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation" style="background: #004b8e;">
+                    <span class="navbar-toggler-icon" style="color:white;"></span>
+                </button>
+                <div class="navbar-collapse collapse d-lg-inline-flex flex-sm-row-reverse">
+                    <ul id="SapMenuPrincipal" class="navbar-nav flex-grow-1">
+                        @if (menu.Contains("SAPP_BO_CLI"))
+                        {
+                            <li class="nav-item dropdown">
+                                <button class="btn dropdown-toggle dropdown-item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Clientes
+                                </button>
+                                <ul class="dropdown-menu">                                   
+                                    @if (menu.Contains("SAPP_BO_CLI_PER_NAT"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Persona" asp-action="Natural">Persona Natural</a></li>
+                                    }
+                                     @if (menu.Contains("SAPP_BO_CLI_PER_JUR"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Persona" asp-action="Juridica">Persona Jurídica</a></li>
+                                    }
+                                    @if (menu.Contains("SAPP_BO_CLI_CON_ALF"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Consulta" asp-action="AlfabeticaCliente">Consulta Alfabetica F5</a></li>
+                                    }
+                                    @if (menu.Contains("SAPP_BO_CLI_PRO_CLI"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="ProdClie">Productos por Cliente F6</a></li>
+                                    }
+                                    @if (menu.Contains("SAPP_BO_CLI_REG_EMAIL"))
+                                    {
+                                        <li class="dropdown-item" style="display:none;"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Email">Registro de E-mail</a></li>
+                                    }
+                                    @if (menu.Contains("SAPP_BO_CLI_DAT_ADI"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="DAC" asp-action="DatAdiCli">Datos Adicionales F7</a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                        @if (menu.Contains("SAPP_BO_CON"))
+                        {
+                            <li class="nav-item dropdown">
+                                <button class="btn dropdown-toggle dropdown-item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Consultas
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li class="dropdown-item" style="display:none;"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Reniec">Reniec</a></li>
+                                    @if (menu.Contains("SAPP_BO_CON_ARC_NEG"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="ArchNeg">Archivo Negativo</a></li>
+                                    }
+                                    <li class="dropdown-item" style="display:none;"><a class="nav-link text-dark" onclick="alert('No tiene habilitado esta función')">Infocorp</a></li>
+                                    @if (menu.Contains("SAPP_BO_CON_ALS"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Consulta" asp-action="AlfabeticaClienteALS">Als</a></li>
+                                    }
+                                    @{
+                                        /*if (menu.Contains("SAPP_BO_CON_VIS_PLU"))
+                                        {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="VP" asp-action="ConsultaAlfabetica">Visión Plus</a></li>
+                                        }
+
+                                        if (menu.Contains("SAPP_BO_CON_FIR"))
+                                        {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" onclick="alert('No tiene habilitado esta función')">Firmas</a></li>
+                                        }*/
+                                    }
+                                    @if (menu.Contains("SAPP_BO_CON_VIT"))
+                                    {
+                                        <li class="dropdown-item" style="display:none;"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Manual">Vito</a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                        @if (menu.Contains("SAPP_BO_TAR"))
+                        {
+                            <li class="nav-item dropdown ">
+                                <button class="btn dropdown-toggle dropdown-item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Tarjetas
+                                </button>
+                                <ul class="dropdown-menu">
+                                    @if (menu.Contains("SAPP_BO_TAR_CON_ALF"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="AlfabeticaTarjeta|Consulta">Consulta Alfabetica</a></li>
+                                    }
+                                    @if (menu.Contains("SAPP_BO_TAR_MAN"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="Sat|Tarjeta">Mantenimiento F8</a></li>
+                                    }
+                                    @if (menu.Contains("SAPP_BO_TAR_PRO_TAR"))
+                                    {
+                                        <li class="dropdown-item" style="display:none;"><a class="nav-link text-dark" asp-area="" asp-controller="Tarjeta" asp-action="Tramite">Productos por Tarjeta</a></li>
+                                    }
+                                    <li class="dropdown-item" style="display:none;"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Invr">Tarjetas en tramite</a></li>
+                                    @if (menu.Contains("SAPP_BO_TAR_TAR_PRO"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Tarjeta" asp-action="Prod">Tarjetas por Producto</a></li>
+                                    }
+                                    @if (menu.Contains("SAPP_BO_TAR_STO"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Tarjeta" asp-action="Stocks">Consultas de Stock</a></li>
+                                    }
+                                    @if (menu.Contains("SAPP_BO_TAR_COT_BLO"))
+                                    {
+                                        <li class="dropright">
+                                            <button class="btn dropdown-item trigger right-caret">
+                                                &nbsp;&nbsp;Control de Bloqueo
+                                            </button>
+                                            <ul class="dropdown-menu sub-menu">
+                                                @if (menu.Contains("SAPP_BO_TAR_COT_BLO_CON_BLO"))
+                                                {
+                                                    <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Consulta" asp-action="Bloqueo">Consultas</a></li>
+                                                }
+                                                @if (menu.Contains("SAPP_BO_TAR_COT_BLO_REG_BLO"))
+                                                {
+                                                    <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Tarjeta" asp-action="SelBloqueo">Registros</a></li>
+                                                }
+                                                @if (menu.Contains("SAPP_BO_TAR_COT_BLO_REP_BLO"))
+                                                {
+                                                    <li id="MMMUK" class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="ReportesBloqueo">Reportes</a></li>
+                                                }
+                                                @if (menu.Contains("SAPP_BO_TAR_COT_BLO_ACT_BAS_DAT"))
+                                                {
+                                                    <!--<li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Tarjeta" asp-action="CargaBloqueo">Actualización de Datos</a></li>-->
+                                                }
+                                            </ul>
+                                        </li>
+                                    }
+                                    @if (!menu.Contains("SAPP_BO_TAR_MAN_PER_COM_T") && menu.Contains("SAPP_BO_TAR_AFI_DES_PRO"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="Afiliacion|Registro">Afiliar/Desafiliar Productos F2</a></li>
+                                    }
+                                    @if (!menu.Contains("SAPP_BO_TAR_MAN_PER_COM_T") && menu.Contains("SAPP_BO_TAR_CAM_TAR"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="Cambio|Registro">Cambio de Tarjeta F3</a></li>
+                                    }
+                                    @if (!menu.Contains("SAPP_BO_TAR_MAN_PER_COM_T") && menu.Contains("SAPP_BO_TAR_CAM_RAP_TAR"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="Cambio|Tarjeta">Cambio Rápido de Tarjeta</a></li>
+                                    }
+                                    @if (!menu.Contains("SAPP_BO_TAR_MAN_PER_COM_T") && menu.Contains("SAPP_BO_TAR_ENT_ELI"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="EntregaTarjeta|Consulta">Entrega/Eliminación de Tarjeta F4</a></li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                        @if (menu.Contains("SAPP_BO_PRO"))
+                        {
+                            <li class="nav-item dropdown">
+                                <button class="btn dropdown-toggle dropdown-item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Productos
+                                </button>
+                                <ul class="dropdown-menu">
+                                    @if (menu.Contains("SAPP_BO_PRO_APE_PRO"))
+                                    {
+                                        <li class="dropright">
+                                            <button class="btn dropdown-item trigger right-caret">
+                                                &nbsp;&nbsp;Apertura de Productos
+                                            </button>
+                                            <ul class="dropdown-menu sub-menu">
+                                                <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="Index|Registro">Products Systematic F1</a></li>
+                                                @if (menu.Contains("SAPP_BO_PRO_APE_PRO_APE_CTS"))
+                                                {
+                                                    <li class="dropdown-item" style="display:none;"><a class="nav-link text-dark" asp-area="" asp-controller="CTS" asp-action="Empresa">C.T.S. Systematic</a></li>
+                                                }
+                                            </ul>
+                                        </li>
+                                    }
+                                    @if (menu.Contains("SAPP_BO_PRO_CON_INF_CTA"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Movi">Consulta de Movimientos</a></li>
+                                    }
+                                    @if (menu.Contains("SAPP_BO_PRO_MAN_PRO"))
+                                    {
+                                        <li class="dropright">
+                                            <button class="btn dropdown-item trigger right-caret">
+                                                &nbsp;&nbsp;Mantenimiento
+                                            </button>
+                                            <ul class="dropdown-menu sub-menu">
+                                                @if (menu.Contains("SAPP_BO_PRO_MAN_PRO_AHS_MAN_CTA"))
+                                                {
+                                                    <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="AHS|Registro">Cuenta de Ahorro</a></li>
+                                                }
+                                                @if (menu.Contains("SAPP_BO_PRO_MAN_PRO_ING_CUS_CER_BCA"))
+                                                {
+                                                    <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="ICB|Registro">Ingreso a Custodia DPF</a></li>
+                                                }
+                                            </ul>
+                                        </li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                        @if (menu.Contains("SAPP_BO_REP"))
+                        {
+                            <li class="nav-item dropdown">
+                                <button class="btn dropdown-toggle dropdown-item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Reportes
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Reportes">Visualización</a></li>
+                                </ul>
+                            </li>
+                        }
+                        @if (menu.Contains("SAPP_BO_SIS"))
+                        {
+                            <li class="nav-item dropdown">
+                                <button class="btn dropdown-toggle dropdown-item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Sistema
+                                </button>
+                                <ul class="dropdown-menu">
+                                    @if (menu.Contains("SAPP_BO_SIS_CAM_CLA"))
+                                    {
+                                        <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="CambiarClave">Cambio de Clave</a></li>
+                                    }
+                                    <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Config">Configuración de la Estación</a></li>
+                                    <li class="dropdown-divider"></li>
+                                    <li class="dropdown-item"><a class="nav-link text-dark" href="MMMMU()">Salir Ctrl+S</a></li>
+                                </ul>
+                            </li>
+                        }
+                        <li class="nav-item dropdown" style="display:none;">
+                            <button class="btn dropdown-toggle dropdown-item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Terminar
+                            </button>
+                        </li>
+                        <!--
+                            <li class="nav-item dropdown">
+                            <button class="btn dropdown-toggle dropdown-item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Ventana
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-item" style="display:none;"><a class="nav-link text-dark" asp-area="" onclick="alert('No disponible')">Horizontal</a></li>
+                                <li class="dropdown-item" style="display:none;"><a class="nav-link text-dark" asp-area="" onclick="alert('No disponible')">Vertical</a></li>
+                                <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" onclick="alert('No disponible')">Cascada</a></li>
+                                <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" onclick="alert('No disponible')">Organizar Iconos</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <button class="btn dropdown-toggle dropdown-item" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Ayuda
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" onclick="alert('No disponible')">Temas de Ayuda</a></li>
+                                <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Manual">Manual de Usuario</a></li>
+                                <li class="dropdown-divider"></li>
+                                <li class="dropdown-item"><a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="About">Acerca de</a></li>
+                            </ul>
+                        </li>
+                        -->
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="bg-white p-2 pl-0 border-bottom mb-1">
+            <div class="d-inline">
+                @if (menu.Contains("SAPP_BO_PRO_APE_PRO"))
+                {
+                    <abbr class="mr-2" title="F1 Apertura de Productos"><a class="a-hover border border-dark p-2 text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="Index|Registro"><i class="fas fa-clipboard icono-1x"></i></a></abbr>
+                }
+                @if (!menu.Contains("SAPP_BO_TAR_MAN_PER_COM_T") && menu.Contains("SAPP_BO_TAR") && menu.Contains("SAPP_BO_TAR_AFI_DES_PRO"))
+                {
+                    <abbr title="F2 Afilicación Productos"><a class="border border-dark p-2 text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="Afiliacion|Registro"><i class="fas fa-edit icono-1x"></i></a></abbr>
+                }
+                @if (!menu.Contains("SAPP_BO_TAR_MAN_PER_COM_T") && menu.Contains("SAPP_BO_TAR") && menu.Contains("SAPP_BO_TAR_CAM_TAR"))
+                {
+                    <abbr title="F3 Cambio de Tarjeta"><a class=" border border-dark p-2 text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="Cambio|Registro"><i class="fas fa-recycle icono-1x"></i></a></abbr>
+                }
+                @if (!menu.Contains("SAPP_BO_TAR_MAN_PER_COM_T") && menu.Contains("SAPP_BO_TAR") && menu.Contains("SAPP_BO_TAR_ENT_ELI"))
+                {
+                    <abbr title="F4 Entrega de Tarjeta"><a class=" border border-dark p-2 text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="EntregaTarjeta|Consulta"><i class="fas fa-ship icono-1x"></i></a></abbr>
+                }
+                @if (menu.Contains("SAPP_BO_TAR") && menu.Contains("SAPP_BO_TAR_MAN"))
+                {
+                    <abbr class="mr-2" title="F8 Tarjeta Credimas"><a class=" border border-dark p-2 text-dark" asp-area="" asp-controller="Home" asp-action="RedireccionarProcesos" asp-route-vista="Sat|Tarjeta"><i class="fas fa-keyboard icono-1x"></i></a></abbr>
+                }
+                @if (menu.Contains("SAPP_BO_CLI_CON_ALF"))
+                {
+                    <abbr title="F5 Consulta Alafabética de Cliente"><a class="border border-dark p-2 text-dark" asp-area="" asp-controller="Consulta" asp-action="AlfabeticaCliente"><i class="fas fa-couch icono-1x"></i></a></abbr>
+                }
+                @if (menu.Contains("SAPP_BO_CLI_PRO_CLI"))
+                {
+                    <abbr title="F6 Productos por Cliente"><a class=" border border-dark p-2 text-dark" asp-area="" asp-controller="Home" asp-action="ProdClie"><i class="fas fa-window-restore icono-1x"></i></a></abbr>
+                }
+                @if (menu.Contains("SAPP_BO_CLI_DAT_ADI"))
+                {
+                    <abbr class="mr-2" title="F7 Datos Adicionales"><a class=" border border-dark p-2 text-dark" asp-area="" asp-controller="DAC" asp-action="DatAdiCli"><i class="fas fa-search icono-1x"></i></a></abbr>
+                }
+                @if (menu.Contains("SAPP_BO_CON_ARC_NEG"))
+                {
+                    <abbr class="mr-2" title="Archivo Negativo"><a class=" border border-dark p-2 text-dark" asp-area="" asp-controller="Home" asp-action="ArchNeg"><i class="fas fa-grin-tongue icono-1x"></i></a></abbr>
+                }
+                @if (menu.Contains("SAPP_BO_REP"))
+                {
+                    <abbr class="mr-2" title="Visualización de Reportes"><a class=" border border-dark p-2 text-dark" asp-area="" asp-controller="Home" asp-action="Reportes"><i class="fas fa-print icono-1x"></i></a></abbr>
+                }
+                <abbr title="Ctrl+S Salir"><a class=" border border-dark p-2 text-dark" onclick="MMMMU()"><i class="fas fa-sign-out-alt icono-1x"></i></a></abbr>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <div class="window-notice" id="CargandoElementoModal" style="display:none;">
+        <div class="content">
+            <div class="row">
+                <label id="lbCargandoElementoModal">Cargando...</label>
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        </div>
+    </div>    
+    @RenderSection("Scripts", required: false)   
+    
+</body>
+</html>
+<script type="text/javascript">
+    function MMMMU() {
+       location.href= '@Url.Action("Salir","Home")';
+    }
+    $("body").keydown(function (e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode >= 112 && keyCode <= 119) {
+            e.preventDefault();
+            switch (keyCode) {
+                case 112:
+                    window.location.href = '@Url.Action("RedireccionarProcesos", "Home",new {vista="Index|Registro"})';
+                    break;
+                case 113:
+                    window.location.href = '@Url.Action("RedireccionarProcesos", "Home",new {vista="Afiliacion|Registro"})';
+                    break;
+                case 114:
+                    window.location.href = '@Url.Action("RedireccionarProcesos", "Home",new {vista="Cambio|Registro"})';
+                    break;
+                case 115:
+                    window.location.href = '@Url.Action("RedireccionarProcesos", "Home",new {vista="EntregaTarjeta|Consulta"})';
+                    break;
+                case 116:
+                    window.location.href = '@Url.Action("AlfabeticaCliente", "Consulta")';
+                    break;
+                case 117:
+                    window.location.href = '@Url.Action("ProdClie", "Home")';
+                    break;
+                case 118:
+                    window.location.href = '@Url.Action("DatAdiCli", "DAC")';
+                    break;
+                case 119:
+                    window.location.href = '@Url.Action("RedireccionarProcesos", "Home",new {vista="Sat|Tarjeta"})';
+                    break;
+            }
+        }
+        //your keyCode contains the key code, F1 to F12
+        //is among 112 and 123. Just it.
+    });
+</script>
+
+

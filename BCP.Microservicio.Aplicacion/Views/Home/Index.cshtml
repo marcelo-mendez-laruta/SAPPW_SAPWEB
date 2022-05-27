@@ -1,0 +1,111 @@
+﻿@model bool;
+@{
+
+}
+@if (!Model)
+{
+
+    <div class="modal" id="LoginModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalLogin" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content bg-primary">
+                <div class="modal-header">
+                    <h5 class="Modal-title" id="modalLogin">Autenticación</h5>
+                </div>
+                <div class="modal-body bg-white">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <img src="~/image/sn.png" style="width:100%;" />
+                            </div>
+                            <div class="col-sm-8">
+                                <form id="Login" name="Login" method="post" action='@Url.Action("Index","Home")'>
+                                    <h6>Bienvenido a la Aplicación</h6>
+                                    <h5><b>Sap-Pasivos Bolivia</b></h5>
+                                    <p>Proporciona los siguientes datos para ingresar al sistema</p>
+                                    <div class="row form-group">
+                                        <label for="txtUsuario" class="col-form-label col-sm-3">Usuario:</label>
+                                        <div class="col-sm-8">
+                                            <input autofocus type="text" id="txtUsuario" name="usuario" class="form-control" required />
+                                        </div>
+                                    </div>
+                                    <div class="row form-group">
+                                        <label for="txtContrasena" class="col-form-label col-sm-3">Contraseña:</label>
+                                        <div class="col-sm-8">
+                                            <input type="password" id="txtContrasena" name="contrasena" class="form-control" required />
+                                        </div>
+                                    </div>
+                                    <footer>
+                                        <div class="row">
+                                            <div class="col-auto m-1">
+                                                <input class="btn btn-sm btn-primary" type="submit" value="Aceptar" />
+                                            </div>
+                                            <div class="col-auto m-1">
+                                                <button type="button" class="btn btn-sm btn-primary " onclick="$('#LoginModal').modal('hide')">Cancelar</button>
+                                            </div>
+                                        </div>
+                                    </footer>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function () {
+                $('#LoginModal').modal();
+        });
+        $('#Login').on('submit', function (e) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Autenticacion","Home")',
+                dataType: 'text',
+                data: $(this).serialize(),
+                async: false,
+                success: function (l) {
+                    if (l != "OPERACION EJECUTADA CORRECTAMENTE.") {
+                        e.preventDefault();
+                        if(l=="DEBE CAMBIAR SU CONTRASEÑA ACTUAL."){
+                            location.href ='@Url.Action("CambiarClave","Home")';
+                        }
+                        else{
+                            alert(l);
+                        }
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                }
+            });
+        });
+    </script>
+}
+else
+{
+    <div class="row align-items-center">
+        <div class="col align-self-center text-center">
+            <input class="BienvenidaBanner" id="BienvenidaBanner" type="text" value="Bienvenidos a SAP" disabled autofocus />
+        </div>
+    </div>
+    <script type="text/javascript">
+        $( document ).ready(function() {
+          $("#BienvenidaBanner").focus();
+        });
+    </script>
+    <style>
+        .BienvenidaBanner {
+            margin-bottom: 25px;
+            margin-top: 25px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid black;
+            border-style: solid;
+            color: white;
+            background-color: #5D5D5D;
+            font-weight: 600;
+            font-size: 18px;
+        }
+    </style>
+}

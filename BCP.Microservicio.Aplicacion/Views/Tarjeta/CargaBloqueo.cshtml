@@ -1,0 +1,78 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Carga Bloqueo: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Carga Bloqueo:</h4>
+    </header>
+    <div class="row p-2">
+        <div class="p-4 col-lg-10">
+            <div class="container">
+                <center>
+                    <div class="col-sm-6">
+                        <h5>
+                            Proceso de Actualización de las Tarjetas Bloqueadas por el Robot
+                        </h5>
+                    </div>
+                </center>
+            </div>
+            <div class="container">
+                <div class="col-sm-12">
+                    <fieldset class="border border-dark p-4">
+                        <legend class="w-auto" style="font-size:16px;">
+                            Datos de la Cuenta
+                        </legend>
+                        <div class="progress" style="height:20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated w-25" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated w-50" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">50%</div>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated w-75" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75%</div>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated w-100" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">100%</div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <center>
+                @if (politicas.Contains("SAPP_BO_TAR_COT_BLO_ACT_BAS_DAT"))
+                {
+                    <button class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-upload icono-2x"></i><br>Actualizar
+                    </button>
+                }
+                else
+                {
+                    <button class="w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-upload icono-2x"></i><br>Actualizar
+                    </button>
+                }
+                <button class="w-100 btn btn-outline-secondary">
+                    <i class="fas fa-street-view icono-2x"></i><br>Ver Log
+                </button>
+                <button class="w-100 btn btn-outline-secondary" onclick="location.href='@Url.Action("Index","Home")'">
+                    <i class="fas fa-closed-captioning icono-2x"></i><br>Cerrar
+                </button>
+            </center>
+        </div>
+    </div>
+</div>

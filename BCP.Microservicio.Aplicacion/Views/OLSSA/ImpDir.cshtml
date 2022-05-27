@@ -1,0 +1,51 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Exportar a Excel: ";
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <header>
+            <h4>Exportar a Excel:</h4>
+        </header>
+        <div class="container border border-dark mb-2 p-1">
+            <div class="row p-1">
+                <div class="col-sm-4">
+                    <div class="form-check">
+                        <input id="ckDirecciones" class="form-check-input" type="checkbox" />
+                        <label for="ckDirecciones" class="form-check-label">
+                            Direcciones
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-check">
+                        <input id="ckProductos" class="form-check-input" type="checkbox" />
+                        <label for="ckProductos" class="form-check-label">
+                            Productos
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-check">
+                        <input id="ckAcumulado" class="form-check-input" type="checkbox" />
+                        <label for="ckAcumulado" class="form-check-label">
+                            Acumulado
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container p-1">
+            <footer>
+                <div class="row p-1">
+                    <div class="col-auto">
+                        <button type="button" class="btn border btn-light">Aceptar</button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn border btn-light">Cancelar</button>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>

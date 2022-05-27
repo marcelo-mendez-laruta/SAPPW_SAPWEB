@@ -1,0 +1,86 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+
+}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <fieldset class="border border-dark ">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Oficina
+                    </legend>
+                    <div class="container">
+                        <div class="form-row">
+                            <label for="txtAgencia" class="col-sm-6 col-form-label">
+                                Sucursal:
+                            </label>
+                            <div class="col-sm-6">
+                                <input id="txtSucursal" name="sucursal" type="text" class="form-control" value="" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtAgencia" class="col-sm-6">
+                                Agencia:
+                            </label>
+                            <div class="col-sm-6">
+                                <input id="txtAgencia" name="agencia" type="text" class="form-control" value="" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Moneda
+                    </legend>
+                    <div class="container">
+                        <div class="form-check">
+                            <input id="rbMNacional" value="303" name="moneda" type="radio" class="form-check-input" checked />
+                            <label for="rbMNacional" class="form-check-label">
+                                Nacional
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input id="rbMExtranjera" value="302" name="moneda" type="radio" class="form-check-input" />
+                            <label for="rbMExtranjera" class="form-check-label">
+                                Extranjera
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-sm-8">
+                <fieldset class="border border-dark p-2">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Cuenta  - Mancomuanda Conjunta
+                        <input type="hidden" name="indModalidad" value="MC" />
+                    </legend>
+                    <div class="container">
+                        <div class="container">
+                            <div class="form-row">
+                                <label for="txtMontIni" class="col-sm-3 col-form-label">
+                                    Monto Inicial:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input id="txtMontIni" name="montoInicial" type="text" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="cbTProd" class="col-sm-3 col-form-label">
+                                    con chequera?
+                                </label>
+                                <div class="col-sm-9">
+                                    <select id="cbCChequera" name="chequera" class="form-control" required>
+                                        <option value="" selected>Select</option>
+                                        <option value="SI">SI</option>
+                                        <option value="NO">NO</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>

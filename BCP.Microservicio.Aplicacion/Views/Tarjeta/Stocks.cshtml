@@ -1,0 +1,477 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@model BCP.Sap.Models.Sap.Stock; 
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Stocks de tarjetas: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Stocks de tarjetas:</h4>
+    </header>
+    <div class="form-row">
+        <div class="col-lg-11">
+        <form id="StockdeTarjetas" name="StockdeTarjetas" method="post" action='@Url.Action("ReporteStocks", "Tarjeta")'>
+            <div class="container mb-2">
+                <div class="form-row">
+                    <div class="col-sm-6">
+                        <div class="container border border-dark">
+                            <div class="form-row">
+                                <label asp-for="nombreOficina" class="col-sm-4 col-form-label">
+                                    Nombre Oficina:
+                                </label>
+                                <div class="col-sm-8">
+                                    <input asp-for="nombreOficina" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label  asp-for="sucursal" class="col-sm-4 col-form-label">
+                                    Sucursal:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input asp-for="sucursal" class="form-control" readonly />
+                                </div>
+                                <label asp-for="agencia" class="col-sm-4 col-form-label">
+                                    Agencia:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input asp-for="agencia" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="container border border-dark">
+                            <div class="form-row">
+                                <label for="cbEstado" class="col-sm-4 col-form-label">
+                                    Estado:
+                                </label>
+                                <div class="col-sm-8">
+                                    <select id="cbEstado" name="estadoTarjeta" class="form-control"  >
+                                        <option value="" selected>Select</option>
+                                        <option value="0">ACTIVA</option>
+                                        <option value="1">INACTIVA</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="cbtTarjeto" class="col-sm-4 col-form-label">
+                                    Tipo de Tarjeta:
+                                </label>
+                                <div class="col-sm-8">
+                                    <select id="cbtTarjeta" class="form-control">
+                                        <option value="" selected>Select</option>
+                                        <option value="0" >CREDIMAS</option>
+                                        <option value="1">SERVIMATIC</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container mb-2">
+                <ul class="nav nav-tabs" id="stockTarjeta" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#ST1" role="tab" aria-controls="home" aria-expanded="true">Datos de la Oficina</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#ST2" role="tab" aria-controls="profile" aria-expanded="true">Consumos Diarios</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="stockTarjetaContent">
+                    <div class="tab-pane fade show active" id="ST1" role="tabpanel" aria-labelledby="1-tab">
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Recepción Actual de Tarjetas
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <label asp-for="fechaRecepcion" class="col-sm-2 col-form-label">
+                                            Fecha:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="fechaRecepcion"  class="form-control"  />
+                                        </div>
+                                        <label asp-for="cantidadActiva" class="col-sm-2 col-form-label">
+                                            Cantidad:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="cantidadActiva" class="form-control"  />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="loteInicialAct" class="col-sm-2 col-form-label">
+                                            Inicio de Lote:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="loteInicialAct" class="form-control" readonly />
+                                        </div>
+                                        <label asp-for="loteFinalAct" class="col-sm-2 col-form-label">
+                                            Fin de Lote:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="loteFinalAct" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Stocks
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <label asp-for="stockOficina" class="col-sm-2 col-form-label">
+                                            Stock de Oficina:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="stockOficina" class="form-control" readonly />
+                                        </div>
+                                        <label asp-for="stockReposicion" class="col-sm-2 col-form-label">
+                                            Stock de Reposición:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="stockReposicion" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="stockMinimo" class="col-sm-2 col-form-label">
+                                            Stock Mínimo:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="stockMinimo" class="form-control" type="text" readonly />
+                                        </div>
+                                        <label asp-for="stockBloqueo" class="col-sm-2 col-form-label">
+                                            Stock Bloq. Ult. Recepción:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="stockBloqueo" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Recepción Tarjetas Anteriores
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <label asp-for="fechaUltimoEnvio"  class="col-sm-2 col-form-label">
+                                            Fecha:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="fechaUltimoEnvio" class="form-control" readonly />
+                                        </div>
+                                        <label asp-for="cantidad" class="col-sm-2 col-form-label">
+                                            Cantidad:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="cantidad" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label asp-for="loteInicialAnt" class="col-sm-2 col-form-label">
+                                            Inicio de Lote:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="loteInicialAnt" class="form-control" readonly />
+                                        </div>
+                                        <label asp-for="loteFinalAnt" class="col-sm-2 col-form-label">
+                                            Fin de Lote:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="loteFinalAnt" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Tarjetas Rebajadas
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <label asp-for="fechaRebajaDeStock" class="col-sm-2 col-form-label">
+                                            Fecha:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="fechaRebajaDeStock" class="form-control" readonly />
+                                        </div>
+                                        <label asp-for="cantidadTarjetasRebajadas" class="col-sm-2 col-form-label">
+                                            Cantidad:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input asp-for="cantidadTarjetasRebajadas" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="ST2" role="tabpanel" aria-labelledby="2-tab">
+                        <div class="container p-1 w-50">
+                            <center class="border border-dark">
+                                <div class="row p-1">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label asp-for="tarjCon01">
+                                                Tarjetas Consumidas
+                                            </label>
+                                            <input asp-for="tarjCon06" class="form-control" readonly />
+                                            <input asp-for="tarjCon05" class="form-control" readonly />
+                                            <input asp-for="tarjCon04" class="form-control" readonly />
+                                            <input asp-for="tarjCon03" class="form-control" readonly />
+                                            <input asp-for="tarjCon02" class="form-control" readonly />
+                                            <input asp-for="tarjCon01" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label asp-for="fechaCon01">
+                                                Fecha de Consumo
+                                            </label>
+                                            <input asp-for="fechaCon06" class="form-control" readonly />
+                                            <input asp-for="fechaCon05" class="form-control" readonly />
+                                            <input asp-for="fechaCon04" class="form-control" readonly />
+                                            <input asp-for="fechaCon03" class="form-control" readonly />
+                                            <input asp-for="fechaCon02" class="form-control" readonly />
+                                            <input asp-for="fechaCon01" class="form-control" readonly />
+                                        </div>
+                                    </div>
+                                </div>
+                            </center>
+                        </div>
+                    </div>
+                </div>
+            </div>        
+        </form>
+        </div>
+        <div class="col-lg-1">
+            <div class="row">
+                <!--<button type="button" class="w-50 btn btn-outline-secondary">
+                    <i class="fas fa-address-book icono-2x"></i>
+                </button><br />-->
+                @if (politicas.Contains("SAPP_BO_TAR_STO"))
+                {
+                    <button id="btConsulta" type="button" class="m-1 w-100 btn btn-outline-secondary">
+                        <i class="fas fa-user icono-2x"></i><br />Consulta
+                    </button>
+                }
+                else
+                {
+                    <button disabled id="btConsulta" type="button" class="m-1 w-100 btn btn-outline-secondary">
+                        <i class="fas fa-user icono-2x"></i><br />Consulta
+                    </button>
+                }
+                @if (politicas.Contains("SAPP_BO_TAR_STO_ACT"))
+                {
+                    <button id="btRecepcion" type="button" class="m-1 w-100 btn btn-outline-secondary">
+                        <i class="fas fa-hand-peace icono-2x"></i><br />Recepción
+                    </button>
+                }
+                else
+                {
+                    <button id="btRecepcion" type="button" class="m-1 w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-hand-peace icono-2x"></i><br />Recepción
+                    </button>
+                }
+                <button id="ImpReporte" type="button" class="m-1 w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-print icono-2x"></i><br />Impresión
+                </button>
+                @if (politicas.Contains("SAPP_BO_TAR_STO_ACT"))
+                {
+                    <button id="btActualizacion" type="button" class="m-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-hand-paper icono-2x"></i><br />Actualización
+                    </button>
+                }
+                else
+                {
+                    <button disabled id="btActualizacion" type="button" class="m-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-hand-paper icono-2x"></i><br />Actualización
+                    </button>
+                }
+                <button onclick="location.href='@Url.Action("Index","Home")'" type="button" class="m-1 w-100 btn btn-outline-secondary">
+                    <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#btConsulta").click(function () {
+        //$("#btActualizacion").hide();
+        //$("#stockMinimo").prop("readonly",true);
+        //$("#stockReposicion").prop("readonly",true);
+        $("#ImpReporte").prop("disabled",true);
+        var sucursal = $("#sucursal").val();
+        var agencia = $("#agencia").val();
+        var tarjeta = $("#cbtTarjeta").val();
+            if (sucursal==""||agencia==""||tarjeta=="") {
+                    alert('Debe llenar los campos correspondientes');
+                }
+            else {
+                var datos = {
+                    sucursal: sucursal,
+                    agencia: agencia,
+                    tipoTarjeta:tarjeta
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("TarjetaStocks")',
+                    dataType: 'json',
+                    data: { datos:datos },
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        DespuesAjax();
+                        if (l.state == null) {
+                            alert('error de consulta al microservicio');
+                        }
+                        else if (!l.success) {
+                            alert('Datos no encontrados');
+                        }
+                        else {
+                            var recorrido;
+                            for (var j in l.data) {
+                                recorrido = document.getElementsByName(j);
+                                if (recorrido.length > 0) {
+                                    switch (recorrido[0].type) {
+                                        case "checkbox":
+                                            if (l.data[j] == "S") {
+                                                //$("input[name=" + j + "]").val("true");
+                                                $("input[name=" + j + "]").prop("checked", true).change();
+                                                $("input[name=" + j + "]").prop("disabled", true);
+                                            }
+                                            else {
+                                                $("input[name=" + j + "]").val("false");
+                                            }
+                                            break;
+                                        case "text":
+                                            $("input[name=" + j + "]").val(l.data[j]);
+                                            break;
+                                        case "select-one":
+                                            $("select[name=" + j + "]").val( l.data[j]);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                            //$("#btActualizacion").show();
+                            //$("#stockMinimo").prop("readonly",false);
+                            //$("#stockReposicion").prop("readonly",false);
+                            $("#ImpReporte").prop("disabled",false);
+                            }
+                        }
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    }
+                });
+            }
+    });
+    $("#btRecepcion").click(function () {
+        //$("#btActualizacion").hide();
+        //$("#stockMinimo").prop("readonly",true);
+        //$("#stockReposicion").prop("readonly",true);
+        $("#ImpReporte").prop("disabled",true);
+        var tarjeta = $("#cbtTarjeta").val();
+            if (tarjeta=="") {
+                alert('Debe llenar los campos correspondientes');
+            }
+            else {
+                var datos = {
+                    tipoTarjeta: tarjeta,
+                    fecha: $("#fechaRecepcion").val(),
+                    cantidad: $("#cantidadActiva").val()
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("RecepcionTarjeta")',
+                    dataType: 'json',
+                    data: { datos: datos },
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        DespuesAjax();
+                        if (l.state == null) {
+                            alert('error de consulta al microservicio');
+                        }
+                        else  {
+                            alert(l.message);
+                            if(l.success){
+                                //$("#btActualizacion").show();
+                                //$("#stockMinimo").prop("readonly",false);
+                                //$("#stockReposicion").prop("readonly",false);
+                                $("#ImpReporte").prop("disabled",false);
+                            }
+                        }
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    }
+                });
+            }
+    });
+    $("#btActualizacion").click(function () {
+        var sucursal = $("#sucursal").val();
+        var agencia = $("#agencia").val();
+        var tarjeta = $("#cbtTarjeta").val();
+            if (sucursal==""||agencia==""||tarjeta=="") {
+                    alert('Debe llenar los campos correspondientes');
+                }
+            else {
+                var datos = {
+                    sucursal: sucursal,
+                    agencia: agencia,
+                    tipoTarjeta: tarjeta,
+                    stockMinimo: $("#stockMinimo").val(),
+                    stockReposicion: $("#stockReposicion").val(),
+                    estado: $("#cbEstado").val()
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ActualizacionTarjeta")',
+                    dataType: 'json',
+                    data: { datos:datos },
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        DespuesAjax();
+                        if (l.state == null) {
+                            alert('error de consulta al microservicio');
+                        }
+                        else {
+                            alert(l.message);
+                        }
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    }
+                });
+            }
+    });
+    $("#ImpReporte").click(function () {
+        document.StockdeTarjetas.submit();
+    });
+</script>

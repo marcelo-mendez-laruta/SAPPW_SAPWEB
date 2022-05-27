@@ -1,0 +1,451 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model SeguimientoProcesos;
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Paso 4: ";
+    var detalleCuenta = Model.detalleCliente.First().detalleCuenta;
+    var nombreCliente = Model.detalleCliente.First().pj.razonSocial;
+    int registro = detalleCuenta.Count - 1;
+    string tipo = detalleCuenta[registro].cuentaProducto.producto;
+    string redireccion = Model.tipoPersona + tipo + detalleCuenta[registro].cuentaProducto.idModalidad;
+    string cuentas = string.Empty;
+    for (int i = 0; i < detalleCuenta.Count; i++)
+    {
+        if (detalleCuenta[i].detalleCuenta != null)
+        {
+            if (tipo.Equals(detalleCuenta[i].cuentaProducto.producto))
+            {
+                if (detalleCuenta[i].detalleCuenta.nroCuenta != null && !detalleCuenta[i].detalleCuenta.nroCuenta.Equals(""))
+                {
+                    cuentas = cuentas + detalleCuenta[i].detalleCuenta.nroCuenta + "|";
+                }
+            }
+        }
+    }
+    if (!cuentas.Equals(""))
+    {
+        cuentas = cuentas.Substring(0, cuentas.Length - 1);
+    }
+    string politica = tipo;
+    if (!tipo[0].Equals('A'))
+    { 
+        if (tipo.Substring(0,2).Equals("CC") || tipo.Equals("FIS"))
+        {
+            politica = "CTA_" + politica;
+        }
+        else
+        {
+            if (politica.Equals("CUE"))
+            {
+                politica = "DNI";
+            }
+            politica = "DEP_" + politica;
+        }
+    }
+    bool isPolitica = politicas.Contains("SAPP_BO_PRO_APE_PRO_" + politica + "_ING_MAN_S/A");
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Registro Paso 4:</h4>
+    </header>
+    <form id="Paso4" name="Ingreso" method="post" action='#'>
+        @await Html.PartialAsync("../Registro/Paso4" + redireccion)
+        <div class="container mt-1">
+            <div class="form-row">
+                <label for="txtNomCuenta" class="col-sm-2 col-form-label">
+                    Nombre Cuenta:
+                </label>
+                <div class="col-sm-10">
+                    <input id="txtNomCuenta" name="nombreCuenta" class="form-control" type="text" value='@nombreCliente' />
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="txtPropCuenta" class="col-sm-2 col-form-label">
+                    Propósito Cuenta:
+                </label>
+                <div class="col-sm-10">
+                    <input id="txtPropCuenta" name="motivoCuenta" class="form-control" type="text" required />
+                </div>
+            </div>
+        </div>
+        <div class="container mb-1">
+            <div class="table-responsive bg-white">
+                <table class="table table-bordered table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Documento</th>
+                            <th>Tipo</th>
+                            <th>Fecha de Constitución</th>
+                            <th>Razón Social</th>
+                            <th>T. Cliente</th>
+                            <th>T.Banca</th>
+                            <th>Fun. Neg</th>
+                            <th>Domicilio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var i in Model.detalleCliente)
+                        {
+                            <tr>
+                                <td>@i.idC</td>
+                                <td>@i.idT</td>
+                                <td>@i.pj.fechaConstitucion</td>
+                                <td>@i.pj.razonSocial</td>
+                                <td>@i.pj.tipoCliente</td>
+                                <td>@i.pj.tipoBanca</td>
+                                <td>@i.pj.funcionarioNegocios</td>
+                                <td>@i.pj.direccion</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="d-inline p-1">
+            <footer>
+                <div class="form-row justify-content-center align-items-center">
+                    <div class="col-auto m-1">
+                        <button type="button" class="btn border btn-light" onclick="cancelarProceso('@Url.Action("Index","Home")');">Cancelar</button>
+                    </div>
+                    <div class="col-auto m-1">
+                        <button type="button" class="btn border btn-light" onclick="limpiar()">&lt;&lt;Anterior<<</button>
+                    </div>
+                    <div class="col-auto m-1">
+                        <input type="submit" class="btn border btn-light" value=">>Siguiente>>" />
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </form>
+    <input type="hidden" value="S" id="VoBo" />
+    @if(tipo=="DNI")
+    { 
+    <div class="modal fade" id="PermisoModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalPermiso" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="Modal-title" id="modalPermiso">Credenciales</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @{
+                        TempData["tipo"] = "";
+                        await Html.RenderPartialAsync("../Home/Permiso");
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("select").prop('required', true);
+        $("#txtMontIni").attr('required', true);
+        $("#txtMontIni").attr("pattern", '^[0-9]+(\.[0-9]{2})$');
+        $("#txtSucursal").val('@sesion.host.sucursal');
+        $("#txtAgencia").val('@sesion.host.agencia');
+        var validacionPolitica = ('@isPolitica' === 'True');
+        $("#txtSucursal").attr('readonly', !validacionPolitica);
+        $("#txtAgencia").attr('readonly', !validacionPolitica);
+        if (validacionPolitica) {
+            $("#txtSucursal").attr('required', true);
+            $("#txtAgencia").attr('required', true);
+            $("#txtSucursal").focus();
+        }
+        else {
+            $("#txtMontIni").focus();
+        }
+         var tipo = '@tipo';
+        if (tipo == "DNI" || tipo == "DOR") {
+            $("#txtNcCuenta").attr('required', true);
+        }
+    });
+
+    $("#txtMontIni").blur(function () {
+        var monto = $("#txtMontIni").val();
+        monto.replace(",", ".");
+        if (monto.indexOf('.') === -1) {
+            monto = monto + '.00';
+        }
+        $("#txtMontIni").val(monto);
+
+    });
+    function limpiar() {
+        $.ajax({
+            type: 'POST',
+            url:'@Url.Action("LimpiarPaso4")',
+            dataType: 'text',
+            success: function (a) {
+                if (a == '1') {
+                    window.history.back();
+                }
+                else {
+                    alert('No se pudo retroceder');
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+              }
+        });
+    }
+    function direccionarP4() {
+        var WizardActual = "nWIZARD_INGRESO_CUSTODIA_CRB";
+        if (WizardActual == "WIZARD_INGRESO_CUSTODIA_CRB") {
+            location.href = '@Url.Action("Index","Home")';
+        }
+        else {
+            location.href = '@Url.Action("Paso5")';
+        }
+    }
+    $("#hCui").focus(function () {
+        $("#txtCui").focus();
+    });
+    $("#txtCui").keyup(function () {
+        var ofuscados = $(this).val();
+        var x = "";
+        for (var i = 0; i < ofuscados.length; i++) {
+            x = x + "#";
+        }
+        $("#hCui").val(x);
+        /*var reales = $("#hCui").val();
+        if (ofuscados.length == reales.length) {
+            $("#hCui").val(reales.substr(0, reales.length - 1));
+        }
+        else {
+            $("#hCui").val(reales + ofuscados.substr(ofuscados.length - 1));
+            $("#txtCui").val(ofuscados.substr(0, ofuscados.length - 1)+'#');
+        }
+        alert($("#hCui").val());*/
+    });
+    function custodia() {
+        if ($('#ckCustodia').prop('checked')) {
+            $('#hCustodia').val('1');
+        }
+        else {
+            $('#hCustodia').val('0');
+        }
+    }
+    $("#cbPagIn").on('change', function () {
+        if (this.value == "1") {
+            $("#divAbono").show();
+            $("#txtNcCuenta").attr('required', true);
+        }
+        else {
+            $("#divAbono").hide();
+            $("#txtNcCuenta").attr('required', false);
+        }
+    });
+    $('#Paso4').on('submit', function (e) {
+        e.preventDefault();
+        EETarjeta("2");
+    });
+    function EETarjeta(seguir) {
+        var tipo = '@tipo';
+        var validamonto = parseInt($("#txtMontIni").val());
+        if (validamonto <= 0 && (tipo[0] == 'D' || tipo == "CUE")) {
+            alert("Monto inicial no debe ser cero");
+        }
+        else {
+            var validarDNIOR = false;
+            if ((tipo == "DNI" || tipo == "DOR") && $("#txtNcCuenta").prop('required')) {
+                var re = /-/g;
+                var texto = $("#txtNcCuenta").val().replace(re, '');
+                if ($("#cbCCuenta").val() == "0") {
+                    if (texto.length == 14) {
+                        validarDNIOR = true;
+                    }
+                }
+                else {
+                    if (texto.length == 13) {
+                        validarDNIOR = false;
+                    }
+                }
+                if(validarDNIOR){
+                    validarDNIOR= validarCuenta(texto[texto.length-3]);
+                }
+            }
+            else {
+                validarDNIOR = true;
+            }
+            if (validarDNIOR == false) {
+                alert("Tipo de Moneda de la cuenta asociada no corresponde.");
+            }
+            else {
+                if (tipo == "DNI" && seguir != "3") {
+                    if (seguir == "1") {
+                        alert("No se confirmo la apertura de cuenta");
+                    }
+                    else {
+                        var confirmar = confirm("La creacion de DPF especial requiere VoBo de su Supervisor, ¿Desea continuar?");
+                        if (confirmar) {
+                            $("#mNomVentana").html("Permiso de creacion de cuenta:");
+                            $("#PermisoModal").modal();
+                        }
+                    }
+                }
+                else {
+                    if (tipo == "DNI") {
+                        evaluarVBSupervidor();
+                        $("#PermisoModal").modal("hide");
+                    }
+                    if ($("#VoBo").val() == "S") {
+                        var siguiente = false;
+                        var repetido = false;
+                        if ('@cuentas' != '') {
+                            var cuentas = '@cuentas'.split('|');
+                            if(cuentas.length<2){
+                                for (var i = 0; i < cuentas.length; i++) {
+                                    if (cuentas[i].length == 17) {
+                                        if (cuentas[i][14] == '-') {
+                                            repetido = validarCuenta(cuentas[i][13]);
+                                            if (repetido) {
+                                                alert("Cuenta de ahorros en ese tipo de moneda ya fue abierta");
+                                            }
+                                        }
+                                        else {
+                                            repetido = validarCuenta(cuentas[i][14]);
+                                            if (repetido) {
+                                                alert("DPF en ese tipo de moneda ya fue abierta");
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        repetido = validarCuenta(cuentas[i][12]);
+                                        if (repetido) {
+                                            alert("Cuenta Corriente en ese tipo de moneda ya fue abierta");
+                                        }
+                                    }
+                                }
+                            }
+                            else{
+                                repetido=true;
+                                alert("Se alcanzo el limite de apertura de cuentas para este producto");
+                            }
+                        }
+                        if (!repetido) {
+                            var cx = '';
+                            var url = '@Url.Action("AperturaProducto")';
+                            if (tipo[0] == 'A') {
+                                url = url + "Ahorro";
+                                cx = "Caja de Ahorro";
+                            }
+                            else if (tipo.substring(0, 2) == 'CC' || tipo == 'FIS') {
+                                url = url + "Corriente";
+                                if (tipo == 'FIS') {
+                                    cx = 'Cuenta Fiscal';
+                                }
+                                else {
+                                    cx = "Cuenta Corriente";
+                                }
+                            }
+                            else if (tipo[0] != 'I') {
+                                url = url + "DPF";
+                                cx = "Depósito a Plazo Fijo";
+                            }
+                            else {
+                                url = url + "Custodia";
+                                cx = "Custodia DPF";
+                            }
+                            var parametros = $('#Paso4').serialize();
+                            $.ajax({
+                                type: 'POST',
+                                url: url,
+                                dataType: 'json',
+                                data: parametros,
+                                beforeSend: AntesAjax(),
+                                success: function (l) {
+                                    DespuesAjax();
+                                    if (l.state == null) {
+                                        alert("No se pudo crear la cuenta");
+                                    }
+                                    else if (!l.success) {
+                                        alert("No se pudo crear la cuenta");
+                                    }
+                                    else {
+                                        var mx = 'ME';
+                                        if ($("#rbMNacional").prop('checked')) {
+                                            mx = 'MN';
+                                        }
+                                        alert(cx + " Abierta\n" + mx + ": " + l.data.nroCuenta);
+                                        siguiente = true;
+                                    }
+
+                                },
+                                error: function (ex, textStatus, errorThrown) {
+                                    DespuesAjax();
+                                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                                },
+                                complete: function () {
+                                    if (siguiente) {
+                                        if (cx != "Custodia DPF") {
+                                            location.href = '@Url.Action("Paso5")';
+                                        }
+                                        else {
+                                            location.href = '@Url.Action("ImpContrato","Home")';
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+    function evaluarVBSupervidor() {
+        var parametros = {
+            usuario: $("#txtEEUsuario").val(),
+            contrasena: $("#txtEEContrasena").val()
+        };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("VoBoSupervisor")',
+            dataType: 'text',
+            data: parametros,
+            async: false,
+            success: function (l) {
+                if (l != "OK") {
+                    $("#VoBo").val("N");
+                    alert(l);
+                }
+                else {
+                    $("#VoBo").val("S");
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                $("#txtEEUsuario").val("");
+                $("#txtEEContrasena").val("");
+            }
+        });
+    }
+    function validarCuenta(comparador) {
+        var desigual = false;
+        if ((comparador == '2' && $("input[type='radio'][name='moneda']:checked").val() == '302') || (comparador == '3' && $("input[type='radio'][name='moneda']:checked").val() == '303')) {
+            desigual = true;
+        }
+        return desigual;
+    }
+</script>

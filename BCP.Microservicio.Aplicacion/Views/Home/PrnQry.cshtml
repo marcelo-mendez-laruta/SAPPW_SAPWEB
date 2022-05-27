@@ -1,0 +1,46 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Impresión de Contrato: ";
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <header>
+            <h4>Impresión de Contrato:</h4>
+        </header>
+        <div class="row p-1">
+            <div class="col-lg-10">
+                <fieldset class="border border-dark p-2">
+                    <legend class="w-auto" style="font-size:18px;">
+                        Opciones de Impresión
+                    </legend>
+                    <div class="container p-1">
+                        <div class="form-check">
+                            <input id="ckOriginal" class="form-check-input" type="checkbox" />
+                            <label for="ckOriginal" class="form-check-label">
+                                Original
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input id="ckCopia" class="form-check-input" type="checkbox" />
+                            <label for="ckCopia" class="form-check-label">
+                                Copia
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-lg-2">
+                <div class="row">
+                    <center>
+                        <button id="btPrnQryAceptar" type="button" class="col col-lg-12 btn btn-outline-secondary m-1">
+                            <i class="fas fa-check icono-2x"></i><br />Aceptar
+                        </button>
+                        <button id="btPrnQryCerrar" type="button" class="col col-lg-12 btn btn-outline-secondary m-1">
+                            <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                        </button>
+                    </center>
+                </div>
+            </div>
+        </div>
+    </div>

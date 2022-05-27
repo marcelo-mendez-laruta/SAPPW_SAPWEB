@@ -1,0 +1,94 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+trigger:
+- version
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  GroupAgent: Agentes_Desarrollo_Dev
+  Agent: Agente_S60546
+  Publish: 'SAPPW_SAPWEB'
+  PublishArtifact: '$(build.artifactstagingdirectory)'
+
+pool:
+  name: $(GroupAgent)
+  demands:
+  - Agent.name -equals $(Agent)
+
+steps:
+- task: CmdLine@2
+  displayName: 'Configuration Build'
+  inputs:
+    script:  |
+      echo ----------------------------------------------------------------------------
+      echo ----------------------------------------------------------------------------
+      echo COMPUTER NAME:           $(COMPUTERNAME)
+      echo ----------------------------------------------------------------------------
+      echo ----------------------------------------------------------------------------
+      echo DIRECTORIO ARTIFACT:     $(PublishArtifact)
+      echo DEFINITION NAME:         $(Build.DefinitionName)
+      echo PUBLISH:                 $(Publish)
+      echo ----------------------------------------------------------------------------
+      echo ----------------------------------------------------------------------------
+      echo AGENT NAME:              $(Agent)
+      echo SOLUTION:                $(solution)
+      echo BUILD CONFIGURATION      $(buildConfiguration)
+      echo SOURCE BRANCH NAME:      $(Build.SourceBranchName)
+      echo BUILD NUMBER:            $(Build.BuildNumber)
+      echo ----------------------------------------------------------------------------
+      echo ----------------------------------------------------------------------------
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet --list-sdks '
+  inputs:
+    command: custom
+    custom: '--list-sdks' 
+
+#- task: UseDotNet@2
+#  displayName: 'Install .NET 5.0 SDK'
+#  inputs:
+#    packageType: 'sdk'
+#    version: '5.0.x'
+#    includePreviewVersions: true
+#    performMultiLevelLookup: true
+
+#- task: UseDotNet@2
+#  displayName: 'Set .NET 5.0 SDK'
+#  inputs:
+#    version: '5.0.x'
+ 
+
+- task: NuGetToolInstaller@1
+  inputs:
+    CheckLatest: true
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true 
+                  /p:WebPublishMethod=Package 
+                  /p:PackageAsSingleFile=true 
+                  /p:SkipInvalidConfigurations=true 
+                  /p:DesktopBuildPackageLocation="$(PublishArtifact)/$(Publish).zip"
+                  /p:PackageLocation="$(PublishArtifact)"
+                  /p:AllowUnsafeBlocks=true'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: PublishSymbols@2
+  displayName: 'Publish symbols path'
+  inputs:
+    SearchPattern: '**\bin\**\*.pdb'
+    PublishSymbols: false
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact'
+  inputs:
+    PathtoPublish: '$(PublishArtifact)'
+    ArtifactName: '$(Publish)'

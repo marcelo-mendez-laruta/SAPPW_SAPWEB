@@ -1,0 +1,188 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@using BCP.Sap.Business; 
+@inject ISapBusiness _business;
+@{
+    List<SelectListItem> modelo = DataParametro.selectParametro(_business.obtenerParametro())[18];
+}
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Mant Ahorro: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Mant Ahorro:</h4>
+    </header>
+    <div class="container">
+        <center>
+            <div class="col-sm-5">
+                <center>
+                    <h5>Mantenimiento Sub-Producto Cuentas de Ahorro</h5>
+                </center>
+            </div>
+        </center>
+    </div>
+    <form id="FMA" name="MantAhorro" method="post" action="@Url.Action("ModificarCajaAhorro")">
+        <div class="container mb-2">
+            <div class="row">
+                <div class="col-lg-10">
+                    <div class="container mb-1">
+                        <fieldset class="border border-dark">
+                            <legend class="w-auto" style="font-size:14px;">
+                                Datos de la Cuenta
+                            </legend>
+                            <div class="container">
+                                <div class="container mb-1 border border-dark">
+                                    <center>
+                                        <div class="col-sm-6">
+                                            <div class="form-row">
+                                                <label for="" class="col-sm-6 col-form-label">
+                                                    Número de Cuenta:
+                                                </label>
+                                                <div class="col-sm-6">
+                                                    <input class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </center>
+                                </div>
+                                <div class="form-row">
+                                    <label for="txtIdc" class="col-sm-2 col-form-label">
+                                        IDC:
+                                    </label>
+                                    <div class=" col-sm-10">
+                                        <input id="txtIdc" class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label for="txtTitular" class="col-sm-2 col-form-label">
+                                        Titular:
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input id="txtTitular" class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label for="txtDireccion" class="col-sm-2 col-form-label">
+                                        Domicilio:
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input id="txtDireccion" class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label for="txtModalidad" class="col-sm-2 col-form-label">
+                                        Modalidad:
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <input id="txtModalidad" type="text" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="container mb-1">
+                        <fieldset class="border border-dark">
+                            <legend class="w-auto" style="font-size:14px;">
+                                Cambiar a subProducto
+                            </legend>
+                            <div class="container">
+                                <div class="form-row">
+                                    <label for="cbTProd" class="col-sm-2 col-form-label">
+                                        Tipo de sub-producto
+                                    </label>
+                                    <div class="col-sm-10">
+                                        @Html.DropDownList("subTipoProducto", modelo, "Select", new { @id = "cbTProd", @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="col-lg-2">
+                        @if (politicas.Contains("SAPP_BO_PRO_CON_INF_CTA"))
+                        {
+                            <button id="btConsultar" class="col col-lg-12 btn btn-outline-secondary m-1">
+                                <i class="fas fa-print icono-2x"></i><br>Consultar
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="col col-lg-12 btn btn-outline-secondary m-1" disabled>
+                                <i class="fas fa-print icono-2x"></i><br>Consultar
+                            </button>
+                        }
+                </div>
+            </div>
+        </div>
+        <div class="d-inline p-1">
+            <footer>
+                <div class="form-row justify-content-center align-items-center">
+                    <div class="col-auto m-1">
+                        <button type="button" class="btn border btn-light" onclick="limpiar()">&lt;&lt;Anterior&lt;&lt;</button>
+                    </div>
+                    <div class="col-auto m-1">
+                        <button type="button" class="btn border btn-light" onclick="cancelarProceso('@Url.Action("Index","Home")');">Cancelar</button>
+                    </div>
+                    <div class="col-auto m-1">
+                        <input id="btSubmit" type="button" class="btn border btn-light" value=">>Siguiente>>" onclick="location.href='@Url.Action("ImpContrato","Home")'" />
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $("#btConsultar").click(function () {
+         var parametros = {
+                tipo: "0",
+                nCuenta: { nroCuenta: $("#txtnNCuenta").val().split('-').join('') }
+            };
+             $.ajax({
+                type: 'POST',
+                 url: '@Url.Action("ConsultaMoviProductos")',
+                 data: parametros,
+                 beforeSend: AntesAjax(),
+                 dataType: 'json',
+                 success: function (l) {
+                     if (l == null) {
+                         alert("Error de conexion al microservicio");
+                     }
+                     else if (l.state == null) {
+                         alert('Error de procesamiento de la consulta');
+                     }
+                     else if (!l.success) {
+                         alert("Producto no encontrado");
+                     }
+                     else {
+                         $("#txtTitular").val(l.data.nombreTitular);
+                         $("#txtIdc").val(l.data.idc);
+                         $("#txtDireccion").val(l.data.direccion);
+                         $("#txtModalidad").val(l.data.desTipoCuenta);
+                     }
+                },
+                 error: function (ex, textStatus, errorThrown) {
+                     AjaxErrorHandler(ex, textStatus, errorThrown);
+                 },
+                 complete: function () {
+                     DespuesAjax();
+                 }
+            });
+    });
+</script>

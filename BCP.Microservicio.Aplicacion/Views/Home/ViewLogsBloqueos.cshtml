@@ -1,0 +1,52 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Visualización de los archivos de Log: ";
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <header>
+            <h4>Visualización de los archivos de Log:</h4>
+        </header>
+        <div class="container mb-2">
+            <div class="row p-2">
+                <div class="col-sm-10">
+                    <fieldset class="border border-dark p-2">
+                        <legend class="w-auto" style="font-size:18px;">
+                            Archivos
+                        </legend>
+                        <div class="container p-1">
+                            <div class="row p-1">
+                                <div class="col-sm-auto">
+                                    <div class="form-check">
+                                        <input id="rbCD" value="cargaDatos" name="rgLog" class="form-check-input" type="radio" checked />
+                                        <label for="rbCD" class="form-check-label">
+                                            Log de Carga de Datos
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-auto">
+                                    <div class="form-check">
+                                        <input id="rbErr" value="errores" name="rgLog" class="form-check-input" type="radio" />
+                                        <label for="rbErr" class="form-check-label">
+                                            Log de Errores
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="col btn btn-outline-secondary">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <textarea id="taLog" class="form-control" rows="20">
+            LBLog
+        </textarea>
+        </div>
+    </div>

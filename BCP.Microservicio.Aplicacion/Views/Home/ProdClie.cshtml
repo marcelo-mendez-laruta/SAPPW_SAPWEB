@@ -1,0 +1,437 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    string guid = "T";
+    if (TempData["guid"] != null)
+    {
+        if (bool.Parse(TempData["guid"].ToString()))
+        {
+            guid = "N";
+        }
+    }
+    ViewData["Title"] = "Productos por Clientes: ";
+    string modal = "S";
+    if (TempData["modal"] == null)
+    {
+        modal = "N";
+    }
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Productos por Clientes:</h4>
+    </header>
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="container mb-3">
+                <center>
+                    <div class="form-group row">
+                        <label for="txtIDCC" class="col-sm-4 col-form-label">
+                            Documento de Identidad:
+                        </label>
+                        <div class="col-sm-6">
+                            <input type="hidden" value="" id="Ftxtidc" />
+                            <input id="txtIDCC" onkeyup="validarIDC(this)" maxlength="12" class="form-control" type="text" autofocus />
+                        </div>
+                        <div class="col-sm-2">
+                            <input id="txttIDCC" class="form-control" type="text" />
+                        </div>
+                    </div>
+                </center>
+                <input id="hcodigoInicio" type="hidden" value="" />
+                <input id="hcodigoFin" type="hidden" value="" />
+            </div>
+            <div class="container">
+                <div class="table-responsive bg-white" style="max-height:400px;">
+                    <table id="tbPegarCuentas" class="table table-bordered table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Cuenta</th>
+                                <th>Moneda</th>
+                                <th>Clase</th>
+                                <th>Oficina</th>
+                                <th>fun. Neg</th>
+                                <th>Relación</th>
+                                <th>Fecha Inicio</th>
+                                <th>Fecha Termino</th>
+                                <th>Motivo</th>
+                                <th>Fecha Reinicio</th>
+                                <th>Estado</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <center>
+                <button id="btPCAceptar" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                    <i class="fas fa-check icono-2x"></i><br />Aceptar
+                </button>
+                @if (politicas.Contains("SAPP_BO_CLI_CON_ALF"))
+                {
+                    <button id="btTConsulta" class="my-1 w-100 btn btn-outline-secondary">
+                        <i class="fas fa-print icono-2x"></i><br />Consultar
+                    </button>
+                }
+                else
+                {
+                    <button id="btTConsulta" class="my-1 w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-print icono-2x"></i><br />Consultar
+                    </button>
+                }
+                <button id="btTSiguiente" onclick="consulta()" class="my-1 w-100 btn btn-outline-secondary" style="display:none">
+                    <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                </button>
+                @if (politicas.Contains("SAPP_BO_PRO_CON_INF_CTA"))
+                {
+                    <button id="btTMDetalle" class="my-1 w-100 btn btn-outline-secondary" style="display:none">
+                        <i class="fas fa-flag icono-2x"></i><br />Detalle
+                    </button>
+                }
+                else
+                {
+                    <button id="btTMDetalle" class="my-1 w-100 btn btn-outline-secondary" style="display:none" disabled>
+                        <i class="fas fa-flag icono-2x"></i><br />Detalle
+                    </button>
+                }
+                @if (modal.Equals("N"))
+                {
+                    <button id="btProdCliCerrar" class="my-1 w-100 btn btn-outline-secondary" onclick="location.href='@Url.Action("Index", "Home")'">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                    </button>
+                }
+                else
+                {
+                    <button id="btPegCuentaCerrar" class="my-1 w-100 btn btn-outline-secondary">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                    </button>
+                }
+            </center>
+        </div>
+    </div>
+    @if (modal.Equals("N"))
+    {
+        @if (politicas.Contains("SAPP_BO_PRO_CON_INF_CTA"))
+        {
+            <div class="modal fade" id="MModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalPCMovi" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="Modal-title" id="modalPCMovi">Información de Tarjeta</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="close" onclick="cerrarModalMovi(true)">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @{
+                                await Html.RenderPartialAsync("../Home/Movi");
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+<script type="text/javascript">
+    var repetidoMovi=false;
+    $(document).ready(function () {
+        guidSolitario();
+        prepararProdClie();
+    });
+    function guidSolitario() {
+            var guid = "@guid";
+            if (guid != "T") {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GUID")',
+                    dataType: 'json',
+                    data: { tipo: guid },
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+
+                        if (l.state != null) {
+                            if (l.success) {
+                                if (l.success) {
+                                    $("#txtIDCC").val(l.data.idcNumero + l.data.idcExtension);
+                                    $("#txttIDCC").val(l.data.idcTipo);
+                                }
+                            }
+                        }
+                        DespuesAjax();
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    }
+                });
+            }
+    }
+    function prepararProdClie() {
+        var id = $("#idc").val();
+        var idt = $("#tipoIDC").val();
+        if (id != null && idt != null) {
+            /*var producto = "";
+            if ($("#HMProducto").val() != null) {
+                producto = $("#HMProducto").val();
+            }
+            var moneda = "";;
+            if ($("#HMMoneda").val() != null) {
+                moneda = $("#HMMoneda").val()
+            }*/
+            if (id != "" && idt != "") {
+                $("#txtIDCC").prop('readonly', true);
+                $("#txttIDCC").prop('readonly', true);
+                $("#txtIDCC").val(id);
+                $("#txttIDCC").val(idt);
+                $("#btTConsulta").hide();
+                $("#btPCAceptar").show();
+                $("#btProdCliCerrar").hide();
+                $("#tbPegarCuentas tbody").empty();
+                consulta();
+            }
+            else {
+
+            }
+        }
+    }
+    $("#btTConsulta").click(function () {
+        $("#tbPegarCuentas tbody").empty();
+        $("#hcodigoInicio").val(""),
+        $("#hcodigoFin").val("");
+        consulta();
+    });
+    function consulta() {
+        var parametros={
+            id: $("#txtIDCC").val(),
+            tid: $("#txttIDCC").val(),
+            ini: $("#hcodigoInicio").val(),
+            fin: $("#hcodigoFin").val()
+        };
+        $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ConsultaProCli","Home")',
+                dataType: 'json',
+                data: parametros,
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                // var l = JSON.parse(k);
+                    if (l.state == null) {
+                        alert("Error de conexion al microservicio");
+                    }
+                    else if (!l.success) {
+                        alert("Error de proceso en el microservicio");
+                    }
+                    else{
+                        var nfila = ($("#tbPegarCuentas tr").length) - 1;
+                        $("#hcodigoInicio").val(l.data.codigoInicio);
+                        $("#hcodigoFin").val(l.data.codigoFin);
+                        var contador = l.data.rows.length;
+                        if (l.data.masProductos == "S") {
+                            $("#btTSiguiente").show();
+                            contador = contador - 1;
+                        }
+                        else {
+                            $("#btTSiguiente").hide();
+                        }
+                        for (var i = 0; i < contador; i++) {
+                            if (l.data.rows[i].numeroDeCuentaExtra != "") {
+                                nfila = nfila + 1;
+                                var fia = '<tr id="' + (nfila) + '">' +
+                                    '<td id="NC' + (nfila) + '">' + l.data.rows[i].numeroDeCuentaExtra + '</td>' +
+                                    '<td id="NE' + (nfila) + '">' + l.data.rows[i].moneda + '</td>' +
+                                    '<td>' + l.data.rows[i].tipoCuenta + '</td>' +
+                                    '<td>' + l.data.rows[i].oficina + '</td>' +
+                                    '<td>' + l.data.rows[i].funcionarioDeNegocios + '</td>' +
+                                    '<td>' + l.data.rows[i].relacion + '</td>' +
+                                    '<td>' + l.data.rows[i].fechaInicio + '</td>' +
+                                    '<td>' + l.data.rows[i].fechaFin + '</td>' +
+                                    '<td>' + l.data.rows[i].motivo + '</td>' +
+                                    '<td>' + l.data.rows[i].fechaReinicio + '</td>' +
+                                    '<td>' + l.data.rows[i].estado + '</td>' +
+                                    '<td>' + l.data.rows[i].porcentaje + '</td>' +
+                                    '</tr>';
+                                $("#tbPegarCuentas tbody").append(fia);
+                                if (nfila == 1) {
+                                    $("#tbPegarCuentas #1").addClass("bg-info");
+                                }
+                            }
+                        }
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                },
+                complete: function () {
+                //if (!($("#txttIDCC").prop('readonly'))) {
+                    if ($("#tbPegarCuentas tr").length > 1) {
+                        $("#btTMDetalle").show();
+                    }
+                    else {
+                        $("#btTMDetalle").hide();
+                    }
+                //}
+                    DespuesAjax();
+                }
+        });
+    }
+    $('#tbPegarCuentas').on('click', 'tbody tr', function () {        
+        var selected=$(this).hasClass("bg-info");
+        if(selected){
+            if(!repetidoMovi){
+                repetidoMovi=true;
+            }
+        }
+        else{
+            repetidoMovi=false;
+            $("#tbPegarCuentas tbody tr").removeClass("bg-info");
+            $(this).addClass("bg-info");        
+        } 
+    });
+    $('#tbPegarCuentas').on('dblclick', 'tbody tr', function () {
+        if(repetidoMovi){
+            $("#btTMDetalle").click();
+        }    
+    });
+    $("#btPCAceptar").click(function () {
+        var id = 0;
+        var nfila = ($("#tbPegarCuentas tr").length) - 1;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbPegarCuentas #" + i + "").hasClass("bg-info")) {
+                id = i;
+                break;
+            }
+        }
+        if (id > 0) {
+            var cuentaExtra=$("#NC" + id).html();
+            var moneda=$("#NE" + id).html();
+            var indice=obtenerIDPC(cuentaExtra,moneda);
+            if (indice > 0) {
+                if ($("#i" + indice + "").hasClass("fa-searchengin")) {
+                    $("#j" + indice + "").html(armarCuenta(cuentaExtra,moneda));
+                    var antiguo=$("#hAfDf").val();
+                    $("#hAfDf").val(indice);
+                    AFDF("fa-searchengin", "fa-check")
+                    $("#hAfDf").val(antiguo);
+                }
+                else {
+                    alert("Cuenta No Disponible.");
+                }
+            }
+            else{
+                alert('No hay elementos que mostrar');
+            }
+        }
+        else {
+            alert('No hay elementos que mostrar');
+        }
+        $("#PCModal").modal("hide");
+    });
+    $("#btTMDetalle").click(function () {
+        var nfila = ($("#tbPegarCuentas tr").length) - 1;
+        var id = 0;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbPegarCuentas #" + i + "").hasClass("bg-info")) {
+                id = i;
+                break;
+            }
+        }
+        if (id > 0) {
+            var cuenta = armarCuenta($("#NC" + id).html(), $("#NE" + id).html());
+            if (cuenta!= '') {
+                $("#txtnNCuenta").val(cuenta);
+                var tCuenta = cambioNCuentaEXC($("#NC" + id).html());
+                $("#cbTTProducto").val(tCuenta);
+                ConsultaMoviProductos();
+                document.getElementById('btMoviCerrar').setAttribute('onclick', 'cerrarModalMovi(true);');
+                if('@modal'=='S'){                    
+                    $("#PCModal").modal("hide");
+                }
+                $("#MModal").modal();
+
+            }
+        }
+        else {
+            alert("no se encontraron datos que mostrar");
+        }
+    });
+    function cambioNCuentaEXC(cuenta) {
+        var resultado = "";
+        cuenta = cuenta.substr(3, 1);
+        if (cuenta == "A" || cuenta == "H") {
+            resultado = "0";
+        }
+        else if (cuenta == "C") {
+            resultado = "1";
+        }
+        else {
+            resultado = "2";
+        }
+        return resultado;
+    }
+    function armarCuenta(cuenta, moneda){
+        var NCuenta = '';
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("CuentaComercial","Home")',
+            dataType: 'text',
+            data: {cuentaExtra:cuenta,moneda:moneda},
+            async:false,
+            success: function (l) {
+                NCuenta=l;
+            }
+        });
+        return NCuenta;
+    }
+    function obtenerIDPC(cuenta,moneda){
+        var id=0;
+        var tipo=cuenta.substr(3, 1);
+        switch (tipo) {
+            case "H":
+               id=1;
+                break;
+            case "A":
+                id=2;
+                break;
+            case "C":
+                if(moneda=="BOLIVIANO"){
+                    id=3;
+                }
+                else{
+                    id=4;
+                }
+                break;
+            default:
+                break;
+        }
+        return id;
+    }
+    function cerrarModalMovi(boton){
+        if(boton){
+            $("#MModal").modal("hide");
+        }
+        repetidoMovi=false;
+        if('@modal'=='S'){            
+            $("#PCModal").modal();
+        }
+    }
+</script>

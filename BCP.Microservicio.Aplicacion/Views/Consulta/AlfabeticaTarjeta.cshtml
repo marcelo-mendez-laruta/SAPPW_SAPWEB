@@ -1,0 +1,362 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    string tipo = "";
+    if (TempData["usoPagina"] != null)
+    {
+        tipo = TempData["usoPagina"].ToString();
+    }
+}
+@{
+    ViewData["Title"] = "Consulta Alfabética de Tarjetas: ";
+    string[] nombre = new string[2];
+    if (TempData["nombre"] != null)
+    {
+        nombre = TempData["nombre"].ToString().Split('-');
+    }
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>@(tipo):</h4>
+    </header>
+    <div class="container mb-3">
+        <div class="row">
+            <div class="col-lg-10">
+                <div class="container mb-2">
+                    <div class="form-row my-3">
+                        <label for="txtNombre" class="col-sm-2 col-form-label">
+                            Nombre:
+                        </label>
+                        <div class="col-sm-6">
+                            <input id="txtNombre" class="form-control" type="text" autofocus />
+                        </div>
+                        <div class="col-sm-4 ">
+                            <div class="form-check">
+                                @if (tipo != "ConsultaTarjeta")
+                    {
+                                <input id="ckTarNew" class="form-check-input" type="checkbox" />
+                                <label id="lbTarNew" for="ckTarNew" class="form-check-label">
+                                    Consulta X N° Tarjeta
+                                </label>
+                    }
+                    else{
+                        <input id="ckTarNew" class="form-check-input" type="checkbox" style="display:none;" />
+                                <label id="lbTarNew" for="ckTarNew" class="form-check-label" style="display:none;">
+                                    Consulta X N° Tarjeta
+                                </label>
+                    }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive bg-white" style="max-height:300px;">
+                        <table id="tbConAlfTar" class="table table-bordered table-striped">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Nro. Credimas</th>
+                                    <th>Nombre del Cliente</th>
+                                    <th>Situación</th>
+                                    <th>BCA Exc.</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="row m-0 p-0">
+                    @if (politicas.Contains("SAPP_BO_TAR_CON_ALF"))
+                    {
+                        <button id="bt1" class="col col-lg-12 btn btn-outline-secondary my-1">
+                            <i class="fas fa-print icono-2x"></i><br>Consultar
+                        </button>
+                    }
+                    else
+                    {
+                        <button id="bt1" class="col col-lg-12  btn btn-outline-secondary my-1" disabled>
+                            <i class="fas fa-print icono-2x"></i><br>Consultar
+                        </button>
+                    }
+                    <button id="btATSiguiente" class="col col-lg-12  btn btn-outline-secondary my-1" disabled>
+                        <i class="fas fa-arrow-down icono-2x"></i><br>Siguiente
+                    </button>
+                    @if (tipo == "ConsultaTarjeta")
+                    {
+                        <button id="bt3" type="button" form="ConAlfTar" onclick="cargarSat();" class="col col-lg-12 btn btn-outline-secondary my-1" disabled>
+                            <i class="fas fa-check icono-2x"></i><br>&nbsp;&nbsp;Seleccionar
+                        </button>
+                        <button id="bt4" onclick="location.href='@Url.Action("Index", "Home")'" class="col col-lg-12 btn btn-outline-secondary my-1">
+                            <i class="fas fa-window-close icono-2x"></i><br>&nbsp;&nbsp;Cerrar&nbsp;&nbsp;
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-inline p-1">
+        <form id="ConAlfTar" name="ConAlfTar" method="post" action='@Url.Action("Sat", "Tarjeta")'>
+            <input name="consulta" type="hidden" value="true" />
+            <input type="hidden" id="hTarjetaNueva" name="tarjetaNueva" value="false" />
+            @if (nombre[1] != "")
+            {
+                <input type="hidden" name="indice" id="hindice" value='@nombre[0]' />
+            }
+            <input type="hidden" id="hsituacion" value="" />
+            <input type="hidden" name="tarjeta" id="htarjeta" value="" />
+            <input type="hidden" name="exclusiva" id="hex" value="" />
+            @if (tipo != "ConsultaTarjeta")
+            {
+                <footer>
+                    <div class="form-row justify-content-center align-items-center">
+                        <div class="col-auto m-1">
+                            <button type="button" class="btn border btn-light" onclick="cancelarProceso('@Url.Action("Index","Home")');">Cancelar</button>
+                        </div>
+                        <div class="col-auto m-1">
+                            <button type="button" class="btn-light btn-sm" onclick="retroceso()">&lt;&lt;Anterior&lt;&lt;</button>
+                        </div>
+                        <div class="col-auto m-1">
+                            <input type="submit" class="btn-light btn-sm" value=">>Siguiente>>" />
+                        </div>
+                    </div>
+                </footer>
+            }
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    var repetido=false;
+    function asignarValores(i) {
+        $("#htarjeta").val($("#t" + (i) + "").html());
+        $("#hex").val(ex($("#e" + (i) + "").html()));
+        $("#hsituacion").val($("#s" + (i) + "").html());
+    }
+    function CAT(nombre, indice) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("CAT")',
+            dataType: 'json',
+            data: { nombre: nombre },
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.state == null) {
+                    alert("Error de conexion al microservicio");
+                }
+                else if (!l.success) {
+                    alert("error de consulta al microservicio");
+                }
+                else {
+                    var id = 0;
+                    $.each(l.data, function (i, k) {
+                        if (indice == 1 || i > 0) {
+                            id = indice + i;
+                            if (indice != 1) {
+                                id = id - 1;
+                            }
+                            var fia = '<tr id="' + (id) + '">' +
+                                '<td id="t' + (id) + '">' + k.nroCredimas + '</td>' +
+                                '<td id="n' + (id) + '">' + k.nombre + '</td>' +
+                                '<td id="s' + (id) + '">' + k.situacion + '</td>' +
+                                '<td id="e' + (id) + '">' + k.clienteExclusivo + '</td>' +
+                                '</tr>';
+                            $("#tbConAlfTar tbody").append(fia);
+                        }
+                        });
+                        if (indice == 1 && $("#tbConAlfTar tr").length != indice) {
+                            $("#tbConAlfTar #" + indice).addClass("bg-info");
+                            $("#btATSiguiente").prop('disabled', false);
+                            $("#bt3").prop('disabled', false);
+                            asignarValores(indice);
+                        }
+                    }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                DespuesAjax();
+            }
+        });
+    }
+    function ex(valor) {
+        var resultado = '';
+        if (valor == "BEX") {
+            resultado='E';
+        }
+        else if (valor=="VIP"){
+            resultado='V';
+        }
+        return resultado;
+    }
+    $(window).on('load',function () {
+        var nombre = '@nombre[1]';
+        if (nombre != '') {
+            $("#bt4").hide();
+            $("#txtNombre").prop('readonly', true);
+            $("#bt1").prop('disabled', true);
+            $("#txtNombre").val(nombre);
+            if (!('@tipo' == 'ProcesoCambio de Tarjeta' || '@tipo' =='EntregaTarjeta')) {
+                $("#lbTarNew").html("Tarjeta Nueva");
+            }
+            var dato = $("#txtNombre").val();
+            $("#tbConAlfTar tbody").empty();
+            CAT(dato,1);
+        }
+    });
+    $('#tbConAlfTar').on('click', 'tbody tr', function () {
+        var selected=$(this).hasClass("bg-info");
+        if(selected){
+            if(!repetido){
+                repetido=true;
+            }
+        }
+        else{
+            repetido=false;
+            $("#tbConAlfTar tbody tr").removeClass("bg-info");
+            $(this).addClass("bg-info");
+            asignarValores($(this).attr('id'));
+        }
+    });
+    $('#tbConAlfTar').on('dblclick', 'tbody tr', function () {
+        if(repetido){
+            document.ConAlfTar.submit();
+        }      
+    });
+    function limpiar() {
+        if ('@nombre[1]' != '') {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("LimpiarPaso1")',
+                dataType: 'text',
+                success: function (a) {
+                    if (a == '1') {
+                        location.href = '@Url.Action("Index","Registro")'
+                    }
+                    else {
+                        location.href = '@Url.Action("Paso2","Registro")'
+                    }
+                },
+                error: function (ex) {
+                    alert('No se pudo retroceder');
+                }
+            });
+        }
+    }
+    $("#btATSiguiente").click(function () {
+        var nfila = ($("#tbConAlfTar tr").length);
+        var dato = $("#n" + (nfila - 1) + "").html();
+        CAT(dato,nfila);
+        /*for (var i = 1; i <= nfila; i++) {
+            if ($("#tbConAlfTar #" + i + "").hasClass("bg-info")) {
+                $("#tbConAlfTar #" + i + "").removeClass("bg-info");
+                $("#tbConAlfTar #" + ((i % nfila) + 1) + "").addClass("bg-info")
+                asignarValores(((i % nfila) + 1));
+                break;
+            }
+        }*/
+    });
+    $("#bt1").click(function () {
+        var dato = $("#txtNombre").val();
+        if (dato != '') {
+            $("#btATSiguiente").prop('disabled', true);
+            $("#bt3").prop('disabled', true);
+            $("#tbConAlfTar tbody").empty();
+            CAT(dato,1);
+        }
+        else {
+            alert('No se puede consultar con datos vacios');
+        }
+    });
+    $('#ConAlfTar').on('submit', function (e) {
+        if($("#ckTarNew").prop('checked')){
+            $("#htarjeta").val("");
+            if($("#lbTarNew").html() == "Tarjeta Nueva"){
+                $("#hTarjetaNueva").val("true");                    
+            }
+            else{
+                $("#hTarjetaNueva").val("false");
+            }
+        }
+        else {
+            $("#hTarjetaNueva").val("false");
+            var nfila = ($("#tbConAlfTar tr").length) - 1;
+            if (nfila <= 0) {
+                alert('No existe elementos seleccionados');
+                e.preventDefault();
+            }
+            else if ('@tipo' == 'ProcesoApertura' || '@tipo' == 'ProcesoAfiliacion') {
+                if ($("#hsituacion").val() != "CONFIRMADA") {
+                    alert('Situación no válida para continuar el proceso');
+                    e.preventDefault();
+                }
+            }
+            else if ('@tipo' == 'ProcesoCambio de Tarjeta') {
+                if ($("#hsituacion").val() == "CONFIRMADA" || $("#hsituacion").val() == "POR ASIGNAR" || $("#hsituacion").val() == "SIN CONFIRMAR" || $("#hsituacion").val() == "TARJETA EN TRAMITE" || $("#hsituacion").val() == "ENTREGADA" || $("#hsituacion").val() == "CANJE TELEBANCO") {
+                    alert('Situación no válida para continuar el proceso');
+                    e.preventDefault();
+                }
+            }
+            else if ('@tipo' == 'Entrega de Tarjeta' || '@tipo' == 'ProcesoEntrega de Tarjeta') {
+                if (!($("#hsituacion").val() == "TARJETA EN TRAMITE" || $("#hsituacion").val() == "ENTREGADA")) {
+                    alert('Situación no válida para continuar el proceso');
+                    e.preventDefault();
+                }
+            }
+        }
+    });
+    function retroceso() {
+        if ('@tipo' == 'ProcesoAfiliacion' || '@tipo' == 'ProcesoCambio de Tarjeta') {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("limpiarPasoAnterior")',
+                dataType: 'text',
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                    DespuesAjax();
+                    if (l == "ok") {
+                        window.history.back();
+                    }
+                    else {
+                        alert("Error de retroceso");
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    DespuesAjax();
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                }
+            });
+        }
+        else {
+            window.history.back();
+        }
+    }
+    function cargarSat() {
+        if (!($("#lbTarNew").html() == "Tarjeta Nueva" && $("#ckTarNew").prop('checked'))) {
+            var nfila = ($("#tbConAlfTar tr").length) - 1;
+            if (nfila > 0) {
+                if ($("#hsituacion").val() != "NO CONFIRMADA") {
+                    document.ConAlfTar.submit();
+                }
+                else {
+                    alert("SITUACION NO VALIDA");
+                }
+            }
+        }
+    }
+</script>

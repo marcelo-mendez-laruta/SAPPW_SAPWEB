@@ -1,0 +1,258 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Consulta de Bloqueo:";
+}
+<div class="container border border-dark" style="background-color:lightgrey">
+    <header>
+        <h4>Consulta de Bloqueo:</h4>
+    </header>
+    <div class="container mb-3">
+        <div class="form-row">
+            <div class="col-xl-6">
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Tarjeta
+                    </legend>
+                    <div class="container">
+                        <div class="form-row ">
+                            <label for="txtNTT" class="col-sm-3 col-form-label">
+                                Nro. Tarjeta
+                            </label>
+                            <div class="col-sm-9">
+                                <input id="txtNTT" class="form-control" type="text" autofocus placeholder="0000-0000-0000-0000" maxlength="19"/>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtNBloqueo" class="col-sm-3 col-form-label">
+                                Nro. Bloqueo
+                            </label>
+                            <div class="col-sm-3">
+                                <input id="txtNBloqueo" class="form-control" type="text" />
+                            </div>
+                            <label for="txtFecBloq" class="col-sm-3 col-form-label">
+                                Fec. Bloqueo
+                            </label>
+                            <div class="col-sm-3">
+                                <input id="txtFecBloq" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-xl-5">
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Oficina
+                    </legend>
+                    <div class="container">
+                        <div class="form-row">
+                            <label for="txtSucursal" class="col-sm-4 col-form-label">
+                                Suc.-Age.:
+                            </label>
+                            <div class="col-sm-4">
+                                <input id="txtSucursal" class="form-control" type="text"  />
+                            </div>
+                            <div class="col-sm-4">
+                                <input id="txtAgencia" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtusuario" class="col-sm-4 col-form-label">
+                                Usuario
+                            </label>
+                            <div class="col-sm-8">
+                                <input id="txtusuario" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-xl-1 p-1">
+                @if (politicas.Contains("SAPP_BO_TAR_COT_BLO_CON_BLO"))
+                {
+                    <button class="col col-xl-12 btn btn-outline-secondary m-1" onclick="consultaBloqueos();">
+                        <i class="fas fa-print icono-2x"></i>Consultar
+                    </button>
+                }
+                else
+                {
+                    <button class="col col-xl-12 btn btn-outline-secondary m-1" disabled>
+                        <i class="fas fa-print icono-2x"></i>Consultar
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="container mb-3">
+        <fieldset class="border border-dark">
+            <legend class="w-auto" style="font-size:14px;">
+                Cliente
+            </legend>
+            <div class="container">
+                <div class="form-row">
+                    <label for="txtIDC" class="col-sm-1 col-form-label">
+                        IDC:
+                    </label>
+                    <div class="col-sm-3">
+                        <input id="txtIDC" class="form-control" type="text" />
+                    </div>
+                    <div class="col-sm-1">
+                        <input id="txttIDC" class="form-control" type="text" />
+                    </div>
+                    <label for="txtNomb" class="col-sm-1 col-form-label">
+                        Nombre:
+                    </label>
+                    <div class="col-sm-6">
+                        <input id="txtNomb" class="form-control" type="text" />
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div class="container mb-2">
+        <div class="table-responsive bg-white" style="max-height:300px;">
+            <table id="tbBloqueos" class="table table-bordered table-striped">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Número de Tarjeta</th>
+                        <th>Código de Bloqueo</th>
+                        <th>Motivo</th>
+                        <th>Fecha y Hora</th>
+                        <th>IDC</th>
+                        <th>Nombre de Titular</th>
+                        <th>Telefono</th>
+                        <th>Nombre de Reporta</th>
+                        <th>Sucursal</th>
+                        <th>Agencia</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="container mb-1">
+        <div class="row">
+            <div class="col-lg-11">
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Comentario
+                    </legend>
+                    <div class="container">
+                        <TextArea id="txtObservaciones" class="form-control"></TextArea>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-lg-1 p-1">
+                <button class="col col-lg-12 btn btn-outline-secondary m-1" onclick="location.href = '@Url.Action("Index","Home")'">
+                    <i class="fas fa-times icono-2x"></i><br />Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+    <footer style="display:none;">
+        <center>
+            <div class="form-row">
+                <button class="btn border col-1">|◄</button>
+                <button class="btn border col-1">◄</button>
+                <input readonly class="form-control col-8" placeholder="Bloqueo" />
+                <button class="btn border col-1">►</button>
+                <button class="btn border col-1">►|</button>
+            </div>
+        </center>
+    </footer>
+</div>
+<script type="text/javascript">
+    var observaciones = [];
+    $("#txtNTT").keyup(function (e) {
+        var key=e.keyCode;
+        $(this).val(formatoInputTarjeta($(this).val(),key));  
+    });
+    function consultaBloqueos() {
+        var parametros = {
+            datos: {
+                tarjeta: $("#txtNTT").val(),
+                idc: $("#txtIDC").val(),
+                tidc: $("#txttIDC").val(),
+                codBloqueo: $("#txtNBloqueo").val(),
+                fechaBloqueo: $("#txtFecBloq").val(),
+                nombre: $("#txtNomb").val(),
+                usuario: $("#txtusuario").val(),
+                sucursal: $("#txtSucursal").val(),
+                agencia: $("#txtAgencia").val()
+            }
+        };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ConsultaBloqueos")',
+            dataType: 'json',
+            data: parametros,
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.state == null) {
+                    alert("error de conexion al microservicio");
+                }
+                else if (!l.success) {
+                    alert(l.message);
+                }
+                else {
+                    $("#tbBloqueos tbody").empty();
+                    for (var i = 0; i < l.data.total;i++) {
+                        var fia = '<tr id="' + (i + 1) + '">' +
+                            '<td>' + l.data.tarjetas[i].usuario + '</td>' +
+                            '<td>' + l.data.tarjetas[i].tarjeta+ '</td>' +
+                            '<td>' + l.data.tarjetas[i].codBloqueo + '</td>' +
+                            '<td>' + l.data.tarjetas[i].motivo + '</td>' +
+                            '<td>' + l.data.tarjetas[i].fechaBloqueo + '</td>' +
+                            '<td>' + l.data.tarjetas[i].nombre + '</td>' +
+                            '<td>' + l.data.tarjetas[i].idc + '</td>' +
+                            '<td>' + l.data.tarjetas[i].telefono + '</td>' +
+                            '<td>' + l.data.tarjetas[i].nombreReporta + '</td>' +
+                            '<td>' + l.data.tarjetas[i].sucursal + '</td>' +
+                            '<td>' + l.data.tarjetas[i].agencia + '</td>' +
+                            '</tr>';
+                        $("#tbBloqueos tbody").append(fia);
+                        observaciones.push(l.data.tarjetas[i].observaciones);
+                    }
+                    if ($("#tbBloqueos tr").length > 1) {
+                        $("#tbBloqueos #1").addClass("bg-info");
+                        $("#txtObservaciones").val(observaciones[0]);
+                    }
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                DespuesAjax();
+            }
+        });
+    }
+    $('#tbBloqueos').on('click', 'tbody tr', function () {
+        var selected=$(this).hasClass("bg-info");
+        if(!selected){
+            var id = $(this).attr('id');
+            $("#tbBloqueos tbody tr").removeClass("bg-info");
+            $(this).addClass("bg-info");
+            $("#txtObservaciones").val(observaciones[id-1]);
+        } 
+    });
+</script>

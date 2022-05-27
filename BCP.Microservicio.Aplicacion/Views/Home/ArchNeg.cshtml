@@ -1,0 +1,316 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    string guid = "T";
+    if (TempData["guid"] != null)
+    {
+        if (bool.Parse(TempData["guid"].ToString()))
+        {
+            guid = "N";
+        }
+    }
+    ViewData["Title"] = "Archivo Negativo de Clientes: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Archivo Negativo de Clientes:</h4>
+    </header>
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="container mb-1">
+                <div class="row ">
+                    <div class="col-sm-6">
+                        <div class="container">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Búsqueda por IDC
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <div class="col-sm-10">
+                                            <input type="hidden" value="" id="Ftxtidc" />
+                                            <input id="txtidc" onkeyup="validarIDC(this)" maxlength="12" value="" class="form-control" type="text" autofocus />
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <input id="txttidc" value="" class="form-control" type="text" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-check">
+                            <input id="rbPN" value="n" class="form-check-input" type="radio" name="rbPersona" checked />
+                            <label for="rbPN" class="form-check-label">
+                                Persona Natural
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input id="rbPJ" value="j" class="form-check-input" type="radio" name="rbPersona" />
+                            <label for="rbPJ">
+                                Persona Jurídica
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container mb-1">
+                <fieldset class="border border-dark p-2">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Búsqueda por Nombres
+                    </legend>
+                    <div id="divPN" class="container">
+                        <div class="form-row">
+                            <label for="txtPaterno" class="col-sm-2 col-form-label">
+                                Apellido Paterno:
+                            </label>
+                            <div class="col-sm-10">
+                                <input id="txtPaterno" value="" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtMaterno" class="col-sm-2 col-form-label">
+                                Apellido Materno:
+                            </label>
+                            <div class="col sm-10">
+                                <input id="txtMaterno" value="" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtNombres" class="col-sm-2">
+                                Nombres:
+                            </label>
+                            <div class="col sm-10">
+                                <input id="txtNombres" value="" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                    <div id="divPJ" class="container" style="display:none;">
+                        <div class="form-row">
+                            <label for="txtRS" class="col-sm-2 col-form-label">
+                                Razón Social:
+                            </label>
+                            <div class="col-sm-10">
+                                <input id="txtRS" value="" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="table-responsive bg-white">
+                <table id="tbAN" class="table table-bordered table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>IDC</th>
+                            <th>Descripción</th>
+                            <th style="display:none">Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <div class="row m-0 p-0">
+                @if (politicas.Contains("SAPP_BO_CON_ARC_NEG"))
+                {
+                    <button id="btAN" class="col col-lg-12 btn btn-outline-secondary m-1">
+                        <i class="fas fa-book-reader icono-2x"></i><br />Consultar
+                    </button>
+                }
+                else
+                {
+                    <button id="btAN" class="col col-lg-12 btn btn-outline-secondary m-1" disabled>
+                        <i class="fas fa-book-reader icono-2x"></i><br />Consultar
+                    </button>
+                }
+
+                @if (politicas.Contains("SAPP_BO_CON_ARC_NEG_CON_DET"))
+                {
+                    <button disabled id="btANDetalle" class="col col-lg-12 btn btn-outline-secondary m-1" onclick="detalleAN()">
+                        <i class="fas fa-clipboard icono-2x"></i><br />&nbsp;&nbsp;Detalle&nbsp;&nbsp;
+                    </button>
+                }
+                else
+                {
+                    <button disabled class="col col-lg-12 btn btn-outline-secondary m-1">
+                        <i class="fas fa-clipboard icono-2x"></i><br />&nbsp;&nbsp;Detalle&nbsp;&nbsp;
+                    </button>
+                }
+                <button class="col col-lg-12 btn btn-outline-secondary m-1" onclick="location.href='@Url.Action("Index","Home")'">
+                    <i class="fas fa-window-close icono-2x"></i><br />Cancelar
+                </button>
+                <button class="col col-lg-12 btn btn-outline-secondary m-1" style="display:none;">
+                    <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                </button>
+            </div>
+
+        </div>
+    </div>
+    @if (politicas.Contains("SAPP_BO_CON_ARC_NEG_CON_DET"))
+    {
+        <div class="modal fade" id="ANDModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalAND" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalAND">Detalle</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            await Html.RenderPartialAsync("../Home/NegDetalle");
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var guid = "@guid";
+        if (guid != "T") {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GUID")',
+                dataType: 'json',
+                data: { tipo: guid },
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                    if (l.state != null) {
+                        if (l.success) {
+                            if (l.success) {
+                                $("#txtidc").val(l.data.idcNumero + l.data.idcExtension);
+                                $("#txttidc").val(l.data.idcTipo);
+                            }
+                        }
+                    }
+                    DespuesAjax();
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                }
+            });
+        }
+    });
+    $('input[type=radio][name=rbPersona]').change(function () {
+        if (this.value =='j') {
+            $('#divPN').hide();
+            $('#divPJ').show();
+        }
+        else {
+            $('#divPJ').hide();
+            $('#divPN').show();
+        }
+    });
+    $('#btAN').click(function () {
+        $("#btANDetalle").prop('disabled',true);
+        $("#tbAN tbody").empty();
+        var tipo = $('input[type=radio][name=rbPersona]:checked').val();
+        var paterno='';
+        var materno ='';
+        var nombres = '';
+        var nombre='';
+        if (tipo == 'n') {
+            paterno=$('#txtPaterno').val();
+            materno=$('#txtMaterno').val();
+            nombres=$('#txtNombres').val();
+            if(paterno!=''){
+                nombre=paterno;
+                if(materno!=''){
+                    nombre=paterno+' '+materno;
+                }
+                if(nombres!=''){
+                    nombre=nombre+ ' '+nombres;
+                }
+            }
+        }
+        else {
+            paterno = $('#txtRS').val();
+            if(paterno!=''){
+                nombre=paterno;
+            }
+        }
+        if ( $('#txtidc').val() == '' || $('#txttidc').val()=='') {
+            alert('Debe completar los campos obligatorios');
+        }
+        else {
+            var parametros = {
+                id: $('#txtidc').val(),
+                tid: $('#txttidc').val(),
+                tipo:tipo,
+                paterno:paterno,
+                materno:materno,
+                nombres:nombres
+            };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("AN")',
+                dataType: 'json',
+                data: parametros,
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                    DespuesAjax();
+                    if (l.state == null) {
+                        alert("error de conexion al microservicio");
+                    }
+                    else {
+                        
+                        if (l.success) {
+                            $("#btANDetalle").prop('disabled',!l.data.encontrado);
+                            if(l.data.encontrado){
+                                var fia = '<tr id="1">' +
+                                    '<td>' +(parametros.id+parametros.tid)+ '</td>' +
+                                    '<td id="nAN1">' + nombre + '</td>' +
+                                    '<td id="dAN1" style="display:none">' + l.data.descripcionCodigo + '</td>' +
+                                    '</tr>';
+                                $("#tbAN tbody").append(fia);                                
+                            }
+                            alert(l.data.detalle);
+                        }
+                        else{
+                            alert(l.message);
+                        }
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                }
+            });
+        }
+    });
+    function detalleAN(){
+        $("#txtnombresD").val($("#nAN1").html());
+        $("#tbAND tbody").empty();
+        var motivosNegativos = ($("#dAN1").html()).split(",");
+        for (var i = 0; i < motivosNegativos.length; i++) {
+            var fia = '<tr id="'+(i+1)+'">' +
+            '<td>' +(motivosNegativos[i]+" : ")+ '</td>' +
+            '</tr>';
+            $("#tbAND tbody").append(fia);
+        }
+        document.getElementById("btCerrarAND").setAttribute("onClick", "$('#ANDModal').modal('hide');");
+        $('#ANDModal').modal();
+    }
+</script>

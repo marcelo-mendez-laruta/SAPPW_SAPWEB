@@ -1,0 +1,2176 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model List<List<SelectListItem>>;
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    string guid = "T";
+    if (TempData["guid"] != null)
+    {
+        if (bool.Parse(TempData["guid"].ToString()))
+        {
+            guid = "N";
+        }
+    }
+    string VistaModal=string.Empty;
+    if (TempData["VistaModal"]!=null) {VistaModal=TempData["VistaModal"].ToString(); }
+    ViewData["Title"] = "Datos Adicionales de Personas: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Datos Adicionales de Personas:</h4>
+    </header>
+    <div class="form-row">
+        <div class="col-lg-11">
+            <div class="form-row mb-1">
+                <label for="txtDACDID" class="col-sm-3 col-form-label ">
+                    Documento de Identidad:
+                </label>
+                <div class="col-sm-3">
+                    <input type="hidden" value="" id="DACFtxtidc" />
+                    <input id="txtDACDID" onkeyup="validarIDC(this)" maxlength="12" class="form-control" type="text" autofocus value="" />
+                </div>
+                <div class="col-sm-1">
+                    <input id="txtDACtDID" class="form-control" type="text" value="" />
+                </div>
+                <div class="col-sm-auto form-check-inline" style="visibility:hidden;">
+                    <label for="ckPJ" class="form-check-label">
+                        P.J.
+                    </label>
+                    <input id="ckPJ" class="form-check-input" type="checkbox" />
+                </div>
+                <label id="lbVBol" for="txtVBol" class="col-sm-2 col-form-label" style="display:none;">
+                    Valores en Bol. al:
+                </label>
+                <div class="col-sm-2" id="divVBol" style="display:none">
+                    <input id="txtVBol" class="form-control" type="text" value="" name="fechaValor" />
+                </div>
+            </div>
+            <div class="container border border-dark" id="maestro">
+                <input type="hidden" value="1-tabDAC" id="hTab" />
+                <ul class="nav nav-tabs" id="tabDatAdiCli" role="tablist">
+                    @if (politicas.Contains("SAPP_BO_CLI_DIR"))
+                    {
+                        <li class="nav-item">
+                            <a id="1-tabDAC" class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#DAC1" role="tab" aria-controls="DAC1" aria-selected="true" aria-expanded="true">DIR</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a id="1-tabDAC" class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#DAC1" role="tab" aria-controls="DAC1" aria-selected="true" aria-expanded="true" style="pointer-events: none">DIR</a>
+                        </li>
+                    }
+                    @if (politicas.Contains("SAPP_BO_CLI_REL_ENT_CLI"))
+                    {
+                        <li class="nav-item">
+                            <a id="2-tabDAC" class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#DAC2" role="tab" aria-controls="DAC2" aria-selected="false" aria-expanded="true">REC</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a id="2-tabDAC" class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#DAC2" role="tab" aria-controls="DAC2" aria-selected="false" aria-expanded="true" style="pointer-events: none">REC</a>
+                        </li>
+                    }
+                    @if (politicas.Contains("SAPP_BO_CLI_EMP"))
+                    {
+                        <li class="nav-item">
+                            <a id="3-tabDAC" class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#DAC3" role="tab" aria-controls="DAC3" aria-selected="false" aria-expanded="true">EMP</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a id="3-tabDAC" class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#DAC3" role="tab" aria-controls="DAC3" aria-selected="false" aria-expanded="true" style="pointer-events: none">EMP</a>
+                        </li>
+                    }
+                    @if (politicas.Contains("SAPP_BO_CLI_ANT_ECO"))
+                    {
+                        <li class="nav-item">
+                            <a id="4-tabDAC" class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#DAC4" role="tab" aria-controls="DAC4" aria-selected="false" aria-expanded="true">AEP</a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a id="4-tabDAC" class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#DAC4" role="tab" aria-controls="DAC4" aria-selected="false" aria-expanded="true" style="pointer-events: none">AEP</a>
+                        </li>
+                    }
+                    <li class="nav-item" style="display:none;">
+                        <a id="5-tabDAC" class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#DAC5" role="tab" aria-controls="DAC5" aria-selected="false" aria-expanded="true">EFE</a>
+                    </li>
+                </ul>
+                <div class="tab-content pt-2" id="tabDatAdiCliContent">
+                    <div class="tab-pane fade show active" id="DAC1" role="tabpanel" aria-labelledby="1-tab">
+                        <input type="hidden" id="hDAC1" value="0" />
+                        <div class="container p-1 mb-3">
+                            <div class="container border border-dark">
+                                <div class="form-row">
+                                    <label for="txtNom" class="col-sm-2 col-form-label">
+                                        Nombre:
+                                    </label>
+                                    <div class="col-sm-6">
+                                        <input id="txtNom" class="form-control" type="text" />
+                                    </div>
+                                    <div class="col-sm-4 form-group">
+                                        <div class="form-check">
+                                            <input id="ckVProd" class="form-check-input" type="checkbox" disabled />
+                                            <label for="ckVProd" class="form-check-label">Ver Productos</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input id="ckPxDir" class="form-check-input" type="checkbox" disabled />
+                                            <label for="ckPxDir" class="form-check-label">Productos X Dirección</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row p-1" id="divDirBusqAv">
+                                    <label for="cbCliProd" class="col-sm-2 col-form-label">
+                                        Producto:
+                                    </label>
+                                    <div class="col-sm-2">
+                                        <select id="cbCliProd" class="form-control">
+                                            <option selected>Select</option>
+                                            <option value="A">CAJA DE AHORRO</option>
+                                            <option value="C">CUENTA CORRIENTE</option>
+                                            <option value="D">DEPOSTITO PLAZO FIJO</option>
+                                        </select>
+                                    </div>
+                                    <label for="txtCuenta" class="col-sm-2 col-form-label">
+                                        Cuenta:
+                                    </label>
+                                    <div class="col-sm-2">
+                                        <input id="txtCuenta" class="form-control" type="text" readonly />
+                                    </div>
+                                    <div class="col-sm-4" style="display:none;">
+                                        <button id="$('#ICModal').modal()">Exportar a Excel</button>
+                                    </div>
+                                    <label for="txtCodRas" class="col-sm-2 col-form-label">
+                                        Cod. Rastro:
+                                    </label>
+                                    <div class="col-sm-2">
+                                        <input id="txtCodRas" class="form-control" type="text" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="divTbDirProd" style="display:none;">
+                            <div class="container mt-1" id="divtbDir" style="display:block;">
+                                <div class="table-responsive bg-white" style="max-height:300px;">
+                                    <table id="tbDireccion" class="table table-bordered table-striped">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>Corr</th>
+                                                <th>Tipo</th>
+                                                <th>Dirección Comprimida</th>
+                                                <th>Estado</th>
+                                                <th>Num Dir</th>
+                                                <th>Localidad</th>
+                                                <th>Teléfono</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="container mt-1" id="divOLSSA" style="display:none;">
+                                <input id="hcodigoInicio" type="hidden" value="" />
+                                <input id="hcodigoFin" type="hidden" value="" />
+                                <div class="form-row">
+                                    <div class="col-sm-11">
+                                        @await Html.PartialAsync("../OLSSA/CuentasAsoc")
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <center>
+                                            <button id="btOLSSACC" class="w-100 btn btn-outline-secondary">
+                                                <i class="fas fa-envelope-open-text icono-2x"></i><br /> Consultar. Cta
+                                            </button>
+                                            <button id="btOLSSATSiguiente" class="w-100 btn btn-outline-secondary" style="display:none;">
+                                                <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                                            </button>
+                                        </center>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @if (VistaModal.Equals(""))
+                    {
+                        <div class="tab-pane fade" id="DAC2" role="tabpanel" aria-labelledby="2-tab">
+                            <input type="hidden" id="hDAC2" value="0" />
+                            <div id="divRec" class="container mb-1" style="display:none;">
+                                <div class="table-responsive bg-white">
+                                    <table id="tbRec" class="table table-bordered table-striped">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th style="display:none">Id</th>
+                                                <th>Código</th>
+                                                <th>Nombre</th>
+                                                <th>IdcN</th>
+                                                <th>IdcT</th>
+                                                <th>Vigencia</th>
+                                                <th style="display:none">CodAsociado</th>
+                                                <th style="display:none">FechaInicio</th>
+                                                <th style="display:none">FechaTermino</th>
+                                                <th style="display:none">FechaVerificacion</th>
+                                                <th style="display:none">ValorAsociado</th>
+                                                <th style="display:none">FechaValor</th>
+                                                <th style="display:none">CodMoneda</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody> </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="DAC3" role="tabpanel" aria-labelledby="3-tab">
+                            <input type="hidden" id="hDAC3" value="0" />
+                            <div class="container mb-1">
+                                <fieldset class="border border-dark">
+                                    <legend class="w-auto" style="font-size:14px;">
+                                        Cliente
+                                    </legend>
+                                    <div class="container">
+                                        <div class="form-row">
+                                            <label for="txtEmpNomCli" class="col-sm-3 col-form-label">
+                                                Nombre:
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <input id="txtEmpNomCli" name="nombreCliente" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="container mb-1">
+                                <fieldset class="border border-dark">
+                                    <legend class="w-auto" style="font-size:14px;">
+                                        Empleador
+                                    </legend>
+                                    <div class="container">
+                                        <div class="form-row">
+                                            <label for="txtEmpIDC" class="col-sm-3 col-form-label">
+                                                Documento de Identidad:
+                                            </label>
+                                            <div class="col-sm-7">
+                                                <input id="txtEmpIDC" name="idcEmpleador" class="form-control" type="text" />
+                                            </div>
+                                            <div class="col-sm-2">
+                                                <input id="txtEmptIDC" name="tipoIdcEmpleador" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row mb-1">
+                                            <label for="txtEmpNom" class="col-sm-3 col-form-label">
+                                                Nombre:
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <input id="txtEmpNom" name="nombreEmpleador" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="container mb-1">
+                                <ul class="nav nav-tabs" id="tabDatAdiCliEMP" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#DACEMP1" role="tab" aria-controls="home" aria-expanded="true">Antecedentes Generales</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#DACEMP2" role="tab" aria-controls="home" aria-expanded="true">Dirección Comercial del Cliente</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content p-1 mt-1 border border-dark" id="tabDatAdiCliEMPContent">
+                                    <div class="tab-pane fade show active" id="DACEMP1" role="tabpanel" aria-labelledby="1-tab">
+                                        <div class="form-row">
+                                            <label for="txtEmpFechIni" class="col-sm-2 col-form-label">
+                                                Fecha Inicio:
+                                            </label>
+                                            <div class="col-sm-4">
+                                                <input id="txtEmpFechIni" name="fechaInicio" class="form-control" type="text" placeholder="00/00/0000" maxlength="10"/>
+                                            </div>
+                                            <label for="txtEmpFechFin" class="col-sm-2 col-form-label">
+                                                Fecha Finalización:
+                                            </label>
+                                            <div class="col-sm-4">
+                                                <input id="txtEmpFechFin" name="fechaTermino" class="form-control" type="text" placeholder="00/00/0000" maxlength="10"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label for="cbEmpCargo" class="col-sm-2 col-form-label">
+                                                Cargo:
+                                            </label>
+                                            <div class="col-sm-10">
+                                                @Html.DropDownList("codigoCargo", Model[0], "N/A", new { @id = "cbEmpCargo", @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label for="txtEmpFechVeri" class="col-sm-2 col-form-label">
+                                                Verificación:
+                                            </label>
+                                            <div class="col-sm-10">
+                                                <input id="txtEmpFechVeri" name="fechaVerificacion" class="form-control" type="text" placeholder="00/00/0000" maxlength="10"/>
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label for="txtEmpRLM" class="col-sm-2 col-form-label">
+                                                Renta Líquida Mensual:
+                                            </label>
+                                            <div class="col-sm-4">
+                                                <input id="txtEmpRLM" name="rentaLiquida" class="form-control" type="text" />
+                                            </div>
+                                            <label for="cbEmpCodRLM" class="col-sm-1 col-form-label">
+                                                en:
+                                            </label>
+                                            <label class="col-sm-2">
+                                                <select id="cbEmpCodRLM" name="codigoMonedaRenta" class="form-control">
+                                                    <option value="" selected>SELECT</option>
+                                                    <option value="0001">BOLIVIANOS</option>
+                                                    <option value="1001">DOLARES</option>
+                                                </select>
+                                            </label>
+                                            <label for="txtEmpFechRLM" class="col-sm-1 col-form-label">
+                                                al:
+                                            </label>
+                                            <div class="col-sm-2">
+                                                <input id="txtEmpFechRLM" name="fechaRenta" class="form-control" type="text" placeholder="00/00/0000" maxlength="10"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="DACEMP2" role="tabpanel" aria-labelledby="2-tab">
+                                        <div class="form-row">
+                                            <label class="col-sm-3 col-form-label">
+                                                <button id="btDACEMP2" class="btn border btn-light">Direccion</button>
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <input id="txtEmpDir" name="direccionEmpleador" readonly class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label for="txtEmpTelf" class="col-sm-3 col-form-label">
+                                                Teléfono:
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <input id="txtEmpTelf" name="telefonoEmpleador" class="form-control" type="text" value="" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label for="cbEmpLocalidad" class="col-sm-3 col-form-label">
+                                                Localidad:
+                                            </label>
+                                            <div class="col-sm-9">
+                                                @Html.DropDownList("codigoLocalidadEmpleador", Model[9], "Select", new { @id = "cbEmpLocalidad", @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label for="cbEmpEstado" class="col-sm-3 col-form-label">
+                                                Estado:
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <select id="cbEmpEstado" name="codigoEstadoEmpleador" class="form-control">
+                                                    <option selected value="">SELECT</option>
+                                                    <option value="B">CONFIRMADA O VERIFICADA</option>
+                                                    <option value="C">INFORMADA</option>
+                                                    <option value="M">INFORMADA NO CONFIABLE</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="DAC4" role="tabpanel" aria-labelledby="4-tab">
+                            <div class="container mb-1">
+                                <div class="form-row">
+                                    <label for="txtFechVeri" class="col-sm-3 col-form-label">
+                                        Fec. Verificación:
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <div class="col-sm-4">
+                                            <input id="txtFechVeri" class="form-control" type="text" name="fechaVerificacion" placeholder="00/00/0000" maxlength="10"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container mb-1">
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Renta bruta del Cliente:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="rentaBrutaDelCliente" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Gasto Mensual:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="gastoMensual" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Renta Bruta del cónyugue:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="rentaBrutaDelConyuge" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Arriendo:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="arriendo" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Otros Ingresos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="otrosEgresos" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Otros Egresos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="otrosIngresos" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-sm-3">
+                                        Total Ingresos:
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="totalDeIngresos" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Total Egresos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="totalEgresos" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-sm-6"></div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Ingreso Disponible:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="ingresoDisponible" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Depósitos a plazo:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="depositosAPlazo" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Deusas Banc./Comer:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="deudasBancComer" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Acciones y Bonos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="accionesYBonos" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Deuda Hipotecaria:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="deudaHipotecaria" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Bienes y Raices:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="bieneYRaices" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Otros Pasivos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="otrosPasivos" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Vehículos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="vehiculos" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Total Pasivos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="totalPasivos" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Aportes Sociedades:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="aporteSociedades" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Otros Activos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="otrosActivos" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Patrimonio:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="patrimonio" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Total de Activos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="totalDeActivos" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Valores Otorgales:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" name="avalesOtorgados" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="DAC5" role="tabpanel" aria-labelledby="5-tab">
+                            <input type="hidden" id="hDAC4" value="0" />
+                            <div class="container mb-1">
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Fec. Verificación:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Situación o Balance S/B:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Activo Corriente:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Pasivo Corriente:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Activo Fijo:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Pasivo no Corriente:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Otros Activos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Patrimonio:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Total Activos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Totalidad Neta:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-sm-6"></div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Total Pasivos:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Razón Corriente:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Avales Otorgados:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Prueba Ácida:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Costo de Ventas:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Endeudamiento:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Ventas Netas:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Util. Neta/Ventas Netas:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Utilidad Operativa:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <label class="col-sm-3 col-form-label">
+                                        Util. Neta/Ptrm. Neto:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-sm-6"></div>
+                                    <label class="col-sm-3 col-form-label">
+                                        Utilidad Bruta:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input class="form-control" type="text" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="tab-pane fade" id="DAC2" role="tabpanel" aria-labelledby="2-tab"></div>
+                        <div class="tab-pane fade" id="DAC3" role="tabpanel" aria-labelledby="3-tab"></div>
+                        <div class="tab-pane fade" id="DAC4" role="tabpanel" aria-labelledby="4-tab"></div>
+                        <div class="tab-pane fade" id="DAC5" role="tabpanel" aria-labelledby="5-tab"></div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1">
+            <center>
+                <button id="btConsultar" class="w-100 btn btn-outline-secondary">
+                    <i class="fas fa-search icono-2x"></i><br />Consultar
+                </button>
+                <button id="btModificarDAC" class="w-100 btn btn-outline-secondary" disabled>
+                    <i class="fas fa-edit icono-2x"></i><br />Modificar
+                </button>
+                <button id="btIngresar" class="w-100 btn btn-outline-secondary" disabled>
+                    <i class="fas fa-print icono-2x"></i><br />Ingresar
+                </button>
+                @if(politicas.Contains("SAPP_BO_CLI_DIR_CAM_DIR_COR"))
+                {
+                    <button id="btMCorresp" class="w-100 btn btn-outline-secondary" onclick="ModCorrespondencia()" disabled>
+                        <i class="fas fa-envelope-open-text icono-2x"></i><br /> Mod. De Corresp.
+                    </button>
+                }
+                else
+                {
+                    <button id="btMCorresp" class="w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-envelope-open-text icono-2x"></i><br /> Mod. De Corresp.
+                    </button>
+                }
+                <button id="btEliminar" class="w-100 btn btn-outline-secondary" style="display:none;">
+                    <i class="fas fa-times-circle icono-2x"></i><br />Eliminar
+                </button>
+                <button id="btSiguiente" class="w-100 btn btn-outline-secondary" style="display:none;">
+                    <i class="fas fa-arrow-circle-down icono-2x"></i><br />Siguiente
+                </button>
+                @if(politicas.Contains("SAPP_BO_CLI_DIR_REL_DIR_CUE"))
+                {
+                    <button id="btRelacionar" class="w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-link icono-2x"></i><br />Relacionar
+                    </button>
+                }
+                else
+                {
+                    <button disabled id="btRelacionar" class="w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-link icono-2x"></i><br />Relacionar
+                    </button>
+                }
+                @if (VistaModal.Equals(""))
+                {
+                    <button id="btAceptarDAC" class="w-100 btn btn-outline-secondary" onclick="modificarDireccionEmp()" style="display:none;">
+                        <i class="fas fa-check icono-2x"></i><br />Aceptar
+                    </button>
+                }
+                else
+                {
+                    <button id="btAceptarDAC" class="w-100 btn btn-outline-secondary" onclick="modificarDireccionDAC()">
+                        <i class="fas fa-check icono-2x"></i><br />Aceptar
+                    </button>
+                }
+                <button id="btCerrarDAC" class="w-100 btn btn-outline-secondary" onclick="location.href='@Url.Action("Index","Home")'">
+                    <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                </button>
+            </center>
+        </div>
+    </div>   
+    <div class="modal fade" id="ICModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalIC" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="Modal-title" id="modalIC">Exportar a Excel</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @{
+                        await Html.RenderPartialAsync("../OLSSA/ImpDir");
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="EDModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalED" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="Modal-title" id="modalED">Edit Direccion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @{
+                        await Html.RenderPartialAsync("../DAC/EditDireccion");
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (VistaModal.Equals(""))
+    {
+        <div class="modal fade" id="CAModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalIC" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalIC">Exportar a Excel</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            await Html.RenderPartialAsync("../Consulta/AlfabeticaCliente");
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="RCModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalRC" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalRC">Relacion entre clientes</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            await Html.RenderPartialAsync("../DAC/RelClientes");
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="CMModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalCM" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalCM">Cuentas Mancomunadas</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            await Html.RenderPartialAsync("../DAC/CuentasMancomunadas");
+                        }
+                    </div>
+            </div>
+            </div>
+        </div>
+    }
+</div>
+@if (VistaModal.Equals(""))
+{
+    <script type="text/javascript">
+        $("#btCAAceptar").click(function () {
+            $("#CAModal").modal('hide');
+            var nfila = ($("#tbCAC tr").length) - 1;
+            for (var i = 1; i <= nfila; i++) {
+                if ($("#tbCAC #" + i + "").hasClass("bg-info")) {
+                    $("#txtDACDID").val($("#xidc" + (i)).html() + $("#xide" + (i)).html());
+                    $("#txtDACtDID").val($("#xidt" + (i)).html());
+                    break;
+                }
+            }
+            consultaDirecciones();
+        });
+    </script>
+}
+<script type="text/javascript">
+    $("#txtEmpFechIni").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+    $("#txtEmpFechVeri").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+    $("#txtEmpFechRLM").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+    $("#txtEmpFechFin").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+    $("#txtFechVeri").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+    function rellenarDatos(data) {
+        var recorrido;
+        for (var j in data) {
+            recorrido = document.getElementsByName(j);
+            if (recorrido.length > 0) {
+                switch (recorrido[0].type) {
+                    case "checkbox":
+                        if (data[j] == "S") {
+                            $("input[name=" + j + "]").val("true");
+                            $("input[name=" + j + "]").prop("checked", true);
+                            //$("input[name=" + j + "]").prop("disabled", true);
+                        }
+                        else {
+                            $("input[name=" + j + "]").val("false");
+                        }
+                        break;
+                    case "text":
+                        $("input[name=" + j + "]").val(data[j]);
+                        break;
+                    case "select-one":
+                        $("select[name=" + j + "]").val(data[j]);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+    $('#tabDatAdiCli li a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var item = $(e.target).attr("id");
+        $("#hTab").val((item));
+        //e.target
+        //e.relatedTarget
+        //$("btConsultar");
+        $("#btModificarDAC").attr('disabled', true);
+        $("#btIngresar").attr('disabled', true);
+        $("#btMCorresp").attr('disabled', true);
+        $("#btMCorresp").hide();
+        $("#btEliminar").hide();
+        $("#btSiguiente").hide();
+        $("#btRelacionar").hide();
+        $("#divVBol").hide();
+        $("#lbVBol").hide();
+        $("#btModificarDAC").html('<i class="fas fa-edit icono-2x"></i><br />Modificar');
+        switch (item) {
+            case '1-tabDAC':
+                $("#btMCorresp").show();
+                if ($("#hDAC1").val() == 1) {
+                    $("#btModificarDAC").attr('disabled', false);
+                    $("#btIngresar").attr('disabled', false);
+                    $("#btMCorresp").attr('disabled', false);
+                }
+                break;
+            case '2-tabDAC':
+            $("#btModificarDAC").html('<i class="fas fa-edit icono-2x"></i><br />Mod./Eli.');
+                if ($("#hDAC2").val() == 1) {
+                    $("#btIngresar").attr('disabled', false);
+                    if ($("#tbRec tr").length>1){
+                        $("#btModificarDAC").attr('disabled', false);
+                    }
+                }
+                break;
+            case '3-tabDAC':
+                $("#btIngresar").attr('disabled', false);
+                if ($("#hDAC3").val() == 1) {
+                    $("#btModificarDAC").attr('disabled', false);
+                }
+                break;
+            case '4-tabDAC':
+                $("#btIngresar").attr('disabled', false);
+                $("#divVBol").show();
+                $("#lbVBol").show();
+                if ($("#hDAC4").val() == 1) {
+                    $("#btModificarDAC").attr('disabled', false);
+                    $("#btEliminar").show();
+                }
+                break;
+        }
+    });
+    $(document).ready(function () {
+        $("#btOLSSACerrar").hide();
+        var guid = "@guid";
+        if (guid != "T") {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GUID","DAC")',
+                dataType: 'json',
+                data: { tipo: guid },
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                    if (l.state != null) {
+                        if (l.success) {
+                            if (l.success) {
+                                $("#txtDACDID").val(l.data.idcNumero + l.data.idcExtension);
+                                $("#txtDACtDID").val(l.data.idcTipo);
+                            }
+                        }
+                    }
+                    DespuesAjax();
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                }
+            });
+        }
+    });
+    $("#btModificarDAC").click(function () {
+        var item = ($("#hTab").val());
+        switch (item) {
+            case '1-tabDAC':
+                preparaModificacionDireccion();
+                break;
+            case '2-tabDAC':
+                preparaModificacionRec();
+                break;
+            case '3-tabDAC':
+                operacionesEmpleador(false);
+                break;
+            case '4-tabDAC':
+                operacionesAep(false);
+                break;
+            default:
+                alert("Estamos contruyendo la magia");
+                break;
+        }
+    });
+    $("#btConsultar").click(function () {
+        var item = ($("#hTab").val());
+        switch (item) {
+            case '1-tabDAC':
+                $("#tbOLSSA tbody").empty();
+                consultaDirecciones();
+                break;
+            case '2-tabDAC':
+                consultaRec();
+                break;
+            case '3-tabDAC':
+                consultaEmpleador();
+                break;
+            case '4-tabDAC':
+                consultaAep();
+                break;
+            default:
+                alert("Estamos contruyendo la magia");
+                break;
+        }
+    });
+    $("#btIngresar").click(function () {
+        var item = ($("#hTab").val());
+        switch (item) {
+            case '1-tabDAC':
+                $("#btEDIngresar").show();
+                $("#txtEDNumDir").val(parseInt($("#txtEDTotalDir").val())+1);
+                $('#divEDCargaDireccion').show();
+                $('#divEDConsultaDireccion').hide();
+                $("#EDModal").modal();
+                break;
+            case '2-tabDAC':
+                PreparaIngresoRelClientes(true);               
+                $("#RCModal").modal();
+                break;
+            case '3-tabDAC':
+                operacionesEmpleador(true);
+                break;
+            case '4-tabDAC':
+                operacionesAep(true);
+                break;
+            default:
+                alert("Estamos construyendo la magia");
+                break;
+        }
+    });
+    $("#btEliminar").click(function () {
+        var item = ($("#hTab").val());
+        switch (item) {
+            case '4-tabDAC':
+                eliminarAep();
+                break;
+            default:
+                alert("Estamos construyendo la magia");
+                break;
+        }
+    });
+    function consultaDirecciones() {
+        var id = $("#txtDACDID").val();
+        var tid = $("#txtDACtDID").val();
+        if (id == "" || tid== ""){
+            if ($("#txtNom").val() == "") {
+                if ($("#txtCuenta").val() == "") {
+                    if ($("#txtCodRas").val() == "") {
+                        alert("Debe ingresar o IDC o Nombre  o Cuenta o Cod de reatreo");
+                    }
+                    else {
+                        alert("busqueda por rastreo");
+                    }
+                }
+                else {
+                    ConsultaCliPro();
+                }
+            }
+            else {
+                $("#txtApRS").val($("#txtNom").val());
+                document.getElementById('btCACerrar').setAttribute('onclick', '$("#CAModal").modal("hide");');
+                $("#btCAAceptar").show();
+                $("#CAModal").modal();
+            }
+        }
+        else {
+            if ($("#ckPJ").prop('checked')) {
+                alert("No disponible");
+            }
+            else {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("BusquedaDireccionPNJ","DAC")',
+                    dataType: 'JSON',
+                    data: {id: id,tid: tid},
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        if (l.state == null) {
+                            alert('Sin datos');
+                            $("#divDirBusqAv").show();
+                            $("#divTbDirProd").hide();
+                        }
+                        else {
+                            if (l.success == true) {
+                                if (l.data == null) {
+                                    $("#divDirBusqAv").show();
+                                    $("#divTbDirProd").hide();
+                                    alert('sin datos');
+                                }
+                                else {
+                                    $("#tbDireccion tbody").empty();
+                                    $("#btIngresar").attr('disabled', false);
+                                    $("#txtNom").val(l.data.nombre);
+                                    $("#divDirBusqAv").hide();
+                                    $("#divTbDirProd").show();
+                                    if ($("#btAceptarDAC").is(':hidden')) {
+                                        $("#ckVProd").prop('disabled', false);
+                                        $("#hDAC1").val("1");
+                                    }
+                                    $.each(l.data.direcciones, function (i, k) {
+                                        var fia = '<tr id="' + (i + 1) + '">' +
+                                            '<td id="fCorr' + (i + 1) + '"></td>' +
+                                            '<td id="fTipo' + (i + 1) + '">' + k.tipoDireccion + '</td>' +
+                                            '<td id="fDir' + (i + 1) + '">' + k.direccionComprimida + '</td>' +
+                                            '<td id="fEst' + (i + 1) + '">' + k.estado + '</td>' +
+                                            '<td id="fDnro' + (i + 1) + '">' + k.nro + '</td>' +
+                                            '<td id="fCLoc' + (i + 1) + '">' + k.codLocalidad + '</td>' +
+                                            '<td id="fDTel' + (i + 1) + '">' + k.telefono + '</td>'
+                                            '</tr>';
+                                        $("#tbDireccion tbody").append(fia);
+                                    });
+                                    if (l.data.total > 0) {
+                                        $("#btModificarDAC").attr('disabled', false);
+                                        $("#tbDireccion #1").addClass("bg-info");
+                                        $("#btMCorresp").prop('disabled', false);
+                                        ConCorrespondencia();
+
+                                    }
+                                    $("#txtEDNumDir").val(l.data.total);
+                                    $("#txtEDTotalDir").val(l.data.total);
+                                }
+                            }
+                            else {
+                                $("#divDirBusqAv").show();
+                                $("#divTbDirProd").hide();
+                                alert('Se produjo un error en la consulta');
+                            }
+                        }
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    },
+                    complete: function () {
+                        DespuesAjax();
+                    }
+                });
+            }
+        }
+    }
+    $("#ckVProd").change(function () {
+        if ($(this).prop('checked')) {
+            $("#divOLSSA").show();
+            $("#ckPxDir").prop('disabled',false);
+        }
+        else {
+            $("#divOLSSA").hide();
+            $("#ckPxDir").prop('disabled', true);
+        }
+    });
+    $("#ckPxDir").change(function () {
+        var nfila = ($("#tbOLSSA tr").length) - 1;
+        var dir = "";
+        for (var i = 1; i <= nfila; i++) {
+            dir = $("#oaD" + i + "").html();
+            if ($(this).prop('checked')&&(dir == null || dir == "" || dir == "null")) {
+                $("#tbOLSSA #" + i + "").hide();
+            }
+            else {
+                $("#tbOLSSA #" + i + "").show();
+            }
+        }
+    });
+    function ConCorrespondencia() {
+        var id = $("#txtDACDID").val();
+        var tid = $("#txtDACtDID").val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ConCorrespondencia","DAC")',
+            dataType: 'text',
+            data: { id: id, tid: tid},
+           // beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l == "") {
+                    alert("ERROR DE OBTENCION DE CORRESPONDENCIA");
+                }
+                else {
+                    $("#fCorr" + l + "").html("S");
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                DespuesAjax();
+            }
+        });
+    }
+    function ModCorrespondencia() {
+        var nfila = ($("#tbDireccion tr").length) - 1;
+        var index = 0;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbDireccion #" + i + "").hasClass("bg-info")) {
+                index = i;
+                break;
+            }
+        }
+        if (index > 0) {
+            var id = $("#txtDACDID").val();
+            var tid = $("#txtDACtDID").val();
+             $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ModCorrespondencia","DAC")',
+            dataType: 'JSON',
+            data: { id: id, tid: tid,direccion:index},
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                alert(l.message);
+                if (l.success) {
+                    for (var i = 1; i <= nfila; i++) {
+                        if ($("#fCorr" + i + "").html()=="S") {
+                            $("#fCorr" + i + "").html("");
+                            break;
+                        }
+                    }
+                    $("#fCorr" + index + "").html("S");
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                DespuesAjax();
+            }
+        });
+        }
+    }
+    $("#btOLSSACC").click(function () {
+        $("#hcodigoInicio").val("");
+        $("#hcodigoFin").val("");
+        $("#tbOLSSA tbody").empty();
+        consultaProducto();
+    });
+    $("#btOLSSATSiguiente").click(function () {
+        consultaProducto();
+    });
+    $("#btRelacionar").click(function () {
+        var nfilaP = ($("#tbOLSSA tr").length) - 1;
+        var idP = 0;
+        for (var i = 1; i <= nfilaP; i++) {
+            if ($("#tbOLSSA #" + i + "").hasClass("bg-info")) {
+                idP = i;
+                break;
+            }
+        }
+        var nfilaC = ($("#tbDireccion tr").length) - 1;
+        var idC = 0;
+        for (var i = 1; i <= nfilaC; i++) {
+            if ($("#tbDireccion #" + i + "").hasClass("bg-info")) {
+                idC = i;
+                break;
+            }
+        }
+        if (idP > 0&&idC>0) {
+            if ($("#fEst" + idC + "").html() != 'M') {
+                var dir = $("#oaD" + idP + "").html();
+                if (dir == null || dir == "" || dir == "null") {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("RelacionarDirProd","Home")',
+                        dataType: 'json',
+                        data: { datos: { numeroDeCuentaExtra: $("#oaC" + idP + "").html(), numeroDireccion:idC}},
+                        beforeSend: AntesAjax(),
+                        success: function (l) {
+                            if (l.state == null) {
+                                alert("Error de conexion al microservicio");
+                            }
+                            else {
+                                alert(l.message);
+                                if (l.success) {
+                                    $("#oaD" + idP + "").html(idC);
+                                }
+                            }
+                        },
+                        error: function (ex, textStatus, errorThrown) {
+                            AjaxErrorHandler(ex, textStatus, errorThrown);
+                        },
+                        complete: function () {
+                            DespuesAjax();
+                        }
+                    });
+                }
+                else {
+                    alert("PRODUCTO YA RELACIONADO");
+                }
+            }
+            else {
+                alert("TIPO DE DIRECCION INVALIDA");
+            }
+        }
+    });
+    function consultaProducto() {
+        var parametros={
+            id: $("#txtDACDID").val(),
+            tid: $("#txtDACtDID").val(),
+            ini: $("#hcodigoInicio").val(),
+            fin: $("#hcodigoFin").val()
+        };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ConsultaProCli","Home")',
+            dataType: 'json',
+            data: parametros,
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.state == null) {
+                    alert("Error de conexion al microservicio");
+                }
+                else if (!l.success) {
+                    alert("Error de proceso en el microservicio");
+                }
+                else{
+                    var nfila = ($("#tbOLSSA tr").length) - 1;
+                    $("#hcodigoInicio").val(l.data.codigoInicio);
+                    $("#hcodigoFin").val(l.data.codigoFin);
+                    var contador = l.data.rows.length;
+                    if (l.data.masProductos == "S") {
+                        $("#btOLSSATSiguiente").show();
+                        contador = contador - 1;
+                    }
+                    else {
+                        $("#btOLSSATSiguiente").hide();
+                    }
+                    for (var i = 0; i < contador; i++) {
+                        if (l.data.rows[i].numeroDeCuentaExtra != "") {
+                            nfila = nfila + 1;
+                            var fia = '<tr id="' + (nfila) + '">' +
+                                '<td id="oaC' + (nfila) + '">' + l.data.rows[i].numeroDeCuentaExtra + '</td>' +
+                                '<td id="oaM' + (nfila) + '">' + l.data.rows[i].moneda + '</td>' +
+                                '<td id="oaT' + (nfila) + '">' + l.data.rows[i].tipoCuenta + '</td>' +
+                                '<td id="oaD' + (nfila) + '">' + l.data.rows[i].direccion + '</td>' +
+                                '<td id="oaE' + (nfila) + '">' + l.data.rows[i].estado + '</td>' +
+                                '</tr>';
+                            $("#tbOLSSA tbody").append(fia);
+                            if ($("#tbOLSSA tr").length > 1) {
+                                $("#btRelacionar").show();
+                                $("#tbOLSSA #1").addClass("bg-info");
+                            }
+                        }
+                    }
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                DespuesAjax();
+            }
+        });
+    }
+    function operacionesEmpleador(insercion) {
+        var id = $("#txtDACDID").val();
+        var tid = $("#txtDACtDID").val();
+        var eid = $("#txtEmpIDC").val();
+        var etid = $("#txtEmptIDC").val();
+        if (id == "" || tid == "" || eid == "" || etid == ""){
+            alert("Complete los campos obligatorios primero");
+        }
+        else {
+            var parametros = {
+                id: id,
+                tid: tid,
+                eid: eid,
+                etid: etid,
+                registro: insercion,
+                datos: {
+                    fechaInicio: $("#txtEmpFechIni").val(),
+                    fechaTermino: $("#txtEmpFechFin").val(),
+                    codigoCargo: $("#cbEmpCargo").val(),
+                    fechaVerificacion: $("#txtEmpFechVeri").val(),
+                    rentaLiquida: $("#txtEmpRLM").val(),
+                    codigoMonedaRenta: $("#cbEmpCodRLM").val(),
+                    fechaRenta: $("#txtEmpFechRLM").val(),
+                    direccionEmpleador: $("#txtEmpDir").val(),//temporal
+                    telefonoEmpleador: $("#txtEmpTelf").val(),
+                    codigoLocalidadEmpleador: $("#cbEmpLocalidad").val(),
+                    codigoEstadoEmpleador: $("#cbEmpEstado").val()
+                }
+            };
+            $.ajax({
+            type: 'POST',
+            url: '@Url.Action("OperacionesEmpleadorPNJ","DAC")',
+            dataType: 'JSON',
+            data: parametros,
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.state == null) {
+                    alert('Sin datos');
+                }
+                else {
+                    alert(l.message);
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                DespuesAjax();
+            }
+        });
+        }
+    }
+    function consultaEmpleador() {
+        var id = $("#txtDACDID").val();
+        var tid = $("#txtDACtDID").val();
+        if (id == "" || tid == "" ){
+            alert("Complete los campos obligatorios primero");
+        }
+        else {
+            $.ajax({
+            type: 'POST',
+            url: '@Url.Action("BusquedaEmpleadorPNJ","DAC")',
+            dataType: 'JSON',
+            data: {id:id,tid:tid},
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.state == null) {
+                    alert('Sin datos');
+                }
+                else {
+                    if (l.success == true) {
+                        $("#btModificarDAC").attr('disabled', false);
+                        $("#hDAC3").val("1");
+                        rellenarDatos(l.data);
+                        $("#txtEmpIDC").val($("#txtEmpIDC").val() + l.data.extensionIdcEmpleador);
+                    }
+                    else {
+                        alert('Se produjo un error en la consulta');
+                    }
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                DespuesAjax();
+            }
+        });
+        }
+    }
+    function consultaAep() {
+        var id = $("#txtDACDID").val();
+        var tid = $("#txtDACtDID").val();
+        if (id == "" || tid == "" ){
+            alert("Complete los campos obligatorios primero");
+        }
+        else {
+            $.ajax({
+            type: 'POST',
+            url: '@Url.Action("BusquedaAepPNJ","DAC")',
+            dataType: 'JSON',
+            data: { id: id, tid: tid, fecha: $("#txtVBol").val()},
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.state == null) {
+                    alert('Sin datos');
+                }
+                else {
+                    if (l.success == true) {
+                        $("#btModificarDAC").attr('disabled', false);
+                        $("#btEliminar").show();
+                        $("#hDAC4").val("1");
+                        rellenarDatos(l.data);
+                    }
+                    else {
+                        alert('Se produjo un error en la consulta');
+                    }
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                DespuesAjax();
+            }
+        });
+        }
+    }
+    function eliminarAep() {
+        var confirmar = confirm("¿Esta seguro de eliminar el registro?");
+        if (confirmar == true) {
+
+        var id = $("#txtDACDID").val();
+        var tid = $("#txtDACtDID").val();
+        if (id == "" || tid == "" ){
+            alert("Complete los campos obligatorios primero");
+        }
+        else {
+            $.ajax({
+            type: 'POST',
+            url: '@Url.Action("EliminarAepPNJ","DAC")',
+            dataType: 'JSON',
+            data: { id: id, tid: tid, fecha: $("#txtVBol").val()},
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.state == null) {
+                    alert('Sin datos');
+                }
+                else {
+                    alert(l.message);
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                DespuesAjax();
+            }
+        });
+            }
+        }
+    }
+    function operacionesAep(registro) {
+        var nomProceso = "¿Esta seguro de realizar un registro?";
+        if (!registro) {
+            nomProceso = "¿Esta seguro de modificar?";
+        }
+        var confirmar = confirm(nomProceso);
+            if (confirmar == true) {
+            var id = $("#txtDACDID").val();
+            var tid = $("#txtDACtDID").val();
+            if (id == "" || tid == "" ){
+                alert("Complete los campos obligatorios primero");
+            }
+            else {
+                var cz = {};
+                cz = cargarDatos("DAC4",cz);
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("OperacionesAepPNJ","DAC")',
+                    dataType: 'JSON',
+                    data: { id: id, tid: tid, fecha: $("#txtVBol").val(),datos:cz,registro:registro},
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        if (l.state == null) {
+                            alert('Sin datos');
+                        }
+                        else {
+                            alert(l.message);
+                        }
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    },
+                    complete: function () {
+                        DespuesAjax();
+                    }
+                });
+            }
+        }
+    }
+    function consultaRec() {
+        var id = $("#txtDACDID").val();
+        var tid = $("#txtDACtDID").val();
+        if (id == "" || tid == "" ){
+            alert("Complete los campos obligatorios primero");
+        }
+        else {
+            $("#divRec").hide();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("BusquedaRecPNJ","DAC")',
+                dataType: 'JSON',
+                data: { id: id, tid: tid, fecha: $("#txtVBol").val()},
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                    if (l.state == null) {
+                        alert('Sin datos');
+                    }
+                    else {
+                        $("#hDAC2").val("1");
+                        $("#btIngresar").attr('disabled', false);
+                         $("#divRec").show();
+                        if (l.success == true) {                       
+                            $("#tbRec tbody").empty();                        
+                        
+                            if (l.data == null) {
+                                alert('sin datos');
+                            }
+                            else {
+                                $.each(l.data.rows, function (i, k) {
+                                    var fia = '<tr id="' + (i + 1) + '">' +
+                                        '<td style="display:none">' + k.correlativoRelacion + '</td>'+
+                                        '<td>' + k.codigoRelacion + '</td>' +
+                                        '<td>' + k.nombre + '</td>' +
+                                        '<td>' + (k.idcPersona + k.extensionPersona) + '</td>' +
+                                        '<td>' + k.tipoDocumentoPersona + '</td>' +
+                                        '<td>' + k.vigente + '</td>'+
+                                        '<td style="display:none">' + k.codigoAsociado + '</td>'+
+                                        '<td style="display:none">' + k.fechaInicio + '</td>'+
+                                        '<td style="display:none">' + k.fechaTermino + '</td>'+
+                                        '<td style="display:none">' + k.fechaVerificacion + '</td>'+
+                                        '<td style="display:none">' + k.valorAsociado + '</td>'+
+                                        '<td style="display:none">' + k.fechaValor + '</td>'+
+                                        '<td style="display:none">' + k.codMoneda + '</td>'+
+                                    '</tr>';
+                                    $("#tbRec tbody").append(fia);
+                                });
+                                if (l.data.total > 0) {
+                                    $("#tbRec #1").addClass("bg-info");
+                                    $("#btModificarDAC").attr('disabled', false);
+                                }                            
+                            }
+                        }
+                        else {
+                            alert('Cliente no presenta registros');
+                        }
+                        $("#txtRCIDDoc1").val(id);
+                        $("#txtRCtIDDoc1").val(tid);
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                },
+                complete: function () {
+                    DespuesAjax();
+                }
+            });
+        }
+    }
+    function cargarDatos(idDiv, parametros) {
+        var nombre = "";
+        $('#' + idDiv + ' :input').each(function () {
+            nombre = $(this).get(0).name;
+            if (nombre != "") {
+            parametros[nombre] = ($(this).val());
+            }
+        });
+         return parametros;
+    }
+    $('#tbDireccion').on('click', 'tbody tr', function () {
+        var selected=$(this).hasClass("bg-info");
+        if(!selected){
+            $("#tbDireccion tbody tr").removeClass("bg-info");
+            $(this).addClass("bg-info");        
+        } 
+    });
+    $('#tbRec').on('click', 'tbody tr', function () {
+        var selected=$(this).hasClass("bg-info");
+        if(!selected){
+            $("#tbRec tbody tr").removeClass("bg-info");
+            $(this).addClass("bg-info");        
+        } 
+    });
+    function datosTabla(nombre){
+        var z = {};
+        var i=idFilaSeleccionada(nombre);
+        if(i>0){
+            $("#" + nombre + " #" + i + "").find("td").each(function (index) {
+                z[index] = ($(this).html());
+            });
+        }
+        return z;
+    }
+    function idFilaSeleccionada(nombre){
+        var indice=0;
+        var nfila = ($("#" + nombre + " tr").length) - 1;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#" + nombre + " #" + i + "").hasClass("bg-info")) {
+                indice=i;                
+                break;
+            }
+        }
+        return indice;
+    }
+    function preparaModificacionDireccion() {
+        var z = datosTabla("tbDireccion");
+        if (z != null) {
+            $("#cbEDLocalidad").val(z[5]).change();
+            $("#cbEDTipoDir").val(z[1]).change();
+            $("#txtEDDireccion").val(z[2]);
+            $("#cbEDEstDir").val(z[3]).change();
+            $("#txtEDTelefono").val(z[6]);
+            $("#txtEDNumDir").val(z[4]);
+            $("#btEDModificar").show();
+            $("#EDModal").modal();
+        }
+    }
+    function preparaModificacionRec() {
+        var z = datosTabla("tbRec");        
+        if (z != null) {
+            PreparaModificacionRelClientes(z);           
+            $("#RCModal").modal();
+        }
+    }
+    $("#btEDModificar").click(function () {
+        operacionDireccion(false);
+    });
+    $("#btEDIngresar").click(function () {
+        operacionDireccion(true);
+    });
+    $("#btRCCrearMulRelacion").click(function () {
+        operacionRec(true,1);
+    });
+    $("#btRCCrearVarRelacion").click(function () {
+        operacionRec(true,2);
+    });
+    $("#btRCCrearRelacion").click(function () {
+        operacionRec(true,3);
+    });
+    $("#btRCModificar").click(function () {
+        operacionRec(false,3);
+    });
+    function operacionDireccion(registro) {
+        var nomProceso = "¿Esta seguro de realizar un registro?";
+        if (!registro) {
+            nomProceso = "¿Esta seguro de modificar?";
+        }
+        var confirmar = confirm(nomProceso);
+        if (confirmar == true) {
+            var id = $("#txtDACDID").val();
+            var tid = $("#txtDACtDID").val();
+            if($("#divEDConsultaDireccion").is(":visible")){
+                alert("Debe seleccionar una direccion");
+            }
+            else if (id == "" || tid == "" || $('#txtEDJACalle').val()==""){
+                alert("Complete los campos obligatorios primero");
+            }
+            else {
+                var tipoDireccion =$("#cbEDTipoDir").val();
+                var localidad = $("#cbEDLocalidad").val();
+                if (tipoDireccion == "M") {
+                    localidad = "0000";
+                }
+                var parametros = {
+                    id: id,
+                    tid: tid,
+                    registro: registro,
+                    datos: {
+                        nro: $("#txtEDNumDir").val(),
+                        codLocalidad: localidad,
+                        tipoDireccion: tipoDireccion,
+                        direccionComprimida: EDcomprimirDireccion(),
+                        telefono: $("#txtEDTelefono").val(),
+                        estado: $("#cbEDEstDir").val()
+                    }
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("OperacionesDireccionPNJ","DAC")',
+                    dataType: 'JSON',
+                    data: parametros,
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        if (l.state == null) {
+                            alert('Sin datos');
+                        }
+                        else {
+                            if (l.success) {                                
+                                $('#divEDCargaDireccion').hide();
+                                $('#divEDConsultaDireccion').show();
+                                $("#txtEDDireccion").val(parametros.datos.direccionComprimida);
+                                var numero=parseInt(parametros.datos.nro);
+                                if (registro) {                                   
+                                    var fia = '<tr id="' + numero + '">' +
+                                        '<td id="fCorr' + numero + '"></td>' +
+                                        '<td id="fTipo' + numero + '">' + parametros.datos.tipoDireccion + '</td>' +
+                                        '<td id="fDir' + numero + '">' + parametros.datos.direccionComprimida + '</td>' +
+                                        '<td id="fEst' + numero + '">' + parametros.datos.estado + '</td>' +
+                                        '<td id="fDnro' + numero + '">' + parametros.datos.nro + '</td>' +
+                                        '<td id="fCLoc' + numero+ '">' + parametros.datos.codLocalidad + '</td>' +
+                                        '<td id="fDTel' + numero + '">' + parametros.datos.telefono + '</td>'
+                                    '</tr>';
+                                    $("#tbDireccion tbody").append(fia);
+                                    $("#txtEDTotalDir").val(parseInt($("#txtEDTotalDir").val()) + 1);
+                                    $("#btEDIngresar").hide();
+                                }
+                                else {
+                                    var tables=document.getElementById('tbDireccion');
+                                    var row = tables.getElementsByTagName("tr")[parseInt(numero)];
+                                    var celdas = row.getElementsByTagName("td");
+                                    celdas[1].innerHTML = parametros.datos.tipoDireccion;
+                                    celdas[2].innerHTML =parametros.datos.direccionComprimida;
+                                    celdas[3].innerHTML =parametros.datos.estado;
+                                    celdas[5].innerHTML =parametros.datos.codLocalidad;
+                                    celdas[6].innerHTML =parametros.datos.telefono;
+                                    $("#btEDModificar").hide();
+                                }
+                            }
+                            alert(l.message);
+                        }
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    },
+                    complete: function () {
+                        DespuesAjax();
+                    }
+                });
+            }
+        }
+    }
+    function operacionRec(registro,tipoProceso) {
+        var nomProceso = "¿Esta seguro de realizar un registro?";
+        if (!registro) {
+            nomProceso = "¿Esta seguro de modificar?";
+        }
+        var confirmar = confirm(nomProceso);
+        if (confirmar == true) {
+            var id = $("#txtDACDID").val();
+            var tid = $("#txtDACtDID").val();
+            if (id == "" || tid == "" ){
+                alert("Complete los campos obligatorios primero");
+            }
+            else {               
+                var parametros = {
+                    id: id,
+                    tid: tid,
+                    registro: registro,
+                    datos: {
+                        correlativoRelacion: $("#txtRCCorrRel").val(),
+                        codigoRelacion: $("#cbRCCodRel").val(),
+                        codigoAsociado: $("#cbRCCodAsoc").val(),
+                        vigente: $("input[type='radio'][name='rgRelVigente']:checked").val(),
+                        nombre: $("#txtRCRazSoc2").val(),
+                        fechaInicio: $("#txtRCFechIni").val(),
+                        fechaTermino: $("#txtRCFechTer").val(),
+                        fechaVerificacion: $("#txtRCFechVeri").val(),
+                        valorAsociado: $("#txtRCValasoc").val(),
+                        fechaValor: $("#txtRCFechVal").val(),
+                        codMoneda: $("#cbRCExpresado").val(),
+                        idcPersona: $("#txtRCIDDoc2").val(),
+                        tipoDocumentoPersona: $("#txtRCtIDDoc2").val()
+                    }
+                };
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("OperacionesRecPNJ","DAC")',
+                dataType: 'JSON',
+                data: parametros,
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                    if (l.state == null) {
+                        alert('Sin datos');
+                    }
+                    else {
+                        if (l.success) {
+                            if (registro) {
+                                var nfila = ($("#tbRec tr").length);
+                                var corrRel='01';
+                                if (nfila > 1) {
+                                    var tablesR=document.getElementById('tbRec');
+                                    var rowsR = tablesR.getElementsByTagName("tr");
+                                    var count=1
+                                    for (var i = 1; i < rowsR.length; i++) {
+                                        var row=rowsR[i];
+                                        var td = row.getElementsByTagName("td");                                    
+                                        if(td[1].innerHTML== parametros.datos.codigoRelacion && td[3].innerHTML == parametros.datos.idcPersona && td[4].innerHTML==parametros.datos.tipoDocumentoPersona){
+                                            count=count+1;
+                                        }
+                                    }
+                                    corrRel=count;
+                                    if(count<10){
+                                        corrRel="0"+corrRel;
+                                    }
+                                }
+                                var fia = '<tr id="' + nfila + '">' +                           
+                                    '<td style="display:none">' + corrRel + '</td>'+
+                                    '<td>' + parametros.datos.codigoRelacion + '</td>' +
+                                    '<td>' + parametros.datos.nombre + '</td>' +
+                                    '<td>' + parametros.datos.idcPersona + '</td>' +
+                                    '<td>' + parametros.datos.tipoDocumentoPersona + '</td>' +
+                                    '<td>' + parametros.datos.vigente + '</td>'+
+                                    '<td style="display:none">' + parametros.datos.codigoAsociado + '</td>'+
+                                    '<td style="display:none">' + parametros.datos.fechaInicio + '</td>'+
+                                    '<td style="display:none">' + parametros.datos.fechaTermino + '</td>'+
+                                    '<td style="display:none">' + parametros.datos.fechaVerificacion + '</td>'+
+                                    '<td style="display:none">' + parametros.datos.valorAsociado + '</td>'+
+                                    '<td style="display:none">' + parametros.datos.fechaValor + '</td>'+
+                                    '<td style="display:none">' + parametros.datos.codMoneda + '</td>'+
+                                '</tr>';
+                                $("#tbRec tbody").append(fia); 
+                                if (nfila == 1) {
+                                    $("#tbRec #1").addClass("bg-info");
+                                    $("#btModificarDAC").attr('disabled', false);
+                                } 
+                                if(tipoProceso==1||tipoProceso==2){
+                                    if(tipoProceso==1){
+                                        PreparaIngresoRelClientes(false);                                
+                                    }
+                                    else{
+                                        PreparaIngresoVariasRelClientes();
+                                    }                                    
+                                }
+                                else{
+                                    $("#RCModal").modal("hide");
+                                }
+                            }
+                            else{
+                                var tables=document.getElementById('tbRec');
+                                var row = tables.getElementsByTagName("tr")[idFilaSeleccionada('tbRec')];
+                                var celdas = row.getElementsByTagName("td");
+                                celdas[1].innerHTML = parametros.datos.codigoRelacion;
+                                celdas[2].innerHTML =parametros.datos.nombre;
+                                celdas[3].innerHTML =parametros.datos.idcPersona;
+                                celdas[4].innerHTML =parametros.datos.tipoDocumentoPersona;
+                                celdas[5].innerHTML =parametros.datos.vigente;
+                                celdas[6].innerHTML =parametros.datos.codigoAsociado;
+                                celdas[7].innerHTML =parametros.datos.fechaInicio;
+                                celdas[8].innerHTML =parametros.datos.fechaTermino;
+                                celdas[9].innerHTML =parametros.datos.fechaVerificacion;
+                                celdas[10].innerHTML =parametros.datos.valorAsociado;
+                                celdas[11].innerHTML =parametros.datos.fechaValor;
+                                celdas[12].innerHTML =parametros.datos.codMoneda;
+                                $("#RCModal").modal("hide");
+                            }
+                        }
+                        alert(l.message);
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                },
+                complete: function () {
+                    DespuesAjax();
+                }
+            });
+            }
+        }
+    }
+    $("#btRCEliminar").click(function () {
+        var nomProceso = "¿Esta seguro de Eliminar la Relacion?";
+        var confirmar = confirm(nomProceso);
+        if (confirmar == true) {
+            var id = $("#txtDACDID").val();
+            var tid = $("#txtDACtDID").val();
+            if (id == "" || tid == "" ){
+                alert("Complete los campos obligatorios primero");
+            }
+            else {
+                var parametros = {
+                    id: id,
+                    tid: tid,
+                    idRel: $("#txtRCIDDoc2").val(),
+                    tidRel: $("#txtRCtIDDoc2").val(),
+                    codRelacion: $("#cbRCCodRel").val()
+                };
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("EliminarRecPNJ","DAC")',
+                dataType: 'JSON',
+                data: parametros,
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                    if (l.state == null) {
+                        alert('Sin datos');
+                    }
+                    else {
+                        if (l.success) {
+                            var nFila=1;
+                            if($("#tbRec tr").length==2){
+                                $("#btModificarDAC").attr('disabled', true);
+                                document.getElementById('tbRec').deleteRow(nFila);
+                            }
+                            else{
+                                var tables=document.getElementById('tbRec');
+                                var rows = tables.getElementsByTagName("tr");                                
+                                for (var i = 1; i < rows.length; i++) {
+                                    var row=rows[i];                                    
+                                    var celdas = row.getElementsByTagName("td");                                    
+                                    if(celdas[1].innerHTML == parametros.codRelacion && celdas[3].innerHTML == parametros.idRel && celdas[4].innerHTML==parametros.tidRel){
+                                        nFila=i;
+                                    }
+                                }
+                                document.getElementById('tbRec').deleteRow(nFila);
+                                for (var i = nFila; i < rows.length; i++) {
+                                    var row=rows[i];
+                                    row.id=i;
+                                }
+                                $("#tbRec #1").addClass("bg-info");
+                            }                            
+                            $("#RCModal").modal("hide");
+                        }
+                        alert(l.message);
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                },
+                complete: function () {
+                    DespuesAjax();
+                }
+            });
+            }
+        }
+    });
+    $("#btEDCerrar").click(function () {
+        $("#EDModal").modal('hide');
+    });
+    $("#btRCCerrar").click(function () {
+        $("#RCModal").modal('hide');
+    });
+    function ConsultaCliPro(){
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ConsultaCliPro","DAC")',
+            dataType: 'JSON',
+            data: { datos: { tipoCuenta: $("#cbCliProd").val(), cuenta: $("#txtCuenta").val() }},
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (!l.success) {
+                    alert(l.message);
+                }
+                else {
+                    var tipocuenta = l.data.subTipoCuenta;
+                    if (l.data.nroClientes > 1) {
+                        $("#tbCuentasMancomunadas tbody").empty();
+                        $("#txtCMCuenta").val(l.data.numeroDeCuentaExtra);
+                        $("#txtCMProd").val(l.data.tipoCuenta);
+                        $("#txtCMMoneda").val(l.data.moneda);
+                        for (var i = 0; i < l.data.nroClientes;i++) {
+                            var fia = '<tr id="' + (i + 1) + '">' +
+                                '<td>' + l.data.clientes[i].direccion + '</td>' +
+                                '<td>' + l.data.clientes[i].nombresRazonSocial + '</td>' +
+                                '<td id="CMi' + (i + 1) + '">' + l.data.clientes[i].idcNumero + l.data.clientes[i].idcExtension + '</td>' +
+                                '<td id="CMj' + (i + 1) + '">' + l.data.clientes[i].idcTipo + '</td>' +
+                                '<td>' + l.data.clientes[i].relacion+ '</td>' +
+                            '</tr>';
+                            $("#tbCuentasMancomunadas tbody").append(fia);
+                        }
+                        $("#tbCuentasMancomunadas #1").addClass("bg-info");
+                        $("#CMModal").modal();
+                    }
+                    else {
+                        $("#txtDACDID").val(l.data.clientes[0].idcNumero + l.data.clientes[0].idcExtension);
+                        $("#txtDACtDID").val(l.data.clientes[0].idcTipo);
+                        consultaDirecciones();
+                    }
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                DespuesAjax();
+            }
+        });
+    }
+    $("#btCMAceptar").click(function () {
+        $("#CMModal").modal('hide');
+        var nfila = ($("#tbCuentasMancomunadas tr").length) - 1;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbCuentasMancomunadas #" + i + "").hasClass("bg-info")) {
+                $("#txtDACDID").val($("#CMi" + (i)).html());
+                $("#txtDACtDID").val($("#CMj" + (i)).html());
+                break;
+            }
+        }
+        consultaDirecciones();
+    });
+    $("#btCMCerrar").click(function () {
+        $("#CMModal").modal('hide');
+    });    
+    $("#btDACEMP2").click(function () {
+        $("#hTab").val("1-tabDAC");
+        $("#DAC3").removeClass("active");
+        $("#DAC1").addClass("active");
+        $("#1-tabDAC").prop("disabled", true);
+        $("#2-tabDAC").prop("disabled", true);
+        $("#3-tabDAC").prop("disabled", true);
+        $("#4-tabDAC").prop("disabled", true);
+        $("#5-tabDAC").prop("disabled", true);
+        $('#tabDatAdiCli a:first').tab('show');
+        $("#btAceptarDAC").show();
+        document.getElementById("btCerrarDAC").setAttribute("onClick", "cancelarEmp();");
+        //$("#ckVProd").prop('disabled', true);
+    });
+    function cancelarEmp() {
+        $("#hTab").val("3-tabDAC");
+        $("#DAC1").removeClass("active");
+        $("#DAC3").addClass("active");
+        $("#1-tabDAC").prop("disabled", false);
+        $("#2-tabDAC").prop("disabled", false);
+        $("#3-tabDAC").prop("disabled", false);
+        $("#4-tabDAC").prop("disabled", false);
+        $("#5-tabDAC").prop("disabled", false);
+        $('#tabDatAdiCli #3-tabDAC').tab('show');
+        $("#btAceptarDAC").hide();
+        document.getElementById("btCerrarDAC").setAttribute("onClick", "location.href='@Url.Action("Index","Home")'");
+        //$("#ckVProd").prop('disabled', true);
+    }
+    function modificarDireccionEmp() {
+        var nfila = ($("#tbDireccion tr").length) - 1;
+        var index = 0;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbDireccion #" + i + "").hasClass("bg-info")) {
+                index = i;
+                break;
+            }
+        }
+        if (index > 0) {
+            if($("#fTipo" + i + "").html()=="M"){
+                alert("NO ES POSIBLE RELACIONAR CON DIRECCION DE CORREO ELECTRONICO.");
+                cancelarEmp();
+            }
+            else{
+                $("#txtEmpDir").val($("#fDir" + i + "").html());
+                $("#txtEmpTelf").val($("#fDTel" + i + "").html());
+                $("#cbEmpLocalidad").val($("#fCLoc" + i + "").html());
+                $("#cbEmpEstado").val($("#fEst" + i + "").html());
+                $("#tbDireccion tbody").empty();
+                $("#btIngresar").attr('disabled', true);
+                $("#txtNom").val("");
+                $("#divDirBusqAv").show();
+                $("#divTbDirProd").hide();
+            }
+        }
+        cancelarEmp();
+    }
+    $("#cbCliProd").change(function () {
+        if ($(this).val() == 'Select') {
+            $("#txtCuenta").prop('readonly',true);
+        }
+        else {
+            $("#txtCuenta").prop('readonly', false);
+        }
+    });
+</script>

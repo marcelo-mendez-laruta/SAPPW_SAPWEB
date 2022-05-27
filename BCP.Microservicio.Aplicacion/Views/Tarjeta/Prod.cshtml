@@ -1,0 +1,169 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Tarjetas Relacionadas: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <div class="container mb-3">
+        <div class="form-row">
+            <div class="col-sm-8">
+                <div class="container">
+                    <div class="form-row">
+                        <label for="cbtCuenta" class="col-sm-4 col-form-label">
+                            Tipo de Cuenta:
+                        </label>
+                        <div class="col-sm-8">
+                            <select id="cbtCuenta" class="form-control">
+                                <option selected value="AHS">CAJA DE AHORRO</option>
+                                <option value="CCS">CUENTA CORRIENTE</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label for="txtnCuenta" class="col-sm-4 col-form-label">
+                            Número de Cuenta:
+                        </label>
+                        <div class="col-sm-8">
+                            <input id="txtnCuenta" class="form-control" type="text" autofocus />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="container">
+                    <fieldset class="border border-dark">
+                        <legend class="w-auto" style="font-size:14px;">
+                            Moneda
+                        </legend>
+                        <div class="container">
+                            <div class="form-check form-check-inline">
+                                <input id="rdMNA" name="moneda" class="form-check-input" value="MNA" type="radio" checked />
+                                <label for="rdMNA" class="form-check-label">
+                                    MNA
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input id="rdUSD" name="moneda" class="form-check-input" value="USD" type="radio" />
+                                <label for="rdUSD" class="form-check-label">
+                                    USD
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row p-1">
+            <div class="col-lg-10">
+                <div class="table-responsive bg-white" style="max-height:300px;">
+                    <table id="tbTProd" class="table table-bordered table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>No. Credimas</th>
+                                <th>Nombre Cliente</th>
+                                <th>Situación</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-2">
+                <div class="row m-0 p-0">
+                        @if (politicas.Contains("SAPP_BO_TAR_TAR_PRO"))
+                        {
+                            <button id="btProdConsultar" type="button" class="col col-lg-12 btn btn-outline-secondary m-1">
+                                <i class="fas fa-print icono-2x"></i><br />Consultar
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="col col-lg-12 btn btn-outline-secondary m-1" disabled>
+                                <i class="fas fa-print icono-2x"></i><br />Consultar
+                            </button>
+                        }
+                        <button id="btTarRelCerrar" type="button" class="col col-lg-12 btn btn-outline-secondary m-1" onclick="location.href='@Url.Action("Index","Home")'">
+                            <i class="fas fa-window-close icono-2x"></i><br />Cancelar
+                        </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#btProdConsultar").click(function () {
+        tarjetasRelacionadas();
+    });
+    function tarjetasRelacionadas() {
+        var parametros = {
+            datos:{
+                nroCuenta: $("#txtnCuenta").val(),
+                tipoCuenta: $("#cbtCuenta").val(),
+                moneda: $('input[type="radio"][name="moneda"]:checked').val()
+            }
+        };
+        $.ajax({
+                type: 'POST',
+                url: '@Url.Action("TarjetasRelacionadas","Tarjeta")',
+                dataType: 'json',
+                data: parametros,
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                if (l.state == null) {
+                    alert("Error de conexion al microservicio");
+                }
+                else if (!l.success) {
+                    alert("Error de proceso en el microservicio");
+                }
+                else{
+                    $("#tbTProd tbody").empty();
+                    for (var i = 0; i < l.data.total; i++) {
+                        var fia = '<tr id="' + (i+1) + '">' +
+                            '<td>' + l.data.rows[i].nroTarjeta + '</td>' +
+                            '<td>' + l.data.rows[i].nombreTarjeta + '</td>' +
+                            '<td>' + l.data.rows[i].desSituacion + '</td>' +
+                            '</tr>';
+                        $("#tbTProd tbody").append(fia);
+                    }
+                    if ($("#tbTProd tr").length > 1) {
+                        $("#tbTProd #1").addClass("bg-info");
+                    }
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                if (!($("#txttIDCC").prop('readonly'))) {
+                    if ($("#tbPegarCuentas tr").length > 1) {
+                        $("#btTMDetalle").show();
+                    }
+                    else {
+                        $("#btTMDetalle").hide();
+                    }
+                }
+                DespuesAjax();
+
+            }
+        });
+    }
+</script>

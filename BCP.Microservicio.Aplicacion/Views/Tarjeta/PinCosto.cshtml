@@ -1,0 +1,220 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model string[];
+@{
+    ViewData["Title"] = "Cambio de Tarjeta Paso 5 - Tarjeta Credimas: ";
+    int tamanio = int.Parse(Model[0]);
+    string PCTarjeta = string.Empty;
+    if (!string.IsNullOrEmpty(Model[1]))
+    {
+        PCTarjeta = Model[1];
+    }
+    if(tamanio==11)
+    {
+        tamanio = tamanio - 1;
+    }
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <form id="PCSubmit" name="PCSubmit" method="post" action="#">
+        @if (tamanio == 12)
+        {
+            <header id="PCFlujo">
+                <h4>Cambio de Tarjeta Paso 5 - Tarjeta Credimas:</h4>
+            </header>
+        }
+        <input id="hPinCostoTarjeta" type="hidden" value="@PCTarjeta" name="tarjeta" />
+        <div class="form-row">
+            <div class="col-sm-@tamanio mb-1">
+                <div class="container">
+                    <fieldset class="border border-dark">
+                        <legend class="w-auto" style="font-size:14px;">
+                            De la opción de bloqueo
+                        </legend>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group form-check">
+                                        <input id="rbcPIN" value="false" name="cobro" class="form-check-input" type="radio" />
+                                        <label for="rbcPIN" class="form-check-label">
+                                            Con Pin
+                                        </label>
+                                    </div>
+                                    <div class="form-group form-check">
+                                        <input id="rbsPIN" value="true" name="cobro" class="form-check-input" type="radio" checked />
+                                        <label for="rbsPIN" class="form-check-label">
+                                            Sin Pin
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 mb-1">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:13px;">
+                                            Valor del PIN
+                                        </legend>
+                                        <div class="container">
+                                            <input id="hPin" type="hidden" value="" name="pinEncriptado" />
+                                            <input id="txtvPIN" class="form-control" type="password" readonly />
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            @if (tamanio == 10)
+            {
+                <input id="hPPPin" type="hidden" value="" />
+                <div class="col-sm-2">
+                    <div class="row m-0 p-0">
+                        <button type="button" class="col col-sm-12 btn btn-outline-secondary m-1" onclick="bloqueo(document.getElementById('rbcPIN').checked)">
+                            <i class="fas fa-check icono-2x"></i><br />Aceptar
+                        </button>
+                        <button type="button" class="col col-sm-12 btn btn-outline-secondary m-1" onclick="$('#PinCModal').modal('hide');">
+                            <i class="fas fa-window-close icono-2x"></i><br />Cancelar
+                        </button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-sm-12">
+                    <div class="container mb-1">
+                        <fieldset class="border border-dark">
+                            <legend class="w-auto" style="font-size:14px;">
+                                De la Nueva Tarjeta
+                            </legend>
+                            <div class="container">
+                                <div class="form-row">
+                                    <label for="txtnTarjeta" class="col-sm-3 col-form-label">
+                                        Número de Tarjeta:
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <input id="txtnTarjeta" name="tarjetaNueva" value="" class="form-control" type="text"  placeholder="0000-0000-0000-0000" maxlength="19" autofocus required />
+                                    </div>
+                                </div>
+                                <div class="container mt-1 mb-1" style="display:none;">
+                                    <fieldset class="border border-dark p-2">
+                                        <legend class="w-auto" style="font-size:13px;">
+                                            Ingrese los motivos de la Reposición sin costo
+                                        </legend>
+                                        <div class="container">
+                                            <input id="txtMotRenov" class="form-control" type="text" />
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="d-inline p-1">
+                        <footer>
+                            <div class="form-row justify-content-center align-items-center">
+                                <div class="col-auto m-1">
+                                    <button type="button" class="btn border btn-light" onclick="window.history.back()">&lt;&lt;Anterior&lt;&lt;</button>
+                                </div>
+                                <div class="col-auto m-1">
+                                    <button type="button" class="btn border btn-light" onclick="cancelarProceso('@Url.Action("Index","Home")');">Cancelar</button>
+                                </div>
+                                <div class="col-auto m-1">
+                                    <input type="submit" class="btn border btn-light" value=">>Siguiente>>" />
+                                </div>
+                            </div>
+                        </footer>
+                    </div>
+                </div>
+            }
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $("#txtvPIN").keydown(function (e) {
+        var keyCode = e.keyCode || e.which;
+        if(keyCode === 8){
+            e.preventDefault();
+            $("#hPin").val("");
+            $("#txtvPIN").val("");
+        }
+        else if (keyCode === 123) {
+            e.preventDefault();
+            document.getElementById('rbsPIN').checked = true;
+            var tarjeta = $("#hPinCostoTarjeta").val().replace(/-/g, "").replace(/ /g, "");
+            if (tarjeta != "") {
+                var url = 'http://localhost:9991/Values/GetPin/' + tarjeta;
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    cache: false,
+                    dataType: 'text',
+                    beforeSend: function () {
+	                    $("#lbCargandoElementoModal").html("El Cliente debe digitar su Clave...");
+	                    AntesAjax();
+                    },
+                    success: function (l) {
+                        if (l == null || l == "") {
+                            alert("NO SE PUDO COMUNICAR CON EL PIN PAD");
+                        }
+                        else {
+                            var resultado = l.replace(/"/g, "").split(',');
+                            if (resultado[1] == null || resultado[1] == "") {
+                                alert("NO SE PUDO COMUNICAR CON EL PIN PAD");
+                            }
+                            else if (resultado[0] == "00") {
+                                $("#hPin").val(resultado[1]);
+                                $("#txtvPIN").val("1234");
+                                document.getElementById('rbcPIN').checked = true;
+                            }
+                            else {
+                                alert("DATOS DEL PIN NO RECUPERADOS, INTENTE NUEVAMENTE");
+                                $("#hPin").val("");
+                                $("#txtvPIN").val("ÔÕÖ×");
+                            }
+                        }
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    },
+                    complete: function () {
+                        DespuesAjax();
+                        $("#lbCargandoElementoModal").html("Cargando...");
+                    }
+                });
+            }
+            else {
+                alert("DEBE INGRESAR LA TARJETA PRIMERO");
+            }
+        }
+    });
+    $("#txtnTarjeta").keyup(function (e) {
+        var key=e.keyCode;
+        $(this).val(formatoInputTarjeta($(this).val(),key));  
+    });
+    $('#PCSubmit').on('submit', function (e) {
+        e.preventDefault();
+        var siguiente = false;
+        var parametros = $(this).serialize();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("CambioTarjeta","Tarjeta")',
+            dataType: 'json',
+            data: parametros,
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                DespuesAjax();
+                if(l.message!='OK'){
+                    alert(l.message);
+                }
+                siguiente = l.success;
+            },
+            error: function (ex, textStatus, errorThrown) {
+                DespuesAjax();
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                if (siguiente) {
+                    location.href = '@Url.Action("ImpContrato","Home")';
+                }
+            }
+        });
+    });
+</script>

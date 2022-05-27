@@ -1,0 +1,443 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@model List<List<SelectListItem>>;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Editar Dirección: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="container border border-dark mb-1">
+                <div class="form-row">
+                    <label for="txtEDNumDir" class="col-sm-2 col-form-label">66
+                        Número de Dirección:
+                    </label>
+                    <div class="col-sm-4">
+                        <input readonly id="txtEDNumDir" class="form-control" type="text" />
+                    </div>
+                    <label for="txtEDTotalDir" class="col-sm-2 col-form-label">
+                        Total de Direcciones:
+                    </label>
+                    <div class="col-sm-4">
+                        <input readonly id="txtEDTotalDir" class="form-control" type="text" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label class="col-sm-2 col-form-label">
+                        Sectorista:
+                    </label>
+                    <div class="col-sm-2">
+                        <input disabled class="form-control" type="text" />
+                    </div>
+                    <div class="col-sm-2">
+                        <input disabled  class="form-control" type="text" />
+                    </div>
+                    <label class="col-sm-2 col-form-label">
+                        Banca:
+                    </label>
+                    <div class="col-sm-4">
+                        <input disabled class="form-control" type="text" />
+                    </div>
+                </div>
+            </div>
+            <div class="container border border-dark mb-1">
+                <div class="container" id="divEDCargaDireccion" style="display: none;">
+                    <div class="form-row">
+                        <div class="col-sm-5 form-group">
+                            <label for="cbEDJACalle">
+                                Jr./Av./Calle
+                            </label>
+                            <div class="form-row">
+                                <div class="col-sm-6">
+                                    @Html.DropDownList("calle", Model[19], "Select", new { @id = "cbEDJACalle", @class = "form-control" })
+                                </div>
+                                <div class="col-sm-6">
+                                    <input id="txtEDJACalle" class="form-control" type="text" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 form-row">
+                            <div class="col-sm-4 form-group">
+                                <label for="txtEDnro">
+                                    Nro.
+                                </label>
+                                <input id="txtEDnro" class="form-control" type="text" value="" />
+                            </div>
+                            <div class="col-sm-4 form-group">
+                                <label for="txtEDmz">
+                                    Mz.
+                                </label>
+                                <input id="txtEDmz" class="form-control" type="text" />
+                            </div>
+                            <div class="col-sm-4 form-group">
+                                <label for="txtEDlote">
+                                    Lote
+                                </label>
+                                <input id="txtEDlote" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label for="cbEDDPI">
+                                Dept./Piso/Int.
+                            </label>
+                            <div class="form-row">
+                                <div class="col-sm-6">
+                                    @Html.DropDownList("departamento", Model[20], "Select", new { @id = "cbEDDPI", @class = "form-control" })
+                                </div>
+                                <div class="col-sm-6">
+                                    <input id="txtEDDPI" class="form-control" type="text" value="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-sm-6">
+                            <label for="cbEDURIV">
+                                Urb/Res/Ind/Und Vec
+                            </label>
+                            <div class="form-row">
+                                <div class="col-sm-6">
+                                    @Html.DropDownList("Urb", Model[21], "Select", new { @id = "cbEDURIV", @class = "form-control" })
+                                </div>
+                                <div class="col-sm-6">
+                                    <input id="txtEDURIV" class="form-control" type="text" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 form-group">
+                            <label for="cbEDEtZ">
+                                Etapa/Zona
+                            </label>
+                            <div class="form-row">
+                                <div class="col-sm-6">
+                                    @Html.DropDownList("EtapaZona", Model[22], "Select", new { @id = "cbEDEtZ", @class = "form-control" })
+                                </div>
+                                <div class="col-sm-6">
+                                    <input id="txtEDEtZ" class="form-control" type="text" value="" />
+                                </div>
+                            </div>
+                        </div>
+                        <div id="divEDBTDE" class="col-sm-2">
+                            <button type="button" class="btn btn-light" onclick="$('#divEDCargaDireccion').hide();$('#divEDConsultaDireccion').show();">Comprimida</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="divEDConsultaDireccion" class="container">
+                    <div class="form-row">
+                        <label for="txtEDDireccion" class="col-sm-2 col-form-label">
+                            Dirección:
+                        </label>
+                        <div class="col-sm-8">
+                            <input id="txtEDDireccion" name="domicilio" class="form-control" type="text" readonly />
+                        </div>
+                        <div id="divEDBTMD" class="col-sm-2">
+                            <button type="button" class="btn btn-light" onclick="$('#divEDConsultaDireccion').hide(); $('#divEDCargaDireccion').show();">Estructurada</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container border border-dark mb-1">
+                <div class="form-row">
+                    <label for="cbEDLocalidad" class="col-sm-2 col-form-label">
+                        Localidad:
+                    </label>
+                    <div class="col-sm-4">
+                        @Html.DropDownList("localidad", Model[9], "Select", new { @id = "cbEDLocalidad", @class = "form-control" })
+                    </div>
+                    <label for="txtEDTelefono" class="col-sm-2 col-form-label">
+                        Teléfono:
+                    </label>
+                    <div class="col-sm-4">
+                        <input id="txtEDTelefono" class="form-control" type="text" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="cbEDTipoDir" class="col-sm-2 col-form-label">
+                        Tipo de Dirección:
+                    </label>
+                    <div class="col-sm-4">
+                        <select class="form-control" id="cbEDTipoDir">
+                            <option selected value="D">DOMICILIO</option>
+                            <option value="M">E-MAIL</option>
+                            <option value="C">CORRESPONDENCIA</option>
+                            <option value="E">DIRECCION COMERCIAL</option>
+                        </select>
+                    </div>
+                    <label for="cbEDEstDir" class="col-sm-2 col-form-label">
+                        Estilo de Dirección:
+                    </label>
+                    <div class="col-sm-4">
+                        <select class="form-control" id="cbEDEstDir">
+                            <option selected value="I">INFORMADA</option>
+                            <option value="C">CONFIRMADA O VERIFICADA</option>
+                            <option value="N">INFORMADA NO CONFIABLE</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="container border border-dark mb-1">
+                <div class="form-row">
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="">
+                                Cod. Lugar
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="">
+                                Distrito
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="">
+                                Provincia
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label for="">
+                                Dpto.
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="">
+                                Cod. Reparto
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="">
+                                Cod. Despacho
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="">
+                                Coordenada X
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="">
+                                Coordenada Y
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="">
+                                Cod. Rastreo
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container border border-dark mb-1">
+                <div class="form-row">
+                    <div class="col-sm-3">
+                        <div class="container">
+                            <p>Inconsistencias</p>
+                        </div>
+                    </div>
+                    <div class="col-sm-7">
+                        <div class="container bg-light">
+                            <div class="table-responsive bg-white">
+                                <table class="table table-bordered">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Nivel</th>
+                                            <th>Glosa</th>
+                                            <th>Cod. de Despacho</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container border border-dark mb-1">
+                <div class="form-row">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="">
+                                Fecha Transacción
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="">
+                                Hora Transacción
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="">
+                                Fecha Verificación
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label>
+                                Autor Transacción
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="">
+                                Origen Transacción
+                            </label>
+                            <input disabled class="form-control" type="text" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <div class="row p-1">
+                    @if (politicas.Contains("SAPP_BO_CLI_DIR_MOD_PRI_DIR"))
+                    {
+                        <button id="btEDModificar" class="col col-lg-12 btn btn-outline-secondary m-1" style="display:none;">
+                            <i class="fas fa-edit icono-2x"></i><br />Modificar
+                        </button>
+                    }
+                    else
+                    {
+                        <button disabled class="col col-lg-12 btn btn-outline-secondary m-1" style="display:none;">
+                            <i class="fas fa-edit icono-2x"></i><br />Modificar
+                        </button>
+                    }
+                    @if (politicas.Contains("SAPP_BO_CLI_DIR_CRE_NUE_DIR"))
+                    {
+                        <button id="btEDIngresar" class="col col-lg-12 btn btn-outline-secondary m-1" style="display:none;">
+                            <i class="fas fa-print icono-2x"></i><br />Ingresar
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="col col-lg-12 btn btn-outline-secondary m-1" disabled style="display:none;">
+                            <i class="fas fa-print icono-2x"></i><br />Ingresar
+                        </button>
+                    }
+                    @if (politicas.Contains("SAPP_BO_CLI_DIR_EXP_DAT_EXC"))
+                    {
+                        <button class="col col-lg-12 btn btn-outline-secondary m-1">
+                            <i class="fas fa-table icono-2x"></i><br />Exportar
+                        </button>
+                    }
+                    else
+                    {
+                        <button disabled class="col col-lg-12 btn btn-outline-secondary m-1">
+                            <i class="fas fa-table icono-2x"></i><br />Exportar
+                        </button>
+                    }
+                    <button  class="col col-lg-12 btn btn-outline-secondary m-1" style="display:none;">
+                        <i class="fas fa-check-circle icono-2x"></i><br />Cuentas Asociadas
+                    </button>
+                    <button id="btEDCerrar" class="col col-lg-12 btn btn-outline-secondary m-1">
+                        <i class="fas fa-times icono-2x"></i><br />Cancelar
+                    </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function EDcomprimirDireccion() {
+        var direccion = '';
+        if($('#cbEDJACalle').val()!=null && $('#cbEDJACalle').val()!=''){
+            direccion=direccion+$('#cbEDJACalle').val();
+        }
+        if($('#txtEDJACalle').val()!=''){
+            direccion=direccion+$('#txtEDJACalle').val()+' ';
+        }
+        if($('#txtEDnro').val()!=''){
+            direccion=direccion+'N.'+$('#txtEDnro').val()+' ';
+        }   
+        if($('#txtEDmz').val()!=''){
+            direccion=direccion+'MZ.'+$('#txtEDmz').val()+' ';
+        } 
+        if($('#txtEDlote').val()!=''){
+            direccion=direccion+'LT.'+$('#txtEDlote').val()+' ';
+        }
+        if($('#cbEDDPI').val()!=null && $('#cbEDDPI').val()!=''){
+            direccion=direccion+$('#cbEDDPI').val();
+        }
+        if($('#txtEDDPI').val()!=''){
+            direccion=direccion+$('#txtEDDPI').val()+' ';
+        }
+        if($('#cbEDURIV').val()!=null && $('#cbEDURIV').val()!=''){
+            direccion=direccion+$('#cbEDURIV').val();
+        }
+        if($('#txtEDURIV').val()!=''){
+            direccion=direccion+$('#txtEDURIV').val()+' ';
+        }
+        if($('#cbEDEtZ').val()!=null && $('#cbEDEtZ').val()!=''){
+            direccion=direccion+$('#cbEDEtZ').val();
+        }
+        if($('#txtEDEtZ').val()!=''){
+            direccion=direccion+$('#txtEDEtZ').val()+' ';
+        }
+        return direccion;       
+    }
+    $("#cbEDTipoDir").change(function () {
+        if ($(this).val() == "M") {
+            $("#divEDBTDE").hide();
+            $("#divEDBTMD").hide();
+            $("#txtEDDireccion").val("");
+            $('#divEDCargaDireccion').hide();
+            $('#divEDConsultaDireccion').show();       
+        }
+        else {
+            $("#divEDBTDE").show();
+            $("#divEDBTMD").show();
+        }
+    });
+</script>

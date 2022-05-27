@@ -1,0 +1,225 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "ALS-Consulta Alafabética de Clientes: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>ALS-Consulta Alafabética de Clientes:</h4>
+    </header>
+    <div class="container mb-3">
+        <div class="row">
+            <div class="col-sm-9">
+                <div class="form-row">
+                    <label for="txtApRS" class="col-sm-4 col-form-label">
+                        Apellido Paterno o Razón Social:
+                    </label>
+                    <div class="col-sm-8">
+                        <input id="txtApRS" class="form-control" type="text" autofocus />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="txtAM" class="col-sm-4 col-form-label">
+                        Apellido Materno:
+                    </label>
+                    <div class="col-sm-8">
+                        <input id="txtAM" class="form-control" type="text" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="txtNom" class="col-sm-4 col-form-label">
+                        Nombres:
+                    </label>
+                    <div class="col-sm-8">
+                        <input id="txtNom" class="form-control" type="text" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Tipo de Búsqueda
+                    </legend>
+                    <div class="container">
+                        <div class="form-check form-check-inline">
+                            <input id="rbNormal" value="N" class="form-check-input" name="tBusqueda" type="radio" />
+                            <label for="rbNormal" class="form-check-label">
+                                Normal
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input id="rbEspecial" value="E" class="form-check-input" name="tBusqueda" type="radio" checked />
+                            <label for="rbEspecial" class="form-check-label">
+                                Especial
+                            </label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <div class="container mb-3">
+        <div class="form-row">
+            <div class="col-lg-11">
+                <div class="table-responsive bg-white" style="max-height:300px;">
+                    <table id="tbALSCA" class="table table-bordered table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Dirección</th>
+                                <th>Customer</th>
+                                <th>Fecha de Nacimiento</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-1">
+                <form id="ALSCA" name="fALSCA" method="post" action="@Url.Action("ProductoClienteALS")">
+                    <input type="hidden" name="customer" id="hCustomer" value="" />
+                    <center>
+                        @if (politicas.Contains("SAPP_BO_CON_ALS"))
+                        {
+                            <button type="button" id="btConsulta" class="my-1 w-100 btn btn-outline-secondary">
+                                <i class="fas fa-print icono-2x"></i><br />Consultar
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="my-1 w-100 btn btn-outline-secondary" disabled>
+                                <i class="fas fa-print icono-2x"></i><br />Consultar
+                            </button>
+                        }
+                        <button id="btAnterior" onclick="cambiarSeleccion(0,-1)" type="button" class="my-1 w-100 btn btn-outline-secondary" disabled>
+                            <i class="fas fa-arrow-up icono-2x"></i><br />Anterior
+                        </button>
+                        <button id="btSiguiente" onclick="cambiarSeleccion(0,1)" type="button" class="my-1 w-100 btn btn-outline-secondary" disabled>
+                            <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                        </button>
+                        <button type="submit" id="btProductos" class="my-1 w-100 btn btn-outline-secondary" disabled>
+                            <i class="fas fa-keyboard icono-2x"></i><br />Productos
+                        </button>
+                        <button type="button" onclick="location.href='@Url.Action("Index","Home")'" class="my-1 w-100 btn btn-outline-secondary">
+                            <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                        </button>
+                    </center>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#btConsulta").click(function () {
+        if ($("#txtApRS").val() != "") {
+            var parametros = {
+                datos: {
+                    paterno: $("#txtApRS").val(),
+                    materno: $("#txtAM").val(),
+                    nombres: $("#txtNom").val(),
+                    tipoConsulta: $('input[type="radio"][name="tBusqueda"]:checked').val()
+                }
+            };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ConsultaAlfabeticaALS", "Consulta")',
+                data: parametros,
+                beforeSend: AntesAjax(),
+                dataType: 'json',
+                success: function (l) {
+                    DespuesAjax();
+                    if (l == null) {
+                        alert("Error de conexion al microservicio");
+                    }
+                    else if (l.state == null) {
+                        alert('Error de procesamiento de la consulta');
+                    }
+                    else if (!l.success) {
+                        alert("Producto no encontrado");
+                    }
+                    else {
+                        $("#tbALSCA tbody").empty();
+                        $("#btSiguiente").prop('disabled', true);
+                        $("#btAnterior").prop('disabled', true);
+                        $("#btProductos").prop('disabled', true);
+                        $("#hCustomer").val("");
+                        for (var i = 0; i < l.data.total; i++) {
+                            var fia = '<tr id="' + (i + 1) + '">' +
+                                '<td>' + l.data.rows[i].nombre + '</td>' +
+                                '<td>' + l.data.rows[i].direccion + '</td>' +
+                                '<td id="tdC'+(i+1)+'">' + l.data.rows[i].customer + '</td>' +
+                                '<td>' + l.data.rows[i].fechaNacimiento + '</td>' +
+                                '</tr>';
+                            $("#tbALSCA tbody").append(fia);
+                        }
+                        if (l.data.total > 1) {
+                            $("#tbALSCA #1").addClass("bg-info");
+                            $("#hCustomer").val($("#tdC1").html());
+                            $("#btSiguiente").prop('disabled', false);
+                            $("#btProductos").prop('disabled', false);
+                        }
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                },
+            });
+        }
+        else {
+            alert("Debe ingresar nombre o razon social");
+        }
+    });
+    $('#tbALSCA').on('click', 'td', function () {
+        var id = $(this).parents('tr').attr('id');
+        cambiarSeleccion(id, 0);
+    });
+    $('#ALSCA').on('submit', function (e) {
+        if ($("#hCustomer").val()=="") {
+            e.preventDefault();
+            alert("No se selecciono productos");
+        }
+    });
+    function cambiarSeleccion(id,incremento) {
+        var nfila = ($("#tbALSCA tr").length) - 1;
+        if (nfila > 1) {
+            for (var i = 1; i <= nfila; i++) {
+                if ($("#tbALSCA #" + i + "").hasClass("bg-info")) {
+                    $("#tbALSCA #" + i + "").removeClass("bg-info");
+                    if (id == 0) {
+                        id = (i+(1 * incremento));
+                    }
+                    break;
+                }
+            }
+            $("#tbALSCA #" + id + "").addClass("bg-info");
+            $("#hCustomer").val($("#tdC" + id + "").html());
+            if (id == 1) {
+                $("#btAnterior").prop('disabled', true);
+            }
+            else if (id == nfila) {
+                $("#btSiguiente").prop('disabled', true);
+            }
+            else {
+                $("#btAnterior").prop('disabled', false);
+                $("#btSiguiente").prop('disabled', false);
+            }
+        }
+    }
+</script>

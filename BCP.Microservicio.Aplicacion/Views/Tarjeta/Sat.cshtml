@@ -1,0 +1,2015 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Framework.Common;
+@using BCP.Sap.Models.Sap;
+@using BCP.Sap.Models.Rebibir.Tarjeta;
+@using BCP.Sap.Models.Configuracion
+@using BCP.Sap.Models.Enviar.Tarjeta;
+@model ConsultaTarjeta;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Sap.Business;
+@inject ISapBusiness _business;
+@{
+    List<ConfiguracionSeguros> listaSeguros = new();
+    string FULLidc = " ";
+    string idc;
+    string tipoidc;
+    string extension;
+    string complemento;
+    string cuenta;
+    if (ViewBag.ListaSeguros != null)
+        listaSeguros = ViewBag.ListaSeguros;
+    string listaSegurosRaw = "";
+    string SegurosUrl = Url.Action("AfiliarSeguro", "Seguros");
+    if (Model.idcCompleto != null)
+    {
+        FULLidc = Model.idcCompleto;// Q12345678LP  No se evalua complemento
+        idc = FULLidc.Substring(1, 8);
+        tipoidc = FULLidc.Substring(0, 1);
+        extension = FULLidc.Substring(9, 2);
+        complemento = "00";
+        cuenta = Model.tarjeta;
+        listaSeguros.ForEach(data =>
+        {
+            listaSegurosRaw = listaSegurosRaw + "-" + data.Tipo.FirstOrDefault().Codigo;
+        });
+    }
+    else
+    {
+        FULLidc = "";// Q12345678LP  No se evalua complemento
+        idc = "";
+        tipoidc = "";
+        extension = "";
+        complemento = "00";
+        cuenta = Model.tarjeta;
+    }
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    string tipo = "";
+    if (TempData["usoPagina"] != null)
+    {
+        tipo = TempData["usoPagina"].ToString();
+    }
+    string guid = "T";
+    if (TempData["guid"] != null)
+    {
+        if (bool.Parse(TempData["guid"].ToString()))
+        {
+            guid = "N";
+        }
+    }
+    ViewData["Title"] = tipo + ": ";
+    var modelo = DataParametro.selectParametro(_business.obtenerParametro());
+    string indice = "";
+    string bcex = "";
+    string tipoCliente = "";
+    string cic = "";
+    string[,] tabla = new string[4, 5];
+    tabla[0, 0] = "AHS";
+    tabla[0, 1] = "MNA";
+    tabla[1, 0] = "AHS";
+    tabla[1, 1] = "USD";
+    tabla[2, 0] = "CCS";
+    tabla[2, 1] = "MNA";
+    tabla[3, 0] = "CCS";
+    tabla[3, 1] = "USD";
+    if (TempData["datos"] != null)
+    {
+        string[] datos = TempData["datos"].ToString().Split('-');
+        bcex = datos[0];
+        if (datos.Length > 1)
+        {
+            indice = datos[1];
+            if (datos.Length > 2)
+            {
+                tipoCliente = datos[2];
+                if (datos.Length > 3)
+                {
+                    cic = datos[3];
+                }
+            }
+        }
+    }
+    string[] parametrosPC = new string[] { string.Empty, string.Empty };
+    if ((tipo == "Sat" || tipo == "ConsultaTarjeta") && !politicas.Contains("SAPP_BO_TAR_MAN_PER_COM_T"))
+    {
+        parametrosPC[0] = "11";
+    }
+    if (Model != null)
+    {
+        parametrosPC[1] = Model.tarjeta;
+        tabla[1, 2] = Model.ahorro1;
+        tabla[1, 3] = Model.estadoCta1;
+        tabla[1, 4] = Model.flagCta1 ? "1" : "0";
+        tabla[0, 2] = Model.ahorro2;
+        tabla[0, 3] = Model.estadoCta2;
+        tabla[0, 4] = Model.flagCta2 ? "1" : "0";
+        tabla[3, 2] = Model.corriente1;
+        tabla[3, 3] = Model.estadoCta3;
+        tabla[3, 4] = Model.flagCta3 ? "1" : "0";
+        tabla[2, 2] = Model.corriente2;
+        tabla[2, 3] = Model.estadoCta4;
+        tabla[2, 4] = Model.flagCta4 ? "1" : "0";
+    }
+    string iconoTabla(int posicionIndice)
+    {
+        string nombre = "fa-searchengin";
+
+        if (tabla[posicionIndice, 2] != null && tabla[posicionIndice, 2] != "")
+        {
+            nombre = "fa-check";
+        }
+        return nombre;
+    }
+    string flagModificacion(int posicionIndice)
+    {
+        string flag = "";
+        if (tabla[posicionIndice, 2] != null && !tabla[posicionIndice, 2].Equals(""))
+        {
+            //if (tabla[posicionIndice, 3] != null && tabla[posicionIndice, 3].Equals(""))
+            //{
+            flag = "1";
+            //}
+        }
+        return flag;
+    }
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>@(tipo):</h4>
+    </header>
+    <div class="form-row">
+        <div class="col-lg-11 p-1">
+            <div class="container mb-2">
+                <div class="form-row mb-1">
+                    <label asp-for="tarjeta" class="col-sm-1 col-form-label">
+                        Tarjeta No:
+                    </label>
+                    <div class="col-sm-3">
+                        <!--<input readonly id="htarjeta" type="text" class="form-control" value="" style="z-index:-1;position:absolute;" />
+                        <input asp-for="tarjeta" class="form-control " style="z-index:0; position:relative;" />-->
+                        <input autofocus asp-for="tarjeta" class="form-control" placeholder="0000-0000-0000-0000" maxlength="19" />
+                    </div>
+                    <label asp-for="idc" class="col-sm-2 col-form-label">
+                        IDC del Cliente:
+                    </label>
+                    <div class="col-sm-2">
+                        <input type="hidden" value="" id="Ftxtidc" readonly />
+                        <input asp-for="idc" onkeyup="validarIDC(this)" class="form-control" readonly />
+                    </div>
+                    <div class="col-sm-1">
+                        <input asp-for="tipoIDC" class="form-control" readonly />
+                    </div>
+                    <label for="cbCliEx" class="col-sm-2 col-form-label">
+                        Cliente Exclusivo:
+                    </label>
+                    <div class="col-sm-1">
+                        <select id="cbCliEx" class="form-control" disabled>
+                            <option selected>Select</option>
+                            <option value="E">BEX</option>
+                            <option value="V">VIP</option>
+                            <option value="">NO</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label asp-for="nombreCompleto" class="col-sm-2 col-form-label">
+                        Nombres:
+                    </label>
+                    <div class="col-sm-10">
+                        @if (tipo == "ProcesoAperturaTN" || tipo == "ProcesoAfiliacionTN")
+                        {
+                            <input asp-for="nombreCompleto" class="form-control" readonly />
+                        }
+                        else
+                        {
+                            <input asp-for="nombreCompleto" class="form-control" />
+                        }
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label asp-for="nombreTarjeta" class="col-sm-2 col-form-label">
+                        Nombre Personalizado:
+                    </label>
+                    <div class="col-sm-10">
+                        <input asp-for="nombreTarjeta" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="container mb-1 border border-dark">
+                <ul class="nav nav-tabs" id="tabSat" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#S1" role="tab" aria-controls="home" aria-expanded="true">Datos de la Tarjeta</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#S2" role="tab" aria-controls="profile" aria-expanded="true">Servicios Relacionados</a>
+                    </li>
+                </ul>
+                <div class="tab-content pt-2" id="tabRBloqueoContent">
+                    <div class="tab-pane fade show active" id="S1" role="tabpanel" aria-labelledby="1-tab">
+                        <div class="container border border-dark p-1 mb-2">
+                            <div class="form-row">
+                                <label asp-for="direccion" class="col-sm-2 col-form-label">
+                                    Dirección:
+                                </label>
+                                <div class="col-sm-8">
+                                    <input asp-for="direccion" class="form-control" readonly />
+                                </div>
+                                <div class="col-sm-2">
+                                    @if (!(tipo == "ProcesoAperturaTN" || tipo == "ProcesoAfiliacionTN"))
+                                    {
+                                        @if (politicas.Contains("SAPP_BO_CLI_DIR_MOD_PRI_DIR"))
+                                        {
+
+                                            <button id="btModDirSat" type="button" onclick="cambiarDireccionSAT()" class="btn btn-light border">Modificar Dirección</button>
+                                        }
+                                        else
+                                        {
+                                            <button disabled type="button" class="btn btn-light border"> Modificar Dirección</button>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label asp-for="idcCompleto" class="col-sm-2 col-form-label">
+                                    Documento:
+                                </label>
+                                <div class="col-sm-4">
+                                    @if (politicas.Contains("SAPP_BO_TAR_PER_MOD_IDC"))
+                                    {
+                                        <input asp-for="idcCompleto" class="form-control" />
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="idcCompleto" class="form-control" readonly />
+                                    }
+                                </div>
+                                <label asp-for="fecNac" class="col-sm-2 col-form-label">
+                                    Fecha Nac./Constitución:
+                                </label>
+                                <div class="col-sm-4">
+                                    @if (tipo == "ProcesoAperturaTN" || tipo == "ProcesoAfiliacionTN" || tipo == "ProcesoApertura" || tipo == "ProcesoAfiliacion")
+                                    {
+                                        <input readonly asp-for="fecNac" class="form-control" />
+                                    }
+                                    else
+                                    {
+                                        <input asp-for="fecNac" class="form-control" placeholder="00/00/0000" maxlength="10" />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container border border-dark p-1 mb-2">
+                            <div class="form-row">
+                                <label asp-for="sucursal" class="col-sm-2 col-form-label">
+                                    Sucursal/Agencia:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input asp-for="sucursal" class="form-control" readonly />
+                                </div>
+                                <label id="lbpinBloqueo" asp-for="pinBloqueo" class="col-sm-2 col-form-label">
+                                    Pin Bloqueo:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input asp-for="pinBloqueo" class="form-control" readonly />
+                                </div>
+                                <label asp-for="fecApertura" class="col-sm-2 col-form-label">
+                                    Fecha de Apertura:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input asp-for="fecApertura" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label asp-for="ofBloqueo" class="col-sm-2 col-form-label">
+                                    Oficina de Bloqueo:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input asp-for="ofBloqueo" class="form-control" readonly />
+                                </div>
+                                <label asp-for="codigoBloqueo" class="col-sm-2 col-form-label">
+                                    Código de Bloqueo:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input asp-for="codigoBloqueo" class="form-control" type="text" readonly />
+                                </div>
+                                <label asp-for="fecBloqueo" class="col-sm-2 col-form-label">
+                                    Fecha de Bloqueo:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input asp-for="fecBloqueo" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container border border-dark p-1 mb-2">
+                            <div class="form-row">
+                                <label for="cbSituacion" class="col-sm-1 col-form-label">
+                                    Situación:
+                                </label>
+                                <div class="col-sm-4">
+                                    @if (tipo == "ProcesoAperturaTN" || tipo == "ProcesoAfiliacionTN" || tipo == "ProcesoApertura" || tipo == "ProcesoAfiliacion")
+                                    {
+                                        @Html.DropDownList("situacion", modelo[17], "Select", new { @id = "cbSituacion", @class = "form-control",@disabled="disabled" })
+                                    }
+                                    else
+                                    {
+                                        @Html.DropDownList("situacion", modelo[17], "Select", new { @id = "cbSituacion", @class = "form-control" })
+                                    }
+                                </div>
+                                <label asp-for="fechaExpiracion" class="col-sm-2 col-form-label">
+                                    Fch. de Expiración:
+                                </label>
+                                <div class="col-sm-5">
+                                    <input asp-for="fechaExpiracion" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="cbEstado" class="col-sm-1 col-form-label">
+                                    Estado:
+                                </label>
+                                <div class="col-sm-3">
+                                    @Html.DropDownList("estado", modelo[5], "Select", new { @id = "cbEstado", @class = "form-control", @disabled = "disabled" })
+                                </div>
+                                <label asp-for="fechaUso" class="col-sm-2 col-form-label">
+                                    Ult. Utilización:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input asp-for="fechaUso" class="form-control" readonly />
+                                </div>
+                                <label asp-for="fechaUltimaActualizacion" class="col-sm-2 col-form-label">
+                                    Ult Actualizacion:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input asp-for="fechaUltimaActualizacion" class="form-control" readonly />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label asp-for="descrpBloqueo" class="col-sm-3 col-form-label">
+                                    Observaciones del Bloqueo:
+                                </label>
+                                <div class="col-sm-9">
+                                    <input type="hidden" id="auxDescBloqueo" value="" />
+                                    <input asp-for="descrpBloqueo" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <div class="container border border-dark">
+                                    <div class="form-row">
+                                        <div class="col-sm-4">
+                                            <div class="form-check">
+                                                <input id="ckTA" class="form-check-input" type="checkbox" />
+                                                <label for="ckTA" class="form-check-label" id="lbckTA">
+                                                    Tarjeta Anterior
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <input asp-for="tarjetaAnterior" class="form-control" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6" style="display:none;">
+                                <div class="container border border-dark">
+                                    <div class="form-row">
+                                        <label class="col-sm-3 col-form-label" for="cbCTSP">
+                                            CTS con Pagaré
+                                        </label>
+                                        <div class="col-sm-3">
+                                            <select class="form-control" id="cbCTSP" name="indTipoTarjeta">
+                                                <option value="SI">SI</option>
+                                                <option value="NO" selected>NO</option>
+                                            </select>
+                                        </div>
+                                        <label for="txtUltOA" class="col-sm-3 col-form-label">
+                                            Ult. Oper. Activo:
+                                        </label>
+                                        <div class="col-sm-3">
+                                            <input class="form-control" id="txtUltOA" type="text" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container border border-dark p-1 mb-1">
+                            <div class="form-row">
+                                <label for="txtVEnv" class="col-sm-2 col-form-label">
+                                    Verbal de Envío:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input id="txtVEnv" class="form-control" type="text" readonly />
+                                </div>
+                                <label for="txtVEnvD" class="col-sm-1 col-form-label">
+                                    De:
+                                </label>
+                                <div class="col-sm-2">
+                                    <input id="txtVEnvD" class="form-control" type="text" placeholder="00/00/0000" maxlength="10" />
+                                </div>
+                                <label for="cbCobRep" id="lbcbCobRep" class="col-sm-2 col-form-label" style="display:none;">
+                                    Cobro Reposición:
+                                </label>
+                                <div class="col-sm-3">
+                                    @Html.DropDownList("flagCobro", modelo[3], "Select", new { @id = "cbCobRep", @class = "form-control" })
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="S2" role="tabpanel" aria-labelledby="2-tab">
+                        <div class="container mb-1">
+                            <div class="table-responsive bg-white">
+                                <table id="tbSat" class="table table-bordered table-striped">
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>&nbsp;</th>
+                                            <th>Producto</th>
+                                            <th>Moneda</th>
+                                            <th>Número</th>
+                                            <th>Situación</th>
+                                            <th>Nobre de la Cuenta</th>
+                                            <th>Relac</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < tabla.GetLength(0); i++)
+                                        {
+                                            <tr id="@(i+1)">
+                                                <td><i id="i@(i+1)" class="border fas @iconoTabla(i)"></i><input id="o@(i+1)" type="hidden" value="@flagModificacion(i)" /></td>
+                                                <td>@tabla[i, 0]</td>
+                                                <td>@tabla[i, 1]</td>
+                                                <td id="j@(i+1)">@tabla[i, 2]</td>
+                                                <td id="k@(i+1)">@tabla[i, 3]</td>
+                                                <td id="n@(i+1)"></td>
+                                                <td><input id="f@(i+1)" type="hidden" value="@tabla[i,4]" /></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="container mb-1">
+                            <div class="form-row">
+                                @if (tipo == "ProcesoAperturaTN" && listaSeguros.Count > 0)
+                                {
+                                    <div id="ContainerSeguros" style="display:none;" class="col-sm-12">
+                                        <div class="container border border-dark">
+                                            <div class="form-row">
+                                                @foreach (ConfiguracionSeguros Seguro in listaSeguros)
+                                                {
+                                                    <partial name="~/Views/Shared/Componentes/_BotonSeguros.cshtml" model="Seguro" />
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-sm-9">
+                                    <div id="divCustodia" class="container mb-1" style="display:none;">
+                                        <fieldset class="border border-dark">
+                                            <legend class="w-auto" style="font-size:14px;">
+                                                Custodia
+                                            </legend>
+                                            <div class="container">
+                                                <div class="form-row">
+                                                    <label for="txtCod" class="col-sm-1 col-form-label">
+                                                        Código:
+                                                    </label>
+                                                    <div class="col-sm-3">
+                                                        <input id="txtCod" class="form-control" type="text" readonly />
+                                                    </div>
+                                                    <label for="txtSit" class="col-sm-1 col-form-label">
+                                                        Situación:
+                                                    </label>
+                                                    <div class="col-sm-4">
+                                                        <input id="txtSit" class="form-control" type="text" readonly />
+                                                    </div>
+                                                    <div class="col-sm-3 form-check">
+                                                        <div class="form-check">
+                                                            <input id="ckRel" class="form-check-input" type="checkbox" disabled />
+                                                            <label for="ckRel" class="form-check-label">
+                                                                Ya Relacionada?
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="container mt-1">
+                                        <footer>
+                                            <center>
+                                                <div class="row">
+                                                    @if (politicas.Contains("SAPP_BO_TAR_AFI_DES_PRO"))
+                                                    {
+                                                        <div class="col-auto" id="divbtAfiliar" style="display:none;">
+                                                            <button id="btAfiliar" onclick="NAfiliar(true);" type="button" class="btn btn-light ">Afiliar</button>
+                                                        </div>
+                                                        <div class="col-auto" id="divbtDesafiliar" style="display:none;">
+                                                            <button id="btDesafiliar" onclick="NAfiliar(false);" type="button" class="btn btn-light ">Desafiliar</button>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="col-auto" id="divbtAfiliar" style="display:none;">
+                                                            <button disabled id="btAfiliar" type="button" class="btn btn-light ">Afiliar</button>
+                                                        </div>
+                                                        <div class="col-auto" id="divbtDesafiliar" style="display:none;">
+                                                            <button disabled id="btDesafiliar" type="button" class="btn btn-light ">Desafiliar</button>
+                                                        </div>
+                                                    }
+                                                    @if (politicas.Contains("SAPP_BO_PRO_CON_INF_CTA"))
+                                                    {
+                                                        <div class="col-auto">
+                                                            <button type="button" class="btn btn-light" onclick='movi()'>Inform./Cuenta</button>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <button type="button" class="btn btn-light " onclick='tarjAsoc()'>Inform./Tarjeta</button>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="col-auto">
+                                                            <button type="button" class="btn btn-light" disabled>Inform./Cuenta</button>
+                                                        </div>
+                                                        <div class="col-auto">
+                                                            <button type="button" class="btn btn-light " disabled>Inform./Tarjeta</button>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </center>
+                                        </footer>
+                                    </div>
+                                </div>
+                                <div id="divCuentasConfirmadas" class="col-sm-3" style="display:none;">
+                                    <div class="form-check">
+                                        @if (tipo == "ProcesoAperturaTN" && listaSeguros.Count > 0)
+                                        {
+                                            <input id="ckCC" class="form-check-input" type="checkbox" onchange="showSegurosSAT()" />
+                                        }
+                                        else
+                                        {
+                                            <input id="ckCC" class="form-check-input" type="checkbox" />
+                                        }
+                                        <label for="ckCC" class="form-check-label">
+                                            Cuentas Confirmadas?
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" value="0" id="hAfDf" />
+                <input type="hidden" value="N" id="hsProceso" />
+                <input type="hidden" value="N" id="hSiguientePaso" />
+            </div>
+            @if (indice != "")
+            {
+                <div class="d-inline p-1">
+                    <form id="Sat" name="Paso6" method="post" action='@Url.Action("RegistroSat")'>
+                        <input type="hidden" id="hSituacion" name="strSituacion" value="" />
+                        <input type="hidden" id="hITarjeta" name="iTarjeta" value="@indice" />
+                        <footer>
+                            <div class="form-row justify-content-center align-items-center">
+                                <div class="col-auto m-1">
+                                    <button type="button" id="btAntSat" class="btn btn-light " onclick="limpiar()">&lt;&lt;Anterior&lt;&lt;</button>
+                                </div>
+                                <div class="col-auto m-1">
+                                    <button type="button" class="btn border btn-light" onclick="cancelarProceso('@Url.Action("Index","Home")');">Cancelar</button>
+                                </div>
+                                <div class="col-auto m-1">
+                                    <input class="btn btn-light" type="submit" value=">>Siguiente>>" />
+                                </div>
+                            </div>
+                        </footer>
+                    </form>
+                </div>
+            }
+        </div>
+        <div class="col-sm-1">
+            <center>
+                @if (indice == "" && politicas.Contains("SAPP_BO_REP_IMP_CON"))
+                {
+                    <form id="imprimirContratoSat" name="imprimirContratoSat" method="post" action='@Url.Action("RegistrarContrato","Tarjeta")'>
+                        <input id="btSatNAO" type="hidden" name="original" value="false" />
+                        <input id="btSatNAC" type="hidden" name="copia" value="false" />
+                    </form>
+                    @if (tipo.ToUpper().Equals("SAT"))
+                    {
+                        <button disabled id="btContrato" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                            <i class="fas fa-print icono-2x"></i><br />Contrato
+                        </button>
+                    }
+                    else
+                    {
+                        <button id="btContrato" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                            <i class="fas fa-print icono-2x"></i><br />Contrato
+                        </button>
+                    }
+                }
+                else
+                {
+                    <button disabled type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-print icono-2x"></i><br />Contrato
+                    </button>
+                }
+                @if (politicas.Contains("SAPP_BO_TAR_CON_ALF"))
+                {
+                    <button id="btConsultaTarjeta" type="button" onclick="consultaTarjetaSAT()" class="my-1 w-100 btn btn-outline-secondary mw-100" style="display:none;">
+                        <i class="fas fa-search icono-2x"></i><br />Consultar
+                    </button>
+                }
+                else
+                {
+                    <button disabled id="btConsultaTarjeta" type="button" class="my-1 w-100 btn btn-outline-secondary mw-100" style="display:none;">
+                        <i class="fas fa-search icono-2x"></i><br />Consultar
+                    </button>
+                }
+                @if (politicas.Contains("SAPP_BO_TAR_MOD"))
+                {
+                    <button id="btModificar" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-edit icono-2x"></i><br />Modificar
+                    </button>
+                }
+                else
+                {
+                    <button disabled id="btModificar" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-edit icono-2x"></i><br />Modificar
+                    </button>
+                }
+                @if (politicas.Contains("SAPP_BO_TAR_BLO"))
+                {
+
+                    <button type="button" id="btBloqueo" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-lock icono-2x"></i><br />Bloqueo
+                    </button>
+                }
+                else
+                {
+                    <button disabled type="button" id="btBloqueo" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-lock icono-2x"></i><br />Bloqueo
+                    </button>
+                }
+                @if (politicas.Contains("SAPP_BO_TAR_CAM_TAR"))
+                {
+                    <button id="btCambio" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-recycle icono-2x"></i><br />Cambio
+                    </button>
+                }
+                else
+                {
+                    <button disabled id="btCambio" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-recycle icono-2x"></i><br />Cambio
+                    </button>
+                }
+                @if (politicas.Contains("SAPP_BO_TAR_ENT_ELI"))
+                {
+                    <button id="btEntregar" onclick="EETarjeta('1')" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-keyboard icono-2x"></i><br />Entregar
+                    </button>
+                }
+                else
+                {
+                    <button disabled id="btEntregar" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-keyboard icono-2x"></i><br />Entregar
+                    </button>
+                }
+                @if (politicas.Contains("SAPP_BO_TAR_MAN_BAN_EXC"))
+                {
+                    <button id="btBEc" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-smile icono-2x"></i><br />Banca Exlusiva
+                    </button>
+                }
+                else
+                {
+                    <button id="btBEc" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-smile icono-2x"></i><br />Banca Exlusiva
+                    </button>
+                }
+                @if (politicas.Contains("SAPP_BO_TAR_ENT_ELI"))
+                {
+                    <button id="btEliminarEntrega" onclick="pantallaEntrega('2')" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-times-circle icono-2x"></i><br />Eliminar Entrega
+                    </button>
+                }
+                else
+                {
+                    <button disabled id="btEliminarEntrega" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-times-circle icono-2x"></i><br />Eliminar Entrega
+                    </button>
+                }
+                <button id="btCerrarSAT" type="button" onclick="location.href='@Url.Action("Index", "Home")'" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                    <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                </button>
+                @if (politicas.Contains("SAPP_BO_TAR_APE"))
+                {
+                    <button id="btApertura" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-edit icono-2x"></i><br />Apertura
+                    </button>
+                }
+                else
+                {
+                    <button disabled id="btApertura" type="button" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                        <i class="fas fa-edit icono-2x"></i><br />Apertura
+                    </button>
+                }
+            </center>
+        </div>
+    </div>
+    @if (politicas.Contains("SAPP_BO_REP_IMP_CON"))
+    {
+        <div class="modal fade" id="ICOCModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalIC" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalIC">Imprimir Contrato</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            await Html.RenderPartialAsync("../Home/PrnQry");
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (politicas.Contains("SAPP_BO_PRO_CON_INF_CTA"))
+    {
+        <div class="modal fade" id="MModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalM" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalM">Información de Cuenta</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            await Html.RenderPartialAsync("../Home/Movi");
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="ITModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalIT" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalIT">Tarjetas Relacionadas</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            await Html.RenderPartialAsync("../Tarjeta/Prod");
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (tipo == "ProcesoApertura" || tipo == "ProcesoAperturaTN" || tipo == "ProcesoAfiliacion" || tipo == "ProcesoAfiliacionTN")
+    {
+        <div class="modal fade" id="PCModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalPC" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalPC">Productos por Cliente</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            if (tipo == "ProcesoApertura" || tipo == "ProcesoAperturaTN")
+                            {
+                                await Html.RenderPartialAsync("../Home/PegarCuentas", model: indice);
+                            }
+                            else
+                            {
+                                TempData["modal"] = "";
+                                await Html.RenderPartialAsync("../Home/ProdClie");
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (tipo == "Sat" || tipo == "ConsultaTarjeta")
+    {
+        <div class="modal fade" id="BEModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalM" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalM">Banca Exclusiva</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            await Html.RenderPartialAsync("../Home/BcaExc");
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (politicas.Contains("SAPP_BO_TAR_BLO") && !politicas.Contains("SAPP_BO_TAR_MAN_PER_COM_T"))
+        {
+            <div class="modal fade" id="PinCModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalPinC" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="Modal-title" id="modalPinC">Bloqueo de Tarjeta</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @{
+                                await Html.RenderPartialAsync("../Tarjeta/PinCosto", parametrosPC);
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    @if (tipo == "ProcesoEntrega de Tarjeta")
+    {
+        @if (politicas.Contains("SAPP_BO_TAR_ENT_ELI"))
+        {
+            <div class="modal fade" id="PermisoModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalPermiso" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="Modal-title" id="modalPermiso">Credenciales</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @{
+                                TempData["tipo"] = "";
+                                await Html.RenderPartialAsync("../Home/Permiso");
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    @if (!(tipo == "ProcesoAperturaTN" || tipo == "ProcesoAfiliacionTN") && politicas.Contains("SAPP_BO_CLI_DIR_MOD_PRI_DIR"))
+    {
+        <div class="modal fade" id="DACModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalPermiso" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="Modal-title" id="modalDAC">Cambiar Direccion</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @{
+                            TempData["VistaModal"] = "SI";
+                            await Html.RenderPartialAsync("../DAC/DatAdiCli", modelo);
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (tipo == "ConsultaTarjeta" || tipo == "Sat")
+    {
+        @if (politicas.Contains("SAPP_BO_TAR_COT_BLO_REG_BLO"))
+        {
+            <div class="modal fade" id="RegistroBloqueoModal" data-backdrop="static" tabindex="1" role="dialog" aria-labelledby="modalRegistroBloqueo" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="Modal-title" id="modalRegistroBloqueo">Registro de tarjetas bloqueada</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @{
+                                await Html.RenderPartialAsync("../Tarjeta/Bloqueo", model: new BloqueoDBData());
+                            }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }    
+</div>
+<script type="text/javascript">
+    function pantallaEntrega(tipo) {
+        if (tipo == '1') {
+            $("#PermisoModal").modal();
+        }
+        else {
+            EETarjeta(tipo);
+        }
+    }
+    function EETarjeta(tipo) {
+        if(tipo!='3'){
+            $("#txtEEUsuario").val("");
+            $("#txtEEContrasena").val("");
+        }
+        var y = idc();
+        var z = cuentas(false);
+        var parametros = {
+            datos: {
+                tipoEntrega: tipo,
+                tarjeta: $("#tarjeta").val(),
+                usuarioAutorizador: $("#txtEEUsuario").val(),
+                usuarioPassword: $("#txtEEContrasena").val(),
+                direccion: $("#direccion").val(),
+                tipoIDC: y[2],
+                idc: y[0] + y[1],
+                nombreCompleto: $("#nombreCompleto").val(),
+                fecNac: $("#fecNac").val(),
+                bcex: $("#cbCliEx").val(),
+                cuenta_ch_mn: z[0],
+                cuenta_ch_me: z[1],
+                cuenta_cc_mn: z[2],
+                cuenta_cc_me: z[3]
+            }
+        };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("EntregaTarjeta")',
+            dataType: 'json',
+            data: parametros,
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.message == null) {
+                    alert("Error de comunicacion con el microservicio");
+                }
+                else {
+                    alert(l.message);
+                    if (l.success) {
+                        if(!(l.message.indexOf("CON VB.DE FUN")===-1)){
+                            var confirmar = confirm("¿DESEA ENTREGARLA CON VB.DE FUNCIONARIO?");
+                            if (confirmar == true) {
+                                pantallaEntrega('1');
+                            }
+                        }
+                        else{
+                            $("#hSiguientePaso").val('S');
+                            $("#btAntSat").prop('disabled',true);
+                            if(tipo=='2'){
+                                document.getElementById('cbSituacion').value="01";
+                            }
+                            else{
+                                document.getElementById('cbSituacion').value="00";
+                            }
+                        }
+                    }
+                    else if(!(l.message.indexOf("CON VB.DE FUN")===-1)){
+                        var confirmar = confirm("¿DESEA ENTREGARLA CON VB.DE FUNCIONARIO?");
+                        if (confirmar == true) {
+                            pantallaEntrega('1');
+                        }
+                    }
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () {
+                DespuesAjax();
+                $("#PermisoModal").modal("hide");
+            }
+        });
+    }
+    $("#btApertura").click(function () {
+
+        if ($('#idcCompleto').val() != $("#tipoIDC").val()+$("#idc").val() ) {
+            alert("LOS DATOS DE IDC NO SON LOS MISMOS QUE DEL CLIENTE");
+        }
+        else if ($("#nombreTarjeta").val() == null || $("#nombreTarjeta").val() == "") {
+            alert("EL CAMPO NOMBRE NO DEBE QUEDAR VACIO");
+        }
+        else{
+            if($("#i1").hasClass("fa-searchengin") && $("#i2").hasClass("fa-searchengin") && $("#i3").hasClass("fa-searchengin") && $("#i4").hasClass("fa-searchengin")){
+                //$("#ckCC").prop('checked', true);
+                alert("La Tarjeta no puede ser abierta sin tener ninguna Cuenta Relacionada");
+            }
+            operacionTarjeta(false);//Quitar el timeout para produccion unicamente para ver parametros
+        }
+    });
+    $("#btBEc").click(function () {
+        $("#txtBCNT").val($("#tarjeta").val());
+        $("#txtBENombre").val($("#nombreCompleto").val());
+        $("#ckBECO").hide();
+        $("#BEModal").modal();
+    });
+    $("#btBexcCerrar").click(function () {
+        ("#BEModal").modal("hide");
+    });
+    $("#btPegCuentaCerrar").click(function () {
+        $("#PCModal").modal("hide");
+    });
+    $("#btPrnQryCerrar").click(function () {
+        $("#ICOCModal").modal("hide");
+    });
+    $("#btPrnQryAceptar").click(function () {
+        $("#btSatNAO").val($("#ckOriginal").prop('checked'));
+        $("#btSatNAC").val($("#ckCopia").prop('checked'));
+        $("#ICOCModal").modal("hide");
+        document.imprimirContratoSat.submit();
+    });
+    $("#btModificar").click(function () {
+        var siguiente = true;
+        if ($("#idcCompleto").prop("readonly") && $('#idcCompleto').val() != $("#tipoIDC").val()+$("#idc").val() ) {
+            siguiente = false;
+            alert("LOS DATOS DE IDC NO SON LOS MISMOS QUE DEL CLIENTE");
+        }
+        else if ($("#nombreCompleto").val() == null || $("#nombreCompleto").val() == "" ) {
+            siguiente = false;
+            alert("EL CAMPO NOMBRE NO DEBE QUEDAR VACIO");
+        }
+        else if ($("#nombreTarjeta").val() == null || $("#nombreTarjeta").val() == "" ) {
+            siguiente = false;
+            alert("EL CAMPO NOMBRE NO DEBE QUEDAR VACIO");
+        }
+        if (siguiente) {
+            operacionTarjeta(true);
+        }
+    });
+    function NAfiliar(afiliar) {
+        var id = $("#hAfDf").val();
+        if (afiliar) {
+            if ($("#hsProceso").val() == "N") {
+                $("#PCModal").modal();
+            }
+            else {
+                alert("SI HA DESAFILIADO ALGUNA CUENTA, PRIMERO DEBE MODIFICAR");
+            }
+        }
+        else if ($("#i" + id + "").hasClass("fa-check")) {
+            if ($("#n" + id + "").html()=="" && $("#k" + id + "").html()==""){
+                $("#j" + id + "").html("");
+                AFDF("fa-check", "fa-searchengin")
+            }
+            else{
+                $("#hsProceso").val("S");
+                AFDF("fa-check", "fa-times");
+            }
+        }
+        else {
+            alert("FILA NO DISPONIBLE PARA DESAFILIAR");
+        }
+    }
+    function AFDF(actual,nuevo) {
+        var id = $("#hAfDf").val();
+        if (id != "0") {
+            $("#i" + id + "").removeClass(actual);
+            $("#i" + id + "").addClass(nuevo);
+            if (nuevo == 'fa-check') {
+                $("#o" + id + "").val("1");
+            }
+            else if ($("#f" + id + "").val() == "1") {
+                $("#o" + id + "").val("0");
+            }
+            else {
+                $("#o" + id + "").val("");
+            }
+        }
+    }
+    function tarjAsoc() {
+        $("#tbTProd tbody").empty();
+        var nfila = ($("#tbSat tr").length) - 1;
+        var indice = 0;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbSat #" + i + "").hasClass("bg-info")) {
+                if ($("#i" + i + "").hasClass("fa-check")){
+                    indice = i;
+                }
+                break;
+            }
+        }
+        if (indice > 0) {
+            var z = {};
+            $("#tbSat #" + indice + "").find("td").each(function (index) {
+                z[index] = ($(this).html());
+            });
+            $("#cbtCuenta").val(z[1]);
+            if (z[2] == 'USD') {
+                $("#rdUSD").prop("checked", true);
+            }
+            else {
+                $("#rdMNA").prop("checked", true);
+            }
+            $("#txtnCuenta").val(z[3]);
+            tarjetasRelacionadas();
+        }
+        else {
+            //alert("No se selcciono ninguna fila");
+        }
+        document.getElementById('btTarRelCerrar').setAttribute('onclick', '$("#ITModal").modal("hide");');
+        $("#ITModal").modal();
+    }
+    function cargarBotones() {
+        $("#cbCobRep").hide();
+        var tipo = '@tipo';
+        if (tipo == 'ProcesoApertura'||tipo=='ProcesoAfiliacion') {
+            $("#btModificar").show();
+            $("#btConsultaTarjeta").show();
+            $("#divbtAfiliar").show();
+            $("#divbtDesafiliar").show();
+            if (tipo == 'ProcesoApertura') {
+                $("h4").html(tipo +" Paso7:");
+            }
+        }
+        if (tipo == 'ProcesoAperturaTN' || tipo =='ProcesoAfiliacionTN') {
+            $("#btConsultaTarjeta").show();
+            $("#btApertura").show();
+            $("#divbtAfiliar").show();
+            $("#divbtDesafiliar").show();
+            $("#divCustodia").show();
+        }
+        if (tipo == 'ConsultaTarjeta') {
+            $("#btModificar").show();
+            $("#btConsultaTarjeta").show();
+            $("#btContrato").show();
+            $("#btBloqueo").show();
+            $("#btBEc").show();
+            $("#btCerrarSAT").show();
+            $("#PCFlujo").hide();
+        }
+        if (tipo == 'Sat') {
+            $("#btModificar").show();
+            $("#btConsultaTarjeta").show();
+            $("#btContrato").show();
+            $("#btBloqueo").show();
+            $("#btBEc").show();
+            $("#btCerrarSAT").show();
+            $("#divCustodia").show();
+            $("#PCFlujo").hide();
+        }
+        else {
+            $("#cbCTSP").val('@Model.indTipoTarjeta');
+        }
+        if (tipo == 'ProcesoEntrega de Tarjeta') {
+            $("#btConsultaTarjeta").show();
+            $("#btEntregar").show();
+            $("#btEliminarEntrega").show();
+            $("#cbCobRep").show();
+            $("#lbcbCobRep").show();
+        }
+        if (tipo == 'ProcesoCambio de Tarjeta') {
+            $("#hSiguientePaso").val('S');
+            $("#btConsultaTarjeta").show();
+        }
+        definirJerarquias();
+    }
+    function definirJerarquias() {
+        if ($("#tarjetaAnterior").val() == null || $("#tarjetaAnterior").val() == "") {
+            $("#ckTA").prop("checked", false).change();
+        }
+        else {
+            $("#lbckTA").html("Tarjeta Anterior");
+            var situacion = $("#cbSituacion").val();
+            if (situacion == "06" || situacion == "03" || situacion == "11" || situacion == "12" || situacion == "09") {
+                $("#lbckTA").html("Tarjeta Nueva");
+
+            }
+            else {
+                $("#lbckTA").html("Tarjeta Anterior");
+            }
+        }
+        if($("#pinBloqueo").val()==""){
+            $("#lbpinBloqueo").html("");
+            $("#pinBloqueo").hide();
+        }
+        else{
+            $("#lbpinBloqueo").html("Pin Bloqueo:");
+            $("#pinBloqueo").show();
+        }
+        if($("#direccion").val()!=''){
+            $("#btModDirSat").prop("disabled",false);
+        }
+        else{
+             $("#btModDirSat").prop("disabled",true);
+        }
+    }
+    $('#tbSat').on('click', 'td', function () {
+        var id = $(this).parents('tr').attr('id');
+        var nfila = ($("#tbSat tr").length) - 1;
+        if (nfila > 1) {
+            for (var i = 1; i <= nfila; i++) {
+                if ($("#tbSat #" + i + "").hasClass("bg-info")) {
+                    $("#tbSat #" + i + "").removeClass("bg-info");
+                    break;
+                }
+            }
+            $("#tbSat #" + id + "").addClass("bg-info");
+            $("#hAfDf").val(""+id+"");
+        }
+    });
+    /*function enmascarar() {
+        var ofuscados = $("#tarjeta").val();
+        var x = "";
+        for (var i = 0; i < ofuscados.length; i++) {
+            if (ofuscados[i] == '-') {
+                x = x + "-";
+            }
+            else {
+                x = x + "#";
+            }
+        }
+        //$("#htarjeta").val(x);
+    }*/
+    $("#tarjeta").keypress(function(e){
+        if(e.which==99 || e.which==67)
+        {
+            consultaTarjetaSAT();
+        }
+    });
+    $("#tarjeta").keyup(function(e){
+        var key=e.keyCode;
+        $(this).val(formatoInputTarjeta($(this).val(),key));
+    });
+    $(document).ready(function () {
+        //enmascarar();
+        cargarBotones();
+        if ($("#tarjetaAnterior").val() == null || $("#tarjetaAnterior").val() == "") {
+            $("#ckTA").prop("checked", false).change()
+        }
+        var ex = '@bcex';
+        $("#cbCliEx").val(ex);
+        if ($("#tarjetaAnterior").val() != "") {
+            $("#ckTA").prop('checked', true).change();
+        }
+        //prepararGuid();
+    });
+    $("#cbSituacion").change(function () {
+        switch (this.value) {
+            case '12':
+                if($("#auxDescBloqueo").val()==""){
+                    $("#auxDescBloqueo").val($("#descrpBloqueo").val());
+                }
+                $("#descrpBloqueo").prop('readonly', true);
+                $("#descrpBloqueo").val("POR VENCIMIENTO");
+                break;
+            case '03':
+            case '04':
+            case '05':
+            case '06':
+            case '09':
+            case '11':
+                if($("#auxDescBloqueo").val()==""){
+                    $("#auxDescBloqueo").val($("#descrpBloqueo").val());
+                }
+                if($("#auxDescBloqueo").val()!="POR VENCIMIENTO"){
+                    $("#descrpBloqueo").prop('readonly', false);
+                    $("#descrpBloqueo").val("");
+                }
+                break;
+            default:
+                if($("#auxDescBloqueo").val()!=""){
+                    $("#descrpBloqueo").val($("#auxDescBloqueo").val());
+                    $("#auxDescBloqueo").val("");
+                }
+                $("#descrpBloqueo").prop('readonly', true);
+                break;
+        }
+    });
+    function prepararGuid() {
+        var guid = "@guid";
+        if (guid != "T") {
+            if ('@tipo' == 'Sat')
+            {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GUID")',
+                    dataType: 'json',
+                    data: { tipo: guid },
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        if (l.state != null) {
+                            if (l.success) {
+                                if (l.success) {
+                                    $("#idc").val(l.data.idcNumero + l.data.idcTipo);
+                                    $("#tipoIDC").val(l.data.idcExtension);
+                                }
+                            }
+                        }
+                        DespuesAjax();
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    }
+                });
+            }
+        }
+    }
+    function cambiaricono(estado, i) {
+       $("#i" + i + "").removeClass("fa-times");
+       $("#i" + i + "").removeClass("fa-check");
+       $("#i" + i + "").removeClass("fa-searchengin");
+       $("#tbSat #" + i + "").removeClass("bg-info");
+       if (estado == null ||estado=="") {
+           $("#i" + i + "").addClass("fa-searchengin");
+           if ($("#f" + i + "").val("0")) {
+               $("#o" + i + "").val("");
+           }
+           else {
+               $("#o" + i + "").val("0");
+           }
+        }
+        else {
+            $("#i" + i + "").addClass("fa-check");
+            $("#o" + i + "").val("1");
+        }
+    }
+    $("#htarjeta").focus(function () {
+        $("#tarjeta").focus();
+    });
+    $("#tarjeta").keyup(function () {
+        //setTimeout(formatoCamposTexto("tarjeta","-"), 50);
+    });
+    $("#tarjeta").keydown(function (e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode === 123) {
+            e.preventDefault();
+            $.ajax({
+                type: 'GET',
+                data: {id:1},
+                url: 'http://localhost:9991/Values/GetTarjeta',
+                cache: false,
+                dataType: 'text',
+                beforeSend: function () {
+                    $("#lbCargandoElementoModal").html("El Cliente debe pasar su Tarjeta...");
+                    AntesAjax();
+                },
+                success: function (l) {
+                    if (l == null || l == "") {
+                        alert("NO SE PUDO COMUNICAR CON EL PIN PAD");
+                    }
+                    else {
+                        var resultado = l.replace(/"/g, "").split(',');
+                        if (resultado[1] == null || resultado[1] == "") {
+                            alert("NO SE PUDO COMUNICAR CON EL PIN PAD");
+                        }
+                        else if (resultado[0] == "00") {
+                             if(resultado[1].length==16){
+                                $("#tarjeta").val(resultado[1].substr(0, 4)+"-"+resultado[1].substr(4, 4)+"-"+resultado[1].substr(8, 4)+"-"+resultado[1].substr(12, 4));
+                            }
+                            else{
+                                $("#tarjeta").val(resultado[1]);
+                            }
+                        }
+                        else {
+                            alert(resultado[1]);
+                        }
+                    }
+                },
+                error: function(ex, textStatus, errorThrown){
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                },
+
+                complete: function () {
+                    DespuesAjax();
+                    $("#lbCargandoElementoModal").html("Cargando...");
+                }
+            });
+        }
+    });
+    $("#txtVEnvD").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+    $("#fecNac").keypress(function () {
+        $(this).val(formatoInputFecha($(this).val()));
+    });
+    function consultaTarjetaSAT () {
+        var nt = $('#tarjeta').val();
+        var tipo = '@tipo';
+        var indice=0;
+        if('@indice'!=''){
+            indice=parseInt('@indice');
+        }
+        if (nt != '') {
+            var ntj=nt.replace(/-/g, '');
+            if(ntj.length==16){
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ConsultaTarjeta")',
+                    dataType: 'json',
+                    data: { tarjeta: nt, bancaExclusiva: $("#cbCliEx").val(),indice:indice },
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+                        if (l.state == null) {
+                            alert("error de conexion al microservicio");
+                        }
+                        else if (!l.success) {
+                            alert('Datos de tarjeta no encontrada');
+                        }
+                        else {
+                            $("#n2").html("");
+                            $("#n1").html("");
+                            $("#n4").html("");
+                            $("#n3").html("");
+                            $("#divCustodia").hide();
+                            var recorrido;
+                            for (var j in l.data) {
+                                recorrido = document.getElementsByName(j);
+                                if (recorrido.length > 0) {
+                                    switch (recorrido[0].type) {
+                                        case "checkbox":
+                                            if (l.data[j] == "S") {
+                                                //$("input[name=" + j + "]").val("true");
+                                                $("input[name=" + j + "]").prop("checked", true).change();
+                                                //$("input[name=" + j + "]").prop("disabled", true);
+                                            }
+                                            else {
+                                                $("input[name=" + j + "]").val("false");
+                                            }
+                                            break;
+                                        case "text":
+                                            $("input[name=" + j + "]").val(l.data[j]);
+                                            break;
+                                        case "select-one":
+                                            $("select[name=" + j + "]").val(l.data[j]);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                            }
+                            definirJerarquias();
+                            $("#j2").html(l.data.ahorro1);
+                            $("#j1").html(l.data.ahorro2);
+                            $("#j4").html(l.data.corriente1);
+                            $("#j3").html(l.data.corriente2);
+                            $("#k2").html(l.data.estadoCta1);
+                            $("#k1").html(l.data.estadoCta2);
+                            $("#k4").html(l.data.estadoCta3);
+                            $("#k3").html(l.data.estadoCta4);
+                            var f2 = l.data.flagCta1;
+                            var f1 = l.data.flagCta2;
+                            var f4 = l.data.flagCta3;
+                            var f3 = l.data.flagCta4;
+                            if (f2) {
+                                $("#f2").val("1");
+                            }
+                            else {
+                                $("#f2").val("0");
+                            }
+                            if (f1) {
+                                $("#f1").val("1");
+                            }
+                            else {
+                                $("#f1").val("0");
+                            }
+                            if (f4) {
+                                $("#f4").val("1");
+                            }
+                            else {
+                                $("#f4").val("0");
+                            }
+                            if (f3) {
+                                $("#f3").val("1");
+                            }
+                            else {
+                                $("#f3").val("0");
+                            }
+                            cambiaricono(l.data.ahorro1, 2);
+                            cambiaricono(l.data.ahorro2, 1);
+                            cambiaricono(l.data.corriente1, 4);
+                            cambiaricono(l.data.corriente2, 3);
+                            if ($("#tarjetaAnterior").val() != "") {
+                                $("#ckTA").prop('checked', true).change();
+                            }
+                            if (tipo == 'ProcesoAfiliacion' || tipo == 'ProcesoAfiliacionTN') {
+                                prepararProdClie();
+                            }
+                            if (tipo == 'Sat' || tipo == 'ConsultaTarjeta') {
+                                $("#btContrato").prop('disabled', false);
+                                $("#hPinCostoTarjeta").val(l.data.tarjeta);
+                            }
+                            if (tipo == "ProcesoAperturaTN" || tipo == "ProcesoAfiliacionTN") {
+                                $("#nombreCompleto").prop('readonly',false);
+                                $("#btModificar").show();
+                                $("#btApertura").hide();
+                            }
+                        }
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    },
+                    complete: function () {
+                        DespuesAjax();
+                    }
+                });
+            }
+            else{
+                alert('Formato de tarjeta invalido');
+            }
+        }
+        else {
+            alert('Debe llenar los campos requeridos');
+        }
+    }
+    function limpiar() {
+        var ind = '@indice';
+        if (ind != '') {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("LimpiarSat")',
+                dataType: 'text',
+                data: {indice:ind},
+                success: function (a) {
+                    if (a == 'ok') {
+                        window.history.back();
+                    }
+                    else {
+                        alert('No se pudo retroceder');
+                    }
+                },
+                error: function (ex) {
+                    alert('No se pudo retroceder');
+                }
+            });
+        }
+    }
+    $('#Sat').on('submit', function (e) {
+        var tipo='@tipo';
+        if ($("#hSiguientePaso").val() == 'N') {
+            e.preventDefault();
+            if (tipo == 'ProcesoAfiliacion' || tipo == 'ProcesoAfiliacionTN') {
+                alert('NO SE REALIZO LA AFILIACION DE LAS CUENTAS A LA TARJETA');
+            }
+            if (tipo == 'ProcesoApertura' || tipo == 'ProcesoAperturaTN') {
+                alert('NO SE ASOCIO LA CUENTAS CREADAS A LA TARJETA');
+            }
+            if (tipo == 'ProcesoEntrega de Tarjeta') {
+                alert('NO SE COMPLETO EL PROCESO DE ENTREGA/ELIMINACION DE TARJETA');
+            }
+        }
+        else {
+            $("#hITarjeta").val($("#hITarjeta").val()+ $("#tarjeta").val());
+            if (tipo == "ProcesoCambio de Tarjeta") {
+                var tipoCobro = 'S';
+                if ($("#descrpBloqueo").val() == "POR VENCIMIENTO" || $("#cbSituacion").val() == "12") {
+                    tipoCobro = 'V';
+                }
+                $("#hSituacion").val($("#codigoBloqueo").val() + "|" + tipoCobro);
+            }
+        }
+    });
+    function cuentas(modificacion) {
+        var z = ["", "", "", ""];
+        var nfila = ($("#tbSat tr").length) - 1;
+        if (nfila > 1) {
+            for (var i = 1; i <= nfila; i++) {
+                if ($("#i" + i + "").hasClass("fa-check")) {
+                    z[i - 1] = $("#j" + i + "").html();
+                    if (modificacion) {
+                        $("#n" + i + "").html($("#nombreCompleto").val());
+                    }
+                }
+            }
+        }
+        return z;
+    }
+    function SLDesafiliar(){
+        var nfila = ($("#tbSat tr").length) - 1;
+        if (nfila > 1) {
+            var index =$("#hAfDf").val();;
+            for (var i = 1; i <= nfila; i++) {
+                if ($("#i" + i + "").hasClass("fa-times")) {
+                    $("#j" + i + "").html("");
+                    $("#k" + i + "").html("");
+                    $("#n" + i + "").html("");
+                    $("#hAfDf").val(i);
+                    AFDF("fa-times", "fa-searchengin");
+                    $("#hAfDf").val(index);
+                }
+            }
+        }
+        $("#hsProceso").val("N");
+    }
+    function idc() {
+        var y = {};
+        var x = $("#idcCompleto").val();
+        var tamanio = x.length;
+        y[0] = x.substring(1, 9);
+        if (tamanio > 9) {
+            y[1] = x.substring(9);
+        }
+        else {
+            y[1] = "";
+        }
+        y[2] = x.substring(0,1);
+        return y;
+    }
+    function bandera() {
+        var tipo = '@tipo';
+        var b = '0';
+        if (tipo == 'ProcesoAperturaTN' || tipo =='ProcesoApertura')
+            {
+            b = '1';
+        }
+        return b;
+    }
+    function operacionTarjeta(afiliacion) {
+        if ($("#cbCTSP").val() !== "") {
+            var z = cuentas(true);
+            var y = idc();
+            var confirmado='N';
+            var indice=0;
+            if($("#ckCC").prop('checked')){
+                confirmado='S';
+            }
+            if('@indice'!=''){
+                indice=parseInt('@indice');
+            }
+            var parametros = {
+                afiliacion: afiliacion,
+                bancaExclusiva:$("#cbCliEx").val(),
+                indice:indice,
+                situacion:$("#cbSituacion").val(),
+                datos: {
+                    cuenta_ch_mn: z[0],//Tomo este dato, esta bien?
+                    cuenta_ch_me: z[1],
+                    cuenta_cc_mn: z[2],
+                    cuenta_cc_me: z[3],
+                    tarjeta: $("#tarjeta").val(),
+                    direccion: $("#direccion").val(),
+                    idcNumero: y[0],
+                    idcTipo: y[2],
+                    idcExtension: y[1],
+                    fechaNacimiento: $("#fecNac").val(),
+                    nombreCompleto: $("#nombreCompleto").val(),
+                    cboCtsPagare: $("#cbCTSP").val(),
+                    confirmado: confirmado,
+                    nombrePersonalizado: $("#nombreTarjeta").val(),
+                    flag_ch_mn: $("#o1").val(),
+                    flag_ch_me: $("#o2").val(),
+                    flag_cc_mn: $("#o3").val(),
+                    flag_cc_me: $("#o4").val(),
+                    tipoCliente: "@tipoCliente",
+                    cic: "@cic"
+                }
+            };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("OperacionTarjeta")',
+                dataType: 'json',
+                data: parametros,
+                beforeSend: AntesAjax(),
+                success: function (a) {
+                    if (a.message == null) {
+                        alert("Error de conexion con el microservicio");
+                    }
+                    else {
+                        var mensajeRespuesta=a.message;
+                        if (a.success) {
+                            if(!(mensajeRespuesta.indexOf("ACTUALIZACION OK")===-1)){
+                                if(!$("#idcCompleto").prop("readonly")){
+                                    $("#idc").val(y[0]+y[1]);
+                                    $("#tipoIDC").val(y[2]);
+                                }
+                                $("#divCuentasConfirmadas").hide();
+                                $("#ckCC").prop('checked', false);                                
+                                if($("#o1").val()=="1"){
+                                    $("#f1").val("1");
+                                }
+                                else{
+                                    $("#f1").val("0");
+                                }
+                                if($("#o2").val()=="1"){
+                                    $("#f2").val("1");
+                                }
+                                else{
+                                    $("#f2").val("0");
+                                }
+                                if($("#o3").val()=="1"){
+                                    $("#f3").val("1");
+                                }
+                                else{
+                                    $("#f3").val("0");
+                                }
+                                if($("#o4").val()=="1"){
+                                    $("#f4").val("1");
+                                }
+                                else{
+                                    $("#f4").val("0");
+                                }
+                                if ($("#hsProceso").val() != "N") {
+                                    SLDesafiliar();
+                                    mensajeRespuesta="DESAFILIACION REALIZADA EXITOSAMENTE";
+                                }
+                                else{
+                                    $("#btAntSat").prop('disabled',true);
+                                    $("#btAntSat").prop('disabled',true);
+                                    $("#hSiguientePaso").val('S');
+                                    if(!afiliacion && '@tipo'=='ProcesoAperturaTN'){
+                                        //SEGUROS
+                                        var Numtar=document.getElementById("tarjeta").value;
+                                        if(Numtar[0]!="8"){
+                                            var cuenta="000";
+                                            if(z[0].length>3 || z[0]!=null ){
+                                                cuenta= z[0];
+                                            }
+                                            else{
+                                                cuenta= z[1];
+                                            }
+                                            var fullidc='@FULLidc';
+                                            if(fullidc.length>3){
+                                                console.log(fullidc,'@SegurosUrl','@listaSegurosRaw','@idc','@tipoidc','@extension','@complemento',cuenta);
+                                                requestSegurosSat('@SegurosUrl','@listaSegurosRaw','@idc','@tipoidc','@extension','@complemento',cuenta);
+                                            }
+                                        }                                        
+                                        //FIN SEGUROS
+                                         document.getElementById('cbSituacion').value="00";
+                                    }
+                                }
+                            }
+                            else{
+                                $("#divCuentasConfirmadas").show();
+                                if(!afiliacion){
+                                     $("#btConsultaTarjeta").prop("disabled",true);
+                                     document.getElementById('cbSituacion').value="01";
+                                }
+                            }
+                        }
+                        alert(mensajeRespuesta);
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                },
+                complete: function () {
+                    DespuesAjax();
+                    $("#CargandoElementoModal").modal('hide');
+                }
+            });
+        }
+        else {
+            alert("Seleccione CTS para modificar");
+        }
+    }
+    function bloqueo(conPin) {
+        var continuar = true;
+        var pin = "";
+        if (conPin) {
+            if ($("#hPin").val() == null || $("#hPin").val() == "") {
+                continuar = false;
+                alert("DEBE INGRESAR EL PIN DE LA TARJETA");
+            }
+            else {
+                pin = $("#hPin").val();
+            }
+        }
+        if (continuar) {
+            var y = idc();
+            var z = cuentas(false);
+            var parametros = {
+                datos: {
+                    tarjeta: $("#tarjeta").val(),
+                    tipoBloqueo: $("#cbSituacion").val(),
+                    descripcionBloqueo: $("#descrpBloqueo").val(),
+                    direccion: $("#direccion").val(),
+                    tipoIDC: y[2],
+                    idc: y[0] + y[1],
+                    nombreCompleto: $("#nombreCompleto").val(),
+                    fecNac: $("#fecNac").val(),
+                    bcex: $("#cbCliEx").val(),
+                    pin: pin,
+                    cuenta_ch_mn: z[0],
+                    cuenta_ch_me: z[1],
+                    cuenta_cc_mn: z[2],
+                    cuenta_cc_me: z[3]
+                }
+            };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("BloqueoTarjeta")',
+                dataType: 'json',
+                data: parametros,
+                beforeSend: AntesAjax(),
+                success: function (l) {
+                    DespuesAjax();
+                    if (l.message == null) {
+                        alert("Error de comunicacion con el microservicio");
+                    }
+                    else {
+                        $("#lbpinBloqueo").html("Pin Bloqueo:");
+                        if(conPin){
+                            $("#pinBloqueo").val("Con Pin");
+                        }
+                        else{
+                            $("#pinBloqueo").val("Sin Pin");
+                        }
+                        $("#pinBloqueo").show();
+                        alert(l.message);
+                        $("#PinCModal").modal('hide');
+                        if (l.success) {
+                            $("#codigoBloqueo").val(l.data.codBloqueo);
+                            $("#fecBloqueo").val(l.data.fechaBloqueo);
+                            $("#ofBloqueo").val(l.data.oficinaBloqueo);
+                            prepararRegistroBloqueo();
+                        }
+                    }
+                },
+                error: function (ex, textStatus, errorThrown) {
+                    DespuesAjax();
+                    AjaxErrorHandler(ex, textStatus, errorThrown);
+                }
+            });
+        }
+    }
+    function prepararRegistroBloqueo(){
+        $("#txtRBcodBloqueo").val($("#codigoBloqueo").val());
+        $("#txtRBTarjeta").val($("#tarjeta").val());
+        $("#txtRBfechaVenTarj").val($("#fechaExpiracion").val());
+        $("#txtRBIDC").val($("#idc").val());
+        $("#txttRBIDC").val($("#tipoIDC").val());
+        $("#txtRBNombre").val($("#nombreTarjeta").val());
+        document.getElementById('btRBloqueoCerrar').setAttribute('onclick', '$("#RegistroBloqueoModal").modal("hide");');
+        $("#RegistroBloqueoModal").modal();
+    }
+    $("#btBloqueo").click(function () {
+        if ($("#descrpBloqueo").val()=="") {
+            alert("Debe ingresar las observaciones de bloqueo");
+        }
+        else if('@parametrosPC[0]'==''){
+            bloqueo(false);
+        }
+        else{
+            $("#hPinCostoTarjeta").val($("#tarjeta").val());
+            $("#PinCModal").modal();
+        }
+    });
+    $("#btContrato").click(function () {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("RegistrarContrato20190","Tarjeta")',
+            dataType: 'text',
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l == "OK") {
+                    $("#ICOCModal").modal();
+                }
+                else {
+                    alert("OCURRIO UN ERROR AL GENERAR EL FORMULARIO 20190.");
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () { DespuesAjax(); }
+        });
+    });
+    function movi() {
+        var nfila = ($("#tbSat tr").length) - 1;
+        var id = 0;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbSat #" + i + "").hasClass("bg-info")) {
+                if ($("#i" + i + "").hasClass("fa-check")){
+                    id = i;
+                }
+                break;
+            }
+        }
+        if (id > 0) {
+                var tcuenta = "";
+                if (i < 3) {
+                    tcuenta = "0";
+                }
+                else {
+                    tcuenta = "1";
+                }
+                //alert($("#j" + id + "").html());
+                $("#txtnNCuenta").val($("#j" + id + "").html());
+                $("#cbTTProducto").val(tcuenta);
+                if ($("#txtnNCuenta").val != '') {
+                    ConsultaMoviProductos();
+                }
+                else {
+                    alert("no existe numero de cuenta");
+                }
+        }
+        else {
+            //alert("No se selecciono elementos de la tabla");
+        }
+        document.getElementById('btMoviCerrar').setAttribute('onclick', '$("#MModal").modal("hide");');
+        $("#MModal").modal();
+    }
+    function OperacionBcEx(tipo) {
+        var y = idc();
+        var z = cuentas(false);
+        var datos = {
+            tarjeta: $("#tarjeta").val(),
+            confirmar: $("#ckBECO").prop('checked'),
+            situacion:$("#descrpBloqueo").val(),
+            direccion: $("#direccion").val(),
+            tipoIDC: y[2],
+            idc: y[0] + y[1],
+            nombreCompleto: $("#nombreCompleto").val(),
+            fecNac: $("#fecNac").val(),
+            cuenta_ch_mn: z[0],
+            cuenta_ch_me: z[1],
+            cuenta_cc_mn: z[2],
+            cuenta_cc_me: z[3]
+        };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("OperacionBancaExclusiva")',
+            dataType: 'json',
+            data: { datos:datos,tipo:tipo },
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                DespuesAjax();
+                if (l.state == null) {
+                    alert('error de consulta al microservicio');
+                }
+                else {
+                    alert(l.message);
+                }
+                $("#BEModal").modal("hide");
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+                $("#BEModal").modal("hide");
+            }
+        });
+    }
+    $("#ckTA").change(function () {
+        if ($(this).prop('checked')) {
+            $(this).prop('disabled', true);
+            $("#tarjetaAnterior").prop('readonly', true);
+            $("#tarjetaAnterior").show();
+        }
+        else {
+            $(this).prop('disabled', true);
+            $("#tarjetaAnterior").prop('readonly', true);
+            $("#tarjetaAnterior").hide();
+        }
+    });
+    function cambiarDireccionSAT(){
+        $("#1-tabDAC").prop("disabled", true);
+        $("#2-tabDAC").prop("disabled", true);
+        $("#3-tabDAC").prop("disabled", true);
+        $("#4-tabDAC").prop("disabled", true);
+        $("#5-tabDAC").prop("disabled", true);
+        document.getElementById("btCerrarDAC").setAttribute("onClick", "$('#DACModal').modal('hide');");
+        $("#txtDACDID").prop("readonly",true);
+        $("#txtDACtDID").prop("readonly",true);
+        $("#txtDACDID").val($("#idc").val());
+        $("#txtDACtDID").val($("#tipoIDC").val());
+        $("#DACModal").modal();
+    }
+    function modificarDireccionDAC() {
+        var nfila = ($("#tbDireccion tr").length) - 1;
+        var index = 0;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbDireccion #" + i + "").hasClass("bg-info")) {
+                index = i;
+                break;
+            }
+        }
+        if (index > 0) {
+            if($("#fTipo" + i + "").html()=="M"){
+                alert("NO ES POSIBLE RELACIONAR CON DIRECCION DE CORREO ELECTRONICO.");
+            }
+            else{
+                $("#direccion").val($("#fDir" + i + "").html());
+                $("#tbDireccion tbody").empty();
+                $("#btIngresar").attr('disabled', true);
+                $("#txtNom").val("");
+                $("#divDirBusqAv").show();
+                $("#divTbDirProd").hide();
+            }
+        }
+        $("#DACModal").modal('hide');
+    }
+</script>

@@ -1,0 +1,57 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Vision Plus - Consulta de Productos por cliente: ";
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <header>
+            <h4>Vision Plus - Consulta de Productos por cliente:</h4>
+        </header>
+        <div class="container p-1 mb-2">
+            <div class="form-group row p-1">
+                <label for="txtnCust" class="col-sm-3 col-form-label">
+                    Número de CUST:
+                </label>
+                <div class="col-sm-2">
+                    <input id="txtnCust" class="form-control" type="text" />
+                </div>
+                <div class="col-sm-7">
+                    <input id="txtnTCust" class="form-control" type="text" />
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="form-row">
+                <div class="col-lg-11">
+                    <div class="table-responsive bg-white" style="max-height:300px;">
+                        <table class="table table-bordered table-striped">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Card Org</th>
+                                    <th>Card Nbr</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-1">
+                        <center>
+                            <button type="button" class="w-100 btn btn-outline-secondary">
+                                <i class="fas fa-arrow-up icono-2x"></i><br />Anterior
+                            </button>
+                            <button type="button" class="w-100 btn btn-outline-secondary">
+                                <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                            </button>
+                            <button type="button" class="w-100 btn btn-outline-secondary">
+                                <i class="fas fa-check icono-2x"></i><br />Aceptar
+                            </button>
+                            <button type="button" class="w-100 btn btn-outline-secondary">
+                                <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                            </button>
+                        </center>
+                    </div>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,139 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model string;
+@{
+    ViewData["Title"] = "Productos por Cliente: ";
+    string indice = Model;
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <div class="row p-1">
+        <div class="col-lg-10">
+            <div class="form-group row p-1 mb-3">
+                <label for="txtIDCC" class="col-sm-3 col-form-label">
+                    IDC del Cliente:
+                </label>
+                <div class="col-sm-7">
+                    <input id="txtIDCC" class="form-control" type="text" readonly />
+                </div>
+                <div class="col-sm-2">
+                    <input id="txttIDCC" class="form-control" type="text" readonly />
+                </div>
+            </div>
+            <div class="container p-1">
+                <div class="table-responsive bg-white">
+                    <table id="tbPegarCuentas" class="table table-bordered table-striped">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Tipo Cuenta</th>
+                                <th>Num cuenta</th>
+                                <th>Moneda</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <div class="row m-0 p-0">
+                    <button id="btPCAceptar" class="col col-lg-12 btn btn-outline-secondary m-1">
+                        <i class="fas fa-check icono-2x"></i><br />Aceptar
+                    </button>
+                    <button id="btPegCuentaCerrar" class="col col-lg-12 btn btn-outline-secondary m-1">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                    </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var id = $("#idc").val();
+        var idt = $("#tipoIDC").val();
+        var indice= '@indice';
+        $("#tbPegarCuentas tbody").empty();
+        if (id != null && idt != null) {
+            if (id != "" && idt != ""){
+                $("#txtIDCC").val(id);
+                $("#txttIDCC").val(idt);
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ConsultaPegarCuentas","Home")',
+                    dataType: 'json',
+                    data: { indice:indice },
+                    success: function (l) {                        
+                        for (var i = 0; i < l.cuenta.length; i++) {
+                            var fia = '<tr id="' + (i + 1) + '">' +
+                                '<td>' + l.cuenta[i].tipoCuenta + '</td>' +
+                                '<td id="cta' + (i + 1) + '">' + l.cuenta[i].numeroCuenta + '</td>' +
+                                '<td>' + l.cuenta[i].moneda + '</td>' +
+                                '</tr>';
+                            $("#tbPegarCuentas tbody").append(fia);
+                            if ($("#tbPegarCuentas tr").length > 1) {
+                                $("#tbPegarCuentas #1").addClass("bg-info");
+                            }
+                        }
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    }
+                });
+            }
+        }
+    });
+    $('#tbPegarCuentas').on('click', 'tbody tr', function () {
+        var selected=$(this).hasClass("bg-info");
+        if(!selected){
+            $("#tbPegarCuentas tbody tr").removeClass("bg-info");
+            $(this).addClass("bg-info");        
+        } 
+    });
+    $("#btPCAceptar").click(function () {
+        var id = 0;
+        var nfila = ($("#tbPegarCuentas tr").length) - 1;
+        for (var i = 1; i <= nfila; i++) {
+            if ($("#tbPegarCuentas #" + i + "").hasClass("bg-info")) {
+                id = i;
+                break;
+            }
+        }
+        if (id > 0) {
+            var nombre = $("#cta" + id).html();
+            var indice = obtenerIDPC(nombre);
+            if(indice>0){
+                if ($("#i" + indice + "").hasClass("fa-searchengin")) {                
+                    $("#j" + indice + "").html(nombre);
+                    var antiguo=$("#hAfDf").val();
+                    $("#hAfDf").val(indice);
+                    AFDF("fa-searchengin", "fa-check");
+                    $("#hAfDf").val(antiguo);
+                }
+                else {
+                    alert("Cuenta No Disponible.");
+                }
+            }
+            else {
+            alert('No hay elementos que mostrar');
+        }
+        }
+        else {
+            alert('No hay elementos que mostrar');
+        }
+        $("#PCModal").modal("hide");
+    });
+    function obtenerIDPC(cuenta){
+        var id=0;
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ObtenerIDPC","Home")',
+            dataType: 'text',
+            data: {cuenta:cuenta},
+            async:false,
+            success: function (l) {
+                id=parseInt(l);
+            }
+        });
+        return id;
+    }
+</script>

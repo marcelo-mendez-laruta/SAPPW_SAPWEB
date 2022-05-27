@@ -1,0 +1,663 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Información de tarjeta: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Información de tarjeta:</h4>
+    </header>
+    <div class="row">
+        <div class="col-lg-10">
+            <div class="form-row">
+                <label for="txtnTarjeta" class="col-sm-3 col-form-label">
+                    Número de Tarjeta:
+                </label>
+                <div class="col-sm-9">
+                    <input id="txtnTarjeta" class="form-control" type="text" autofocus />
+                </div>
+            </div>
+            <div class="container border mt-1">
+                <ul class="nav nav-tabs" id="tabInvr" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#Invr1" role="tab" aria-controls="home" aria-expanded="true">Ahorros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#Invr2" role="tab" aria-controls="profile" aria-expanded="true">Cuenta Corriente</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#Invr3" role="tab" aria-controls="profile" aria-expanded="true">Cuenta CTS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#Invr4" role="tab" aria-controls="profile" aria-expanded="true">Credibank</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#Invr5" role="tab" aria-controls="profile" aria-expanded="true">Cuenta Maestra</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#Invr6" role="tab" aria-controls="profile" aria-expanded="true">Compra/Venta Dólar</a>
+                    </li>
+                </ul>
+                <div class="tab-content mt-1" id="tabInvrContent">
+                    <div class="tab-pane fade show active" id="Invr1" role="tabpanel" aria-labelledby="1-tab">
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Moneda Nacional
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <div class="col-sm-6">
+                                            <div class="form-row">
+                                                <label for="txtnCuenta" class="col-sm-4 col-form-label">
+                                                    Número de Cuenta:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtnCuenta" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtsalCon" class="col-sm-4 col-form-label">
+                                                    Saldo Contable:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtsalCon" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtnsalLiq" class="col-sm-4 col-form-label">
+                                                    Saldo Líquido:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtsalLiq" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <input id="txtT" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <center>Últimos Movimientos</center>
+                                            <div class="table-responsive bg-white">
+                                                <table class="table table-bordered table-striped">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>Fecha</th>
+                                                            <th>Descripción</th>
+                                                            <th>Monto</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Moneda Extranjera
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <div class="col-sm-6">
+                                            <div class="form-row">
+                                                <label for="txtnCuentaE" class="col-sm-4 col-form-label">
+                                                    Número de Cuenta:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtnCuentaE" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtsalConE" class="col-sm-4 col-form-label">
+                                                    Saldo Contable:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtsalConE" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtnsalLiqE" class="col-sm-4 col-form-label">
+                                                    Saldo Líquido:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtsalLiqE" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <input id="txtTE" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <center>Últimos Movimientos</center>
+                                            <div class="table-responsive bg-white">
+                                                <table class="table table-bordered table-striped">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>Fecha</th>
+                                                            <th>Descripción</th>
+                                                            <th>Monto</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="Invr2" role="tabpanel" aria-labelledby="2-tab">
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Moneda Nacional
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <div class="col-sm-6">
+                                            <div class="form-row">
+                                                <label for="txtnCuenta" class="col-sm-4 col-form-label">
+                                                    Número de Cuenta:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtnCuenta" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtsalCon" class="col-sm-4 col-form-label">
+                                                    Saldo Contable:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtsalCon" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtnsalLiq" class="col-sm-4 col-form-label">
+                                                    Saldo Líquido:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtsalLiq" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <input id="txtT" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <center>Últimos Movimientos</center>
+                                            <div class="table-responsive bg-white">
+                                                <table class="table table-bordered table-striped">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>Fecha</th>
+                                                            <th>Descripción</th>
+                                                            <th>Monto</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Moneda Extranjera
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <div class="col-sm-6">
+                                            <div class="form-row">
+                                                <label for="txtnCuentaE" class="col-sm-4 col-form-label">
+                                                    Número de Cuenta:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtnCuentaE" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtsalConE" class="col-sm-4 col-form-label">
+                                                    Saldo Contable:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtsalConE" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtnsalLiqE" class="col-sm-4 col-form-label">
+                                                    Saldo Líquido:
+                                                </label>
+                                                <div class="col-sm-8">
+                                                    <input id="txtsalLiqE" class="form-control" type="text" />
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <input id="txtTE" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <center>Últimos Movimientos</center>
+                                            <div class="table-responsive bg-white">
+                                                <table class="table table-bordered table-striped">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>Fecha</th>
+                                                            <th>Descripción</th>
+                                                            <th>Monto</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="Invr3" role="tabpanel" aria-labelledby="3-tab">
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Moneda Nacional
+                                </legend>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-row">
+                                                <label for="txtnCuentaCN" class="col-sm-5 col-form-label">
+                                                    Número de Cuenta:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtnCuentaCN" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtsDepCN" class="col-sm-5 col-form-label">
+                                                    Saldo Depósito:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtsDepCN" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="container">
+                                                <input id="txtTCN" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-row">
+                                                <label for="txtCDCN" class="col-sm-5 col-form-label">
+                                                    Crédito Disponible:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtCDCN" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Moneda Extranjera
+                                </legend>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-row">
+                                                <label for="txtnCuentaCE" class="col-sm-5 col-form-label">
+                                                    Número de Cuenta:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtnCuentaCE" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtsDepCE" class="col-sm-5 col-form-label">
+                                                    Saldo Depósito:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtsDepCE" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="container">
+                                                <input id="txtTCE" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-row">
+                                                <label for="txtCDCE" class="col-sm-5 col-form-label">
+                                                    Crédito Disponible:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtCDCE" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="Invr4" role="tabpanel" aria-labelledby="4-tab">
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    De la cuenta
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <label for="txtnCuenta" class="col-sm-2 col-form-label">
+                                            Número de Cuenta:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input id="txtnCuenta" class="form-control" type="text" />
+                                        </div>
+                                        <label for="txtLinDisp" class="col-sm-2 col-form-label">
+                                            Línea Disponible:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input id="txtLinDisp" class="form-control" type="text" />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="txtLinCre" class="col-sm-2 col-form-label">
+                                            Línea de Crédito:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input id="txtLinCre" class="form-control" type="text" />
+                                        </div>
+                                        <label for="txtImpDeuda" class="col-sm-2 col-form-label">
+                                            Importe de Deuda:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input id="txtImpDeuda" class="form-control" type="text" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    De los Pagos
+                                </legend>
+                                <div class="container">
+                                    <div class="form-row">
+                                        <label for="txtFechPago" class="col-sm-2 col-form-label">
+                                            Fecha de Pago:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input id="txtFechPago" class="form-control" type="text" />
+                                        </div>
+                                        <label for="txtPagFull" class="col-sm-2 col-form-label">
+                                            Pago Full:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input id="txtPagFull" class="form-control" type="text" />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="txtPagMin" class="col-sm-2 col-form-label">
+                                            Pago Mínimo:
+                                        </label>
+                                        <div class="col-sm-4">
+                                            <input id="txtPagMin" class="form-control" type="text" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="container mb-1">
+                            <fieldset class="border border-dark">
+                                <legend class="w-auto" style="font-size:14px;">
+                                    Del Estado
+                                </legend>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-row">
+                                                <label for="txtDesEst" class="col-sm-5 col-form-label">
+                                                    Descripción de Status:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtDesEst" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for=""></label>
+                                                <input id="txtTPagos" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-row">
+                                                <label for="txtStatusPago" class="col-sm-5 col-form-label">
+                                                    Status de Bloqueo:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtStatusPago" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="txtdStatusBloqueo">
+                                                    Descripciión de Status del Bloqueo:
+                                                </label>
+                                                <input id="txtdStatusBloqueo" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="Invr5" role="tabpanel" aria-labelledby="5-tab">
+                        <div class="container mb-1">
+                            <div class="form-row">
+                                <div class="col-sm-6">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:14px;">
+                                            Fondo Libre
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-row">
+                                                <label for="txtnumCta" class="col-sm-5 col-form-label">
+                                                    Número de Cuenta:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtnumCta" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txttMoneda1" class="col-sm-5 col-form-label">
+                                                    Tipo de Moneda:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txttMoneda1" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="container">
+                                                <input id="txtTFL" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-sm-6">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:14px;">
+                                            Fondo Libre
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-row">
+                                                <label for="txttMoneda2" class="col-sm-5 col-form-label">
+                                                    Tipo de Moneda:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txttMoneda2" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <label for="txtSaldo" class="col-sm-5 col-form-label">
+                                                    Saldo:
+                                                </label>
+                                                <div class="col-sm-7">
+                                                    <input id="txtsaldo" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="container">
+                                                <input id="txtFLibre2" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container mb-1">
+                            <div class="form-row">
+                                <div class="col-sm-6">
+                                    <center>Últimos Movimientos</center>
+                                    <div class="table-responsive bg-white">
+                                        <table class="table table-bordered table-striped">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Descripción</th>
+                                                    <th>Monto</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-row">
+                                        <label for="txtSaldoCont" class="col-sm-5 col-form-label">
+                                            Saldo Contable:
+                                        </label>
+                                        <div class="col-sm-7">
+                                            <input id="txtSaldoCont" class="form-control" type="text" />
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <label for="txtSaldoLiq" class="col-sm-5 col-form-label">
+                                            Saldo Líquido:
+                                        </label>
+                                        <div class="col-sm-7">
+                                            <input id="txtSaldoLiq" class="form-control" type="text" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="Invr6" role="tabpanel" aria-labelledby="6-tab">
+                        <div class="container w-50">
+                            <div class="container mb-1">
+                                <fieldset class="border border-dark">
+                                    <legend class="w-auto" style="font-size:14px;">
+                                        Cajeros / Comunicat-T
+                                    </legend>
+                                    <div class="container">
+                                        <div class="form-row">
+                                            <label for="txtImpCompraCT" class="col-sm-5 col-form-label">
+                                                Importe de Compra:
+                                            </label>
+                                            <div class="col-sm-7">
+                                                <input id="txtImpCompraCT" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label for="txtImpVentaCT" class="col-sm-5 col-form-label">
+                                                Importe de Venta:
+                                            </label>
+                                            <div class="col-sm-7">
+                                                <input id="txtImpVentaCT" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="container mb-1">
+                                <fieldset class="border border-dark">
+                                    <legend class="w-auto" style="font-size:14px;">
+                                        Ventanilla
+                                    </legend>
+                                    <div class="container">
+                                        <div class="form-row">
+                                            <label for="txtImpCompraV" class="col-sm-5 col-form-label">
+                                                Importe de Compra:
+                                            </label>
+                                            <div class="col-sm-7">
+                                                <input id="txtImpCompraV" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                        <div class="form-row">
+                                            <label for="txtImpVentaV" class="col-sm-5 col-form-label">
+                                                Importe de Venta:
+                                            </label>
+                                            <div class="col-sm-7">
+                                                <input id="txtImpVentaV" class="form-control" type="text" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="container mb-1">
+                                <div class="container">
+                                    <input id="txtTInv6" class="form-control" type="text" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <div class="row m-0 p-0">
+                <center>
+                    @if (politicas.Contains("SAPP_BO_TAR_PRO_TAR"))
+                    {
+                        <button class="col col-lg-12 btn btn-outline-secondary m-1">
+                            <i class="fas fa-print icono-2x"></i><br />Consultar
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="col col-lg-12 btn btn-outline-secondary m-1" disabled>
+                            <i class="fas fa-print icono-2x"></i><br />Consultar
+                        </button>
+                    }
+                    <button class="col col-lg-12 btn btn-outline-secondary m-1">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                    </button>
+                </center>
+            </div>
+        </div>
+    </div>
+</div>

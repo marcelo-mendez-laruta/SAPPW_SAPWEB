@@ -1,0 +1,259 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common;
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion = ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    string guid = "T";
+    if (TempData["guid"] != null)
+    {
+        if (bool.Parse(TempData["guid"].ToString()))
+        {
+            guid = "N";
+        }
+    }
+    ViewData["Title"] = "Apertura de Cuenta CTS: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Apertura de Cuenta CTS:</h4>
+    </header>
+    <div class="container mb-1">
+        <div class="form-row">
+            <div class="col-lg-11 border border-dark">
+                <ul class="nav nav-tabs" id="tabEmpleadoCTS" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#CTSEP1" role="tab" aria-controls="home" aria-expanded="true">Datos Principales</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#CTSEP2" role="tab" aria-controls="profile" aria-expanded="true">Otros Datos</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="tabEmpleadoCTSContent">
+                    <div class="tab-pane fade show active" id="CTSEP1" role="tabpanel" aria-labelledby="1-tab">
+                        <div class="form-row">
+                            <label id="txtIDC" class="col-sm-3 col-form-label">
+                                Doc. de Identidad:
+                            </label>
+                            <div class="col-sm-7">
+                                <input type="hidden" value="" id="Ftxtidc" />
+                                <input id="txtIDC" maxlength="12" onclick="validarIDC(this)" class="form-control" type="text" />
+                            </div>
+                            <div class="col-sm-1">
+                                <input id="txttIDC" class="form-control" type="text" />
+                            </div>
+                            <div class="col-sm-1">
+                                <input id="txtttIDC" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtpaterno" class="col-sm-3 col-form-label">
+                                Apellido Paterno:
+                            </label>
+                            <div class="col-sm-9">
+                                <input id="txtpaterno" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtmaterno" class="col-sm-3 col-form-label">
+                                Apellido Materno:
+                            </label>
+                            <div class="col-sm-9">
+                                <input id="txtmaterno" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label for="txtnombres" class="col-sm-3 col-form-label">
+                                Nombres:
+                            </label>
+                            <div class="col-sm-9">
+                                <input id="txtnombres" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-row mb-1">
+                            <label for="txtFechNac" class="col-sm-3 col-form-label">
+                                Fecha de Nacimiento:
+                            </label>
+                            <div class="col-sm-3">
+                                <input id="txtFechNac" class="form-control" type="text" />
+                            </div>
+                            <label for="txtCIIU" class="col-sm-3 col-form-label">
+                                C.I.I.U.:
+                            </label>
+                            <div class="col-sm-3">
+                                <input id="txtCIIU" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="CTSEP2" role="tabpanel" aria-labelledby="2-tab">
+                        <div class="container mb-1">
+                            <div class="form-row">
+                                <label for="txtdireccion" class="col-sm-2 col-form-label">
+                                    Dirección:
+                                </label>
+                                <div class="col-sm-10">
+                                    <input id="txtdireccion" class="form-control" type="text" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <label for="txtlocalidad" class="col-sm-2 col-form-label">
+                                    Localidad:
+                                </label>
+                                <div class="col-sm-4">
+                                    <input id="txtlocalidad" class="form-control" type="text" />
+                                </div>
+                                <label for="txttelefono" class="col-sm-2 col-form-label">
+                                    Teléfono:
+                                </label>
+                                <div class="col-sm-4">
+                                    <input id="txttelefono" class="form-control" type="text" />
+                                </div>
+                            </div>
+                            <div class="container border border-dark mt-1 mb-1">
+                                <div class="form-row">
+                                    <label for="txtfunNeg" class="col-sm-3 col-form-label">
+                                        Funcionario de Negocios:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input id="txtFunNeg" class="form-control" type="text" />
+                                    </div>
+                                    <label for="txtTB" class="col-sm-3 col-form-label">
+                                        Tipo de Banca:
+                                    </label>
+                                    <div class="col-sm-3">
+                                        <input id="txtTB" class="form-control" type="text" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-1">
+                <center>
+                    <button class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-print icono-2x"></i><br />Consultar
+                    </button>
+                    <button class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-user-edit icono-2x"></i><br />Crear Usuario
+                    </button>
+                </center>
+            </div>
+        </div>
+    </div>
+    <div class="container mb-2">
+        <div class="d-inline">
+            @if (politicas.Contains("SAPP_BO_CLI_CON_ALF"))
+            {
+                <button class="btn btn-light">Consulta Alfabética</button>
+            }
+            else
+            {
+                <button disabled class="btn btn-light">Consulta Alfabética</button>
+            }
+
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input class="form-check-input" type="checkbox" />
+        </div>
+    </div>
+    <div class="container mb-1">
+        <div class="form-row">
+            <div class="col-sm-11">
+                <fieldset class="border border-dark">
+                    <legend class="w-auto" style="font-size:14px;">
+                        Consulta Alfabética
+                    </legend>
+                    <div class="container">
+                        <div class="table-responsive bg-white" style="max-height:300px;">
+                            <table class="table table-bordered table-striped">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Documento</th>
+                                        <th>Tipo</th>
+                                        <th>&nbsp;</th>
+                                        <th>Nombres</th>
+                                        <th>T. Cliente</th>
+                                        <th>T. Banca</th>
+                                        <th>Oficina</th>
+                                        <th>Fun. Neg</th>
+                                        <th>Otros</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-sm-1">
+                <center>
+                    <button class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-check icono-2x"></i><br />Aceptar
+                    </button>
+                    <button class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-window-close icono-2x"></i><br />Cancelar
+                    </button>
+                    <button class="w-100 btn btn-outline-secondary">
+                        <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                    </button>
+                </center>
+            </div>
+        </div>
+    </div>
+    <div class="container p-1">
+        <footer>
+            <center>
+                <div class="row">
+                    <div class="col-auto m-1">
+                        <button class="btn-light btn-sm" onclick="location.href='@Url.Action("Index","Home")'">Cancelar</button>
+                    </div>
+                    <div class="col-auto m-1">
+                        <button class="btn-light btn-sm" onclick="location.href='@Url.Action("Apertura")'">>>Siguiente</button>
+                    </div>
+                </div>
+            </center>
+        </footer>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+            var guid = "@guid";
+            if (guid != "T") {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GUID")',
+                    dataType: 'json',
+                    data: { tipo: guid },
+                    beforeSend: AntesAjax(),
+                    success: function (l) {
+
+                        if (l.state != null) {
+                            if (l.success) {
+                                if (l.success) {
+                                    $("#txtIDC").val(l.data.idcNumero + l.data.idcExtension);
+                                    $("#txttIDC").val(l.data.idcTipo);
+                                }
+                            }
+                        }
+                        DespuesAjax();
+                    },
+                    error: function (ex, textStatus, errorThrown) {
+                        AjaxErrorHandler(ex, textStatus, errorThrown);
+                    }
+                });
+            }
+    });
+</script>

@@ -1,0 +1,200 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using BCP.Sap.Models.Sap;
+@using Microsoft.AspNetCore.Http;
+@using BCP.Framework.Common; 
+@{
+    Sesion sesion;
+    string[] politicas = { };
+    if (Context.Session.GetString("autorizado") == null)
+    {
+        sesion = new Sesion();
+    }
+    else
+    {
+        sesion =ManagerJson.DeserializarObjecto<Sesion>(Context.Session.GetString("autorizado"));
+        politicas = sesion.usuario.politicas.Split('|');
+    }
+}
+@{
+    ViewData["Title"] = "Consulta Alafabética de Clientes: ";
+}
+<div class="container border border-primary" style="background-color:lightgrey">
+    <header>
+        <h4>Consulta Alfabética de Clientes:</h4>
+    </header>
+    <div class="form-row">
+        <div class="col-lg-10 mb-3">
+            <div class="form-row">
+                <label for="txtApRS" class="col-sm-4 col-form-label">
+                    Apellido Paterno o Razón Social:
+                </label>
+                <div class="col-sm-8">
+                    <input id="txtApRS" class="form-control" type="text" value="" autofocus />
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="txtAM" class="col-sm-4 col-form-label">
+                    Apellido Materno:
+                </label>
+                <div class="col-sm-8">
+                    <input id="txtAM" value="" class="form-control" type="text" />
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="txtNom" class="col-sm-4 col-form-label">
+                    Nombres:
+                </label>
+                <div class="col-sm-8">
+                    <input id="txtNom" value="" class="form-control" type="text" />
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-10" id="divtb" style="display:none;">
+            <div class="table-responsive bg-white" style="max-height:300px;">
+                <table id="tbCAC" class="table table-bordered table-striped">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Documento</th>
+                            <th>Tipo</th>
+                            <th>&nbsp;</th>
+                            <th>Nombres</th>
+                            <th>T. Cliente</th>
+                            <th>T. Banca</th>
+                            <th>Oficina</th>
+                            <th>Fun. Negocios</th>
+                            <th>Fecha de Nacimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody> </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-2">
+            <center>
+                @if (politicas.Contains("SAPP_BO_CLI_CON_ALF"))
+                {
+                    <button id="btCA" class="my-1 w-100 btn btn-outline-secondary">
+                        <i class="fas fa-print icono-2x"></i><br />Consultar
+                    </button>
+                }
+                else
+                {
+                    <button id="btCA" class="my-1 w-100 btn btn-outline-secondary" disabled>
+                        <i class="fas fa-print icono-2x"></i><br />Consultar
+                    </button>
+                }
+                <button id="btCACSiguiente" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                    <i class="fas fa-arrow-down icono-2x"></i><br />Siguiente
+                </button>
+                <button id="btCAAceptar" class="my-1 w-100 btn btn-outline-secondary" style="display:none;">
+                    <i class="fas fa-check icono-2x"></i><br />Aceptar
+                </button>
+                <button id="btCACerrar" onclick="location.href='@Url.Action("Index","Home")'" class="my-1 w-100 btn btn-outline-secondary">
+                    <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                </button>
+            </center>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#btCA").click(function () {
+        $("#tbCAC tbody").empty();
+        $("#divtb").hide();
+        $("#btCACSiguiente").hide();
+        var nombres = $("#txtApRS").val();
+        if (nombres == "" || nombres == " ") {
+            alert("Debe ingresar el apellido paterno o razon social");
+
+        }
+        else {
+            if (!($("#txtAM").val()== "" || $("#txtAM").val() == " ")) {
+                nombres = nombres + "|" + $("#txtAM").val();
+            }
+            if (!($("#txtNom").val() == "" || $("#txtNom").val() == " ")) {
+                nombres = nombres + "|" + $("#txtNom").val();
+            }
+            CAC(nombres,false,"","","");
+        }
+    });
+    function CAC(nombres,completo,idc, idt,ide) {
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ConsultaAlfabetica","Consulta")',
+            dataType: 'json',
+            data: { cliente: nombres, completo: completo, idc: idc, idt:idt, ide:ide },
+            beforeSend: AntesAjax(),
+            success: function (l) {
+                if (l.state == null) {
+                    alert("error de conexion al microservicio");
+                }
+                else {
+                    if (l.success) {
+                        var nfila = ($("#tbCAC tr").length) - 1;
+                        if (l.data.length > 0) {
+                            for (var i = 0; i < l.data.length; i++) {
+                                if (i > 0 || completo == false) {
+                                    nfila = nfila + 1;
+                                    var fia = '<tr id="' + (nfila) + '">' +
+                                        '<td id="xidc' + (nfila) + '">' + l.data[i].idcNumero + '</td>' +
+                                        '<td id="xidt' + (nfila) + '">' + l.data[i].idcTipo + '</td>' +
+                                        '<td id="xide' + (nfila) + '">' + l.data[i].idcExtension + '</td>' +
+                                        '<td id="xnom' + (nfila) + '">' + l.data[i].nombreCompleto + '</td>' +
+                                        '<td>' + l.data[i].tipoCliente + '</td>' +
+                                        '<td>' + l.data[i].tipoBanca + '</td>' +
+                                        '<td>' + l.data[i].oficina + '</td>' +
+                                        '<td>' + l.data[i].codigo + '</td>' +
+                                        '<td>' + l.data[i].fechaNacimiento + '</td>' +
+                                        '</tr>';
+                                    $("#tbCAC tbody").append(fia);
+                                    if (nfila == 1) {
+                                        $("#divtb").show();
+                                        $("#btCACSiguiente").show();
+                                        $("#tbCAC #1").addClass("bg-info");
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            $("#btCACSiguiente").hide();
+                            alert("NO SE ENCONTRARON MAS COINCIDENCIAS");
+                        }
+                    }
+                    else {
+                        alert("Error de consulta al microservicio");
+                    }
+                }
+            },
+            error: function (ex, textStatus, errorThrown) {
+                AjaxErrorHandler(ex, textStatus, errorThrown);
+            },
+            complete: function () { DespuesAjax(); }
+        });
+    }
+    $('#tbCAC').on('click', 'tbody tr', function () {
+        var selected=$(this).hasClass("bg-info");
+        if(!selected){
+            $("#tbCAC tbody tr").removeClass("bg-info");
+            $(this).addClass("bg-info");        
+        } 
+    });
+    $('#btCACSiguiente').click( function () {
+        var nfila = ($("#tbCAC tr").length) - 1;
+        var pn = [ "P", "Q", "S", "Y" ];
+        var idt = $("#xidt" + (nfila) + "").html();
+        var nombres = $("#xnom" + (nfila) + "").html();
+        if (!(pn.indexOf(idt) === -1)) {
+            nombres=nombres.replace(' ', '|');
+            nombres=nombres.replace(' ', '|');
+        }
+        CAC(nombres, true, $("#xidc" + (nfila) + "").html(), idt, $("#xide" + (nfila) + "").html());
+        /*for (var i = 1; i <= nfila; i++) {
+            if ($("#tbCAC #" + i + "").hasClass("bg-info")) {
+                $("#tbCAC #" + i + "").removeClass("bg-info");
+                $("#tbCAC #" + ((i % nfila) + 1) + "").addClass("bg-info")
+                break;
+            }
+        }*/
+    })
+</script>

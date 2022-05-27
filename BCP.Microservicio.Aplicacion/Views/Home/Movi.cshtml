@@ -1,0 +1,583 @@
+﻿@*
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Información de Cuenta: ";
+}
+    <div class="container border border-primary" style="background-color:lightgrey">
+        <div class="container mb-1">
+            <div class="form-row">
+                <label for="cbTTProducto" class="col-sm-2">
+                    Producto:
+                </label>
+                <div class="col-sm-4">
+                    <select id="cbTTProducto" class="form-control">
+                        <option value="" selected>Select</option>
+                        <option value="0">CAJA DE AHORRO</option>
+                        <option value="1">CUENTA CORRIENTE</option>
+                        <option value="2">DEPOSITO A PLAZO FIJO</option>
+                    </select>
+                </div>
+                <label for="txtnNCuenta" class="col-sm-2">
+                    Número de Cuenta:
+                </label>
+                <div class="col-sm-4">
+                    <input id="txtnNCuenta" class="form-control" type="text" autofocus />
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="form-row">
+                <div class="col-lg-11">
+                    <div class="container border border-dark">
+                        <ul class="nav nav-tabs" id="tabMovi" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link bg-transparent btn btn-outline-light active" data-toggle="tab" href="#Movi1" role="tab" aria-controls="home" aria-expanded="true">Producto y Cuenta</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link bg-transparent btn btn-outline-light" data-toggle="tab" href="#Movi2" role="tab" aria-controls="profile" aria-expanded="true">Movimientos</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="tabPaso2Content">
+                            <div class="tab-pane fade show active" id="Movi1" role="tabpanel" aria-labelledby="1-tab">
+                                <div class="container mb-1">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:14px;">
+                                            Producto
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-row">
+                                                <label for="txtTarjeta" class="col-sm-2">
+                                                    Credimás:
+                                                </label>
+                                                <div class="col-sm-3">
+                                                    <input readonly id="txtTarjeta" class="form-control" type="text" />
+                                                </div>
+                                                <label for="txtCodM" class="col-sm-2">
+                                                    Código:
+                                                </label>
+                                                <div class="col-sm-2">
+                                                    <input readonly id="txtCodM" class="form-control" type="text" />
+                                                </div>
+                                                <label for="txtAgencia" class="col-sm-2">
+                                                    Agencia:
+                                                </label>
+                                                <div class="col-sm-1">
+                                                    <input readonly id="txtAgencia" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="form-row">
+                                    <div id="divNoDPF" class="col-sm-12">
+                                        <div class="container mb-1">
+                                            <fieldset class="border border-dark">
+                                                <legend class="w-auto" style="font-size:14px;">
+                                                    Del Cliente
+                                                </legend>
+                                                <div class="container">
+                                                    <div class="form-row">
+                                                        <div id="divcliente1" class="col-sm-8">
+                                                            <div class="form-row">
+                                                                <label for="txtIdc" class="col-sm-3">
+                                                                    IDC:
+                                                                </label>
+                                                                <div class="col-sm-3">
+                                                                    <input readonly id="txtIdc" class="form-control" type="text" />
+                                                                </div>
+                                                                <label id="lbClasificacion" for="txtClasificacion" class="col-sm-3">
+                                                                    Clasificación:
+                                                                </label>
+                                                                <div class="col-sm-3">
+                                                                    <input readonly id="txtClasificacion" class="form-control" type="text" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-row">
+                                                                <label for="txtNombreTitular" class="col-sm-3">
+                                                                    Titular:
+                                                                </label>
+                                                                <div class="col-sm-9">
+                                                                    <input readonly id="txtNombreTitular" class="form-control" type="text" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-row">
+                                                                <label for="txtDireccion" class="col-sm-3">
+                                                                    Domicilio:
+                                                                </label>
+                                                                <div class="col-sm-9">
+                                                                    <input readonly id="txtDireccion" class="form-control" type="text" />
+                                                                </div>
+                                                            </div>
+                                                            <div id="divClienteFunNeg" class="form-row">
+                                                                <label for="txtFunNeg" class="col-sm-3">
+                                                                    Fun. Neg.:
+                                                                </label>
+                                                                <div class="col-sm-9">
+                                                                    <input readonly id="txtFunNeg" class="form-control" type="text" />
+                                                                </div>
+                                                            </div>
+                                                            <div id="divClienteExclusiva" class="form-row" style="display:none;">
+                                                                <label for="txtExclusivo" class="col-sm-3">
+                                                                    Exclusivo:
+                                                                </label>
+                                                                <div class="col-sm-3">
+                                                                    <input readonly id="txtExclusivo" class="form-control" type="text" />
+                                                                </div>
+                                                                <label for="txtIVIP" class="col-sm-4">
+                                                                    Indicador de Cliente VIP:
+                                                                </label>
+                                                                <div class="col-sm-2">
+                                                                    <input readonly id="txtIVIP" class="form-control" type="text" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div id="divcliente2" class="col-sm-4">
+                                                            <div class="form-row">
+                                                                <label for="txtBanca" class="col-sm-6">
+                                                                    Banca:
+                                                                </label>
+                                                                <div class="col-sm-6">
+                                                                    <input readonly id="txtBanca" class="form-control" type="text" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-row">
+                                                                <label for="txtTPersona" class="col-sm-6">
+                                                                    Tipo de Persona:
+                                                                </label>
+                                                                <div class="col-sm-6">
+                                                                    <input readonly id="txtTPersona" class="form-control" type="text" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-row">
+                                                                <label for="txtSegmento" class="col-sm-6">
+                                                                    Segmento:
+                                                                </label>
+                                                                <div class="col-sm-6">
+                                                                    <input readonly id="txtSegmento" class="form-control" type="text" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-row">
+                                                                <label for="txtIVIP" class="col-sm-6">
+                                                                    Indicador VIP:
+                                                                </label>
+                                                                <div class="col-sm-6">
+                                                                    <input readonly id="txtIVIP" class="form-control" type="text" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                    <div id="divDPF" class="col-sm-4" style="display:none;">
+                                        <div class="container">
+                                            <fieldset class="border border-dark ">
+                                                <legend class="w-auto" style="font-size:14px;">
+                                                    Del Depósito a Plazo
+                                                </legend>
+                                                <div class="container">
+                                                    <div class="form-row mb-1">
+                                                        <label for="txtDPFDeposito" class="col-sm-6">
+                                                            Depósito Inicial:
+                                                        </label>
+                                                        <div class="col-sm-6">
+                                                            <input readonly id="txtDPFDeposito" class="form-control" type="text" />
+                                                        </div>
+                                                        <label for="txtDPFPlazo" class="col-sm-6">
+                                                            Plazo:
+                                                        </label>
+                                                        <div class="col-sm-6">
+                                                            <input readonly id="txtDPFPlazo" class="form-control" type="text" />
+                                                        </div>
+                                                        <label for="txtDPFVencimiento" class="col-sm-6">
+                                                            Vecha vencimiento:
+                                                        </label>
+                                                        <div class="col-sm-6">
+                                                            <input readonly id="txtDPFVencimiento" class="form-control" type="text" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container">
+                                    <fieldset class="border border-dark ">
+                                        <legend class="w-auto" style="font-size:14px;">
+                                            De la Cuenta
+                                        </legend>
+                                        <div class="container">
+                                            <div class="form-row mb-1">
+                                                <label for="txtApertura" class="col-sm-2">
+                                                    Apertura:
+                                                </label>
+                                                <div class="col-sm-2">
+                                                    <input readonly id="txtApertura" class="form-control" type="text" />
+                                                </div>
+                                                <label id="lbCTC"  for="txtUltEst" class="col-sm-2">
+                                                    Último Estado:
+                                                </label>
+                                                <div class="col-sm-2">
+                                                    <input readonly id="txtUltEst" class="form-control" type="text" />
+                                                </div>
+                                                <label id="lbCS" for="txtDesEstado" class="col-sm-2">
+                                                    Estado:
+                                                </label>
+                                                <div class="col-sm-2">
+                                                    <input readonly id="txtDesEstado" class="form-control" type="text" />
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="col-sm-6" id="divSSCheque">
+                                                    <div class="container">
+                                                        <fieldset class="border border-dark">
+                                                            <legend class="w-auto" style="font-size:13px;">
+                                                                Cheques
+                                                            </legend>
+                                                            <div class="container">
+                                                                <div class="form-row">
+                                                                    <label for="txtCKDev" class="col-sm-4">
+                                                                        Cheques Devueltos:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtCKDev" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <label for="txtRet" class="col-sm-4">
+                                                                        Retenciones:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtRet" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <label for="txtConTra" class="col-sm-4">
+                                                                        Consultas en Trámite:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtConTra" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <label for="txtCKTra" class="col-sm-4">
+                                                                        Cheques en Trámite:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtCKTra" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <label for="txtLiqz" class="col-sm-4">
+                                                                        Liquidez:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtLiqz" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <label for="txtLCKExt" class="col-sm-4">
+                                                                        Linea Cheques Ext:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtLCKExt" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </fieldset>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="container">
+                                                        <fieldset class="border border-dark">
+                                                            <legend class="w-auto" style="font-size:13px;">
+                                                                Saldos
+                                                            </legend>
+                                                            <div class="container">
+                                                                <div id="divSLiquido" class="form-row">
+                                                                    <label id="lbSLiquido" for="txtSLiquido" class="col-sm-4">
+                                                                        Saldo Líquido:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtSLiquido" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <label for="txtnSCont" class="col-sm-4">
+                                                                        Saldo Contable:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtnSCont" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <label id="lbSaldoC" for="txtnSFTP" class="col-sm-4">
+                                                                        Saldo FTP:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtSFTP" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <label for="txtSProm" class="col-sm-4">
+                                                                        Saldo Promedio:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtSProm" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </fieldset>
+                                                    </div>
+                                                    <div id="divCuentaLI" class="container">
+                                                        <fieldset class="border border-dark">
+                                                            <legend class="w-auto" style="font-size:13px;">
+                                                                Linea Interna
+                                                            </legend>
+                                                            <div class="container">
+                                                                <div class="form-row">
+                                                                    <div class="col-sm-6 form-group">
+                                                                        <label for="txtLinInt">
+                                                                            Línea Interna:
+                                                                        </label>
+                                                                        <input readonly id="txtLinInt" class="form-control" type="text" />
+                                                                    </div>
+                                                                    <div class="col-sm-3 form-group">
+                                                                        <label for="txtLID">
+                                                                            Desde:
+                                                                        </label>
+                                                                        <input readonly id="txtLID" class="form-control" type="text" />
+                                                                    </div>
+                                                                    <div class="col-sm-3 form-group">
+                                                                        <label for="txtLIH">
+                                                                            Hasta:
+                                                                        </label>
+                                                                        <input readonly id="txtLIH" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </fieldset>
+                                                    </div>
+                                                </div>
+                                                <div id="divSSEstado" class="col-sm-6" style="display:none;">
+                                                    <div class="container">
+                                                        <fieldset class="border border-dark">
+                                                            <legend class="w-auto" style="font-size:13px;">
+                                                                Del Estado
+                                                            </legend>
+                                                            <div class="container">
+                                                                <div class="form-row">
+                                                                    <label for="txtEstado" class="col-sm-4">
+                                                                        Estado:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtEstado" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <label for="txtBloqueo" class="col-sm-4">
+                                                                        Bloqueo:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtBloqueo" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <label for="txtTBloqueo" class="col-sm-4">
+                                                                        Tipo de Bloqueo:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtTBloqueo" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row">
+                                                                    <label for="txtFdBloqueo" class="col-sm-4">
+                                                                        Fecha de Desbloqueo:
+                                                                    </label>
+                                                                    <div class="col-sm-8">
+                                                                        <input readonly id="txtFdBloqueo" class="form-control" type="text" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </fieldset>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="Movi2" role="tabpanel" aria-labelledby="2-tab">
+                                <div class="container">
+                                    <fieldset class="border border-dark">
+                                        <legend class="w-auto" style="font-size:14px;">
+                                            De los movimientos
+                                        </legend>
+                                        <div class="container">
+                                            <div class="table-responsive bg-white">
+                                                <table id="tbMovi" class="table table-bordered table-striped">
+                                                    <thead class="thead-light">
+                                                        <tr>
+                                                            <th>Fecha</th>
+                                                            <th>Valuta</th>
+                                                            <th>Referencia</th>
+                                                            <th>Importe</th>
+                                                            <th>Sucursal Agencia</th>
+                                                            <th>Usuario</th>
+                                                            <th>Nro. Transacción</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                        </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-1">
+                        <center>
+                            <button type="button" class="w-100 btn btn-outline-secondary" onclick="ConsultaMoviProductos()">
+                                <i class="fas fa-print icono-2x"></i><br />Consultar
+                            </button>
+                            <button id="btMoviCerrar" onclick="location.href='@Url.Action("Index","Home")'" type="button" class="w-100 btn btn-outline-secondary">
+                                <i class="fas fa-window-close icono-2x"></i><br />Cerrar
+                            </button>
+                        </center>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function ConsultaMoviProductos() {
+            $("#tbMovi tbody").empty();
+            LimpiarTextoRegion("Movi1");//nuevo
+            var parametros = {
+                tipo: $("#cbTTProducto").val(),
+                nCuenta: { nroCuenta: $("#txtnNCuenta").val().split('-').join('') }
+            };
+            $.ajax({
+                type: 'POST',
+                 url: '@Url.Action("ConsultaMoviProductos","Home")',
+                 data: parametros,
+                 beforeSend: AntesAjax(),
+                 dataType: 'json',
+                 success: function (l) {
+                     if (l == null) {
+                         alert("Error de conexion al microservicio");
+                     }
+                     else if (l.state == null) {
+                         alert('Error de procesamiento de la consulta');
+                     }
+                     else if (!l.success) {
+                         alert("Producto no encontrado");
+                     }
+                     else {                         
+                         $("#divDPF").hide();
+                         $("#txtCodM").val(parametros.nCuenta.nroCuenta);
+                         if (l.data.agencia=='') {
+                             l.data.agencia = '000';
+                         }
+                         $("#txtApertura").val(l.data.fechaApertura);
+                         $("#txtAgencia").val(parametros.nCuenta.nroCuenta.substr(0,3)+"-"+l.data.agencia);
+                         $("#txtNombreTitular").val(l.data.nombreTitular);
+                         $("#txtIdc").val(l.data.idc);
+                         $("#txtDireccion").val(l.data.direccion);
+                         $("#txtTarjeta").val(l.data.tarjeta);
+                         $("#txtnSCont").val(l.data.saldoContable);
+                         $("#txtSProm").val(l.data.saldoPromedio);
+                         document.getElementById("divcliente1").className = "col-sm-8";
+                         document.getElementById("divNoDPF").className = "col-sm-12";
+                         for (var i = 0; i < l.data.movimientos.nroMovimientos;i++) {
+                             var fia = '<tr id="' + (i + 1) + '">' +
+                                 '<td>' + l.data.movimientos.rows[i].fecha + '</td>' +
+                                 '<td>' + l.data.movimientos.rows[i].valuta + '</td>' +
+                                 '<td>' + l.data.movimientos.rows[i].referencia + '</td>' +
+                                 '<td>' + l.data.movimientos.rows[i].importe + '</td>' +
+                                 '<td>' + l.data.movimientos.rows[i].sucursalAgencia + '</td>' +
+                                 '<td>' + l.data.movimientos.rows[i].usuario + '</td>' +
+                                 '<td>' + l.data.movimientos.rows[i].nroTransaccion + '</td>' +
+                                 '</tr>';
+                             $("#tbMovi tbody").append(fia);
+                         }
+                         if (parametros.tipo != "1") {
+                             $("#divSSEstado").show();
+                             $("#divSSCheque").hide();
+                             $("#divCuentaLI").hide();
+                             $("#divcliente2").hide();
+                             $("#divClienteFunNeg").hide();
+                             $("#divClienteExclusiva").show();
+                             $("#lbSaldoC").html("Saldo Disponible:");
+                             $("#lbCTC").html("Tipo de Cuenta:");
+                             $("#lbCS").html("Seguro:");
+                             $("#lbClasificacion").hide();
+                             $("#txtClasificacion").hide();
+                             $("#lbClasificacion").hide();
+                             $("#txtClasificacion").hide();
+                             $("#divSLiquido").hide();
+                             $("#txtEstado").val(l.data.desEstado);
+                             $("#txtUltEst").val(l.data.desTipoCuenta);
+                             $("#txtDesEstado").val(l.data.seguro);
+                             $("#txtExclusivo").val(l.data.clienteExclusivo);
+                             $("#txtTBloqueo").val(l.data.desUltimoTipoBloqueo);
+                             $("#txtFdBloqueo").val(l.data.fechaDesbloqueo);
+                             $("#txtSFTP").val(l.data.saldoDisponible);
+                             document.getElementById("divNoDPF").className = "col-sm-8";
+                             document.getElementById("divcliente1").className = "col-sm-12";
+                             if (parametros.tipo == "2") {
+                                 $("#divDPF").show();
+                                 $("#txtDPFDeposito").val(l.data.depositoInicial);
+                                 $("#txtDPFPlazo").val(l.data.plazo);
+                                 $("#txtDPFVencimiento").val(l.data.fechaVencimiento);
+                             }
+                         }
+                         else {
+                             $("#divSSEstado").hide();
+                             $("#divSSCheque").show();
+                             $("#divCuentaLI").show();
+                             $("#divcliente2").show();
+                             $("#divClienteFunNeg").show();
+                             $("#divClienteExclusiva").hide();
+                             $("#lbClasificacion").show();
+                             $("#txtClasificacion").show();
+                             $("#lbSaldoC").html("Saldo FTP:");
+                             $("#lbCTC").html("Último Estado:");
+                             $("#lbCS").html("Estado:");
+                             $("#divSLiquido").show();
+                            //actividad 
+                            $("#txtDesEstado").val(l.data.desEstado); 
+                            $("#txtBanca").val(l.data.banca); 
+                            $("#txtSegmento").val(l.data.segmento);
+                            $("#txtUltEst").val(l.data.fechaUltimoEstado); 
+                            $("#txtIVIP").val(l.data.indicadorVip); 
+                            $("#txtCKDev").val(l.data.chequeDevuelto);
+                            $("#txtSLiquido").val(l.data.saldoLiquido);
+                            $("#txtRet").val(l.data.retenciones);
+                            $("#txtConTra").val(l.data.consultasTramite);
+                            $("#txtCKTra").val(l.data.chequesTramite);
+                            $("#txtLiqz").val(l.data.liquidezCheques);
+                            $("#txtLCKExt").val(l.data.lineaCheques);
+                            $("#txtLinInt").val(l.data.lineaInterna);
+                            $("#txtLID").val(l.data.fechaDesde);
+                            $("#txtLIH").val(l.data.fechaHasta);
+                            $("#txtSFTP").val(l.data.saldoFP);
+                            $("#txtFunNeg").val(l.data.funcionarioNegocios);
+                            $("#txtClasificacion").val(l.data.clasificacion);
+                            $("#txtSProm").val(l.data.saldoPromedio);
+                         }
+                    }
+                },
+                 error: function (ex, textStatus, errorThrown) {
+                     AjaxErrorHandler(ex, textStatus, errorThrown);
+                 },
+                 complete: function () {
+                     DespuesAjax();
+                 }
+            });
+        }
+    </script>

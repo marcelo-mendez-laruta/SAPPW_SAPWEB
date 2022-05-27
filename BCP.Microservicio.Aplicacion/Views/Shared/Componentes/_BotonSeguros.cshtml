@@ -1,0 +1,80 @@
+﻿@using BCP.Sap.Models.Configuracion;
+@model ConfiguracionSeguros;
+@{
+    string checkboxId = Model.Tipo.FirstOrDefault().Codigo + "Checkbox";
+    string modalId = Model.Tipo.FirstOrDefault().Codigo + "Modal";
+}
+
+<div class="col-auto">
+    <div class="form-check">
+        <input id="@checkboxId" class="form-check-input" type="checkbox" checked="@Model.Checked" />
+        <label for="@checkboxId" class="form-check-label" id="lbSpfCheckbox">
+            @Model.Nombre
+        </label>
+    </div>
+    <div class="modal fade" id="@modalId" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content modalBCP">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Incluir Seguro</h5>
+                </div>
+                <div class="modal-body">
+
+                    @if (Model.Tipo.Count > 1)
+                    {
+                        <p>Cual es el tiempo que desea adquirir el seguro?:</p>
+                        <div class="row justify-content-center">
+                            @foreach (TipoSeguro item in Model.Tipo)
+                            {
+                                <div class="col text-center">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="@item.Codigo" id="@item.Codigo">
+                                        <label class="form-check-label" for="ModalSeguroAnual">
+                                            @item.Periodo
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p>Confirmar la afiliacion al seguro @Model.Nombre</p>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="ModalSeguroEnviar">Aceptar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="ModalSeguroCloseButton">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<a id="BtnSendSeguros" target="_blank" href="" hidden download>BtnSendSeguros</a>
+<script type="text/javascript">
+        var seguro= @Html.Raw(Json.Serialize(Model));
+        var checkboxId="#"+@Html.Raw(Json.Serialize(checkboxId));
+        var modalId="#"+@Html.Raw(Json.Serialize(modalId));
+        $(checkboxId).change(function () {
+            if (this.checked && seguro.tipo.lenght>1) {
+                $(modalId).modal('show');
+            }
+        });
+        //TODO:Cambiar estado de los demas Checkbox sin usar foreach
+        $("#ModalSeguroCloseIcon").click(function () {
+            closeSpfModal();
+        });
+        $("#ModalSeguroCloseButton").click(function () {
+            closeSpfModal();
+        });
+
+        $("#ModalSeguroEnviar").click(function () {
+            //TODO: implementar validar cual Checkbox esta abierto y enviar su valor
+            closeSpfModal();
+        });
+        function closeSpfModal() {
+            $(modalId).modal('hide');
+            $(checkboxId).prop("checked", false);
+        }
+        
+</script>
